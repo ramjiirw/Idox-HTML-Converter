@@ -1525,7 +1525,7 @@
       <div class="snippets-sticky-head">
       <div class="snippets-title-row">
         <h1>Code Snippets</h1>
-        <button type="button" class="btn-toggle-all btn-toggle-all-inline" style="display: inline-block;">Expand all</button>
+        <button type="button" class="btn-toggle-all btn-toggle-all-inline" style="display: inline-block;">Collapse all</button>
       </div>
 
       <div class="edit-banner" id="edit-banner">
@@ -1538,9 +1538,9 @@
       </div>
 
       <div id="snippet-actions-bar" class="snippet-actions-bar" style="display: none;">
-        <button type="button" id="btn-toggle-all-snippets" class="btn-toggle-all">Expand all</button>
+        <button type="button" id="btn-toggle-all-snippets" class="btn-toggle-all">Collapse all</button>
       </div>
-      <div id="group-filter-bar" class="group-filter-bar"><button type="button" class="group-filter-pill active">All (10)</button><button type="button" class="group-filter-pill">Attachments (2)</button><button type="button" class="group-filter-pill">Completion (1)</button><button type="button" class="group-filter-pill">Headers (1)</button><button type="button" class="group-filter-pill">HTML (1)</button><button type="button" class="group-filter-pill">Internal Recipient (1)</button><button type="button" class="group-filter-pill">Logo (2)</button><button type="button" class="group-filter-pill">Reporting (1)</button><button type="button" class="group-filter-pill">SMTP &amp; Headers (1)</button></div>
+      <div id="group-filter-bar" class="group-filter-bar"><button type="button" class="group-filter-pill">All (10)</button><button type="button" class="group-filter-pill">Attachments (2)</button><button type="button" class="group-filter-pill">Completion (1)</button><button type="button" class="group-filter-pill">Headers (1)</button><button type="button" class="group-filter-pill">HTML (1)</button><button type="button" class="group-filter-pill">Internal Recipient (1)</button><button type="button" class="group-filter-pill">Logo (2)</button><button type="button" class="group-filter-pill active">Reporting (1)</button><button type="button" class="group-filter-pill">SMTP &amp; Headers (1)</button></div>
       </div>
       <div id="snippets-container"></div>
     </div>
@@ -3067,7 +3067,7 @@
     /* SNIPPETS_START */
     var SNIPPETS = [
       {
-        "title": "//Attach a Single File - CodingjACK",
+        "title": "//Attach a Single File - Coding",
         "body": "// ===================== ADD ATTACHMENTS =====================\n// Place this attachment block after the logo block and before the Task Completion / Send section\n\n// Add Attachment (specify the file path of the attachment)\nstring attachmentFilePath = @\"C:\\Sam\\Test 4.pdf\"; // Replace with actual file path\n\n// Check the folder exists\nif (System.IO.File.Exists(attachmentFilePath))\n{\n    mailMessage.Attachments.Add(new System.Net.Mail.Attachment(attachmentFilePath));\n}\n\n// ===================== END ATTACHMENTS =====================",
         "group": "Attachments"
       },
@@ -3078,7 +3078,7 @@
       },
       {
         "title": "//strings email",
-        "body": "string Refval = data.REFVAL; \nstring SiteAddress = data.ADDRESS.Replace(\"\\r\",\" \");\nstring CaseDetails = Refval + \" \" + SiteAddress;\n\nstring EmailSubjectText = \"Add text here \" + CaseDetails;\nstring EmailFromAddress = \"enterprise@idoxgroup.com\";",
+        "body": "string Refval = data.REFVAL; \nstring SiteAddress = data.ADDRESS.Replace(\"\\r\",\" \");\nstring CaseDetails = Refval + \" \" + SiteAddress;\n\n\nstring EmailSubjectText = \"Add text here \" + CaseDetails;\nstring EmailFromAddress = \"enterprise@idoxgroup.com\";",
         "group": "Headers"
       },
       {
@@ -3108,7 +3108,7 @@
       },
       {
         "title": "//Reporting",
-        "body": "// string TaskTitleText  = \"Title of auto email task here DC/BC/LI/EN/AP(E)\";  \n\ntask.TaskTitle = TaskTitleText; // Configurable above\ntask.TaskHint  = Refval;\ntask.TaskHelp  = SiteAddress;\n\n",
+        "body": "//Add to Strings\nstring TaskTitleText  = \"Title of auto email task here DC/BC/LI/EN/AP(E)\";  \n\nstring EmailSubjectText = \"Add text here \" + CaseDetails;\nstring EmailFromAddress = \"enterprise@idoxgroup.com\";\n\n//Add the above to Strings\n\ntask.TaskTitle = TaskTitleText; // Configurable above\ntask.TaskHint  = Refval;\ntask.TaskHelp  = SiteAddress;\n\n",
         "group": "Reporting"
       },
       {
@@ -5188,4 +5188,5 @@
 
 
 
+<movable-div style="position: fixed; top: 0px; left: 0px; z-index: 10000;"></movable-div><a id="bottomBar" style="position: fixed; bottom: -40px; left: 0px; z-index: 9999; transform: translateX(-50%); background-color: transparent; border-radius: 5px 5px 0px 0px; opacity: 0.3; padding: 5px; transition: 0.3s; cursor: pointer; max-height: 100px; max-width: 45px;"><img src="chrome-extension://kobncfkmjelbefaoohoblamnbackjggk/icon/icon_32.png" style="width: 32px; height: 32px;"></a>
 <movable-div style="position: fixed; top: 0px; left: 0px; z-index: 10000;"></movable-div><a id="bottomBar" style="position: fixed; bottom: -40px; left: 0px; z-index: 9999; transform: translateX(-50%); background-color: transparent; border-radius: 5px 5px 0px 0px; opacity: 0.3; padding: 5px; transition: 0.3s; cursor: pointer; max-height: 100px; max-width: 45px;"><img src="chrome-extension://kobncfkmjelbefaoohoblamnbackjggk/icon/icon_32.png" style="width: 32px; height: 32px;"></a></body></html>
