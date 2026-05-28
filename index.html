@@ -1491,7 +1491,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version">v1.9.0<br>May 2026</div>
+    <div class="version">v1.9.1<br>May 2026</div>
     </div>
   </aside>
 
@@ -1998,15 +1998,21 @@
         text += '{{/LI}}';
       } else if (tag === 'div') {
         // A contenteditable wraps each Enter in a <div>. A non-empty div is a
-        // single line break (-> <br>); an empty div is a visible blank line (-> new <p>).
+        // single line break; an empty div (often <div><br></div>) is one blank
+        // line the user typed. Each blank line contributes one newline so that
+        // consecutive blank lines accumulate: 1 CR = <br>, 2 CR = new <p>, each
+        // further CR = one more blank spacer paragraph.
         var hasContent = node.textContent.replace(/\u00A0/g, ' ').trim().length > 0;
-        if (text.length > 0 && !text.endsWith('\n')) text += '\n';
-        for (var i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
-        if (!hasContent) {
-          if (!text.endsWith('\n\n')) {
-            if (text.endsWith('\n')) text += '\n';
-            else text += '\n\n';
-          }
+        if (hasContent) {
+          if (text.length > 0 && !text.endsWith('\n')) text += '\n';
+          for (var i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
+        } else {
+          // Empty line — don't walk the inner <br> (it would double-count).
+          // First blank line completes the paragraph-break pair (\n\n); each
+          // further consecutive blank line adds exactly one more newline.
+          if (text.endsWith('\n\n')) text += '\n';        // additional blank line
+          else if (text.endsWith('\n')) text += '\n';     // complete the pair
+          else text += '\n\n';                            // start a fresh pair
         }
       } else {
         var isBlock = isBlockTag(tag);
@@ -2026,9 +2032,15 @@
     }
 
     for (var i = 0; i < root.childNodes.length; i++) walk(root.childNodes[i]);
-    text = text.replace(/\n{3,}/g, '\n\n').replace(/^\n+|\n+$/g, '');
+    // Trim only leading/trailing whitespace-newlines. Do NOT collapse interior
+    // runs of blank lines — each extra blank line is preserved so it can become
+    // a <p>&nbsp;</p> spacer paragraph (1 CR = <br>, 2 CR = new <p>, each
+    // further CR = one more blank paragraph).
+    text = text.replace(/^\n+|\n+$/g, '');
 
-    var blocks = text.split(/\n\n/);
+    // Split into paragraph blocks on runs of 2+ newlines. For each run, every
+    // newline beyond the first two represents an extra blank line the user
+    // typed — emit one <p>&nbsp;</p> spacer paragraph for each.
     var pTags = [];
 
     function inlineMarkers(line) {
@@ -2075,7 +2087,23 @@
       pTags.push('<p>' + lines.join('<br>') + '</p>');
     }
 
-    blocks.forEach(processTextBlock);
+    // Tokenise the text into content segments separated by newline-runs.
+    // A run of N newlines (N>=2) ends one paragraph and starts another, and
+    // contributes (N - 2) blank spacer paragraphs in between. A single newline
+    // within a segment stays a line break (<br>) inside that paragraph.
+    var segments = text.split(/\n{2,}/);
+    var runMatches = text.match(/\n{2,}/g) || [];
+    segments.forEach(function (seg, idx) {
+      processTextBlock(seg);
+      // After this segment, if there was a separating run, add spacer paragraphs
+      if (idx < runMatches.length) {
+        var nlCount = runMatches[idx].length;
+        var extras = nlCount - 2;
+        for (var s = 0; s < extras; s++) {
+          pTags.push('<p>&nbsp;</p>');
+        }
+      }
+    });
 
     if (pTags.length === 0) return '';
 
@@ -3970,7 +3998,7 @@
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url;
-        a.download = 'Idox HTML Converter v1.9.0.html';
+        a.download = 'Idox HTML Converter v1.9.1.html';
         document.body.appendChild(a);
         a.click();
         a.remove();
