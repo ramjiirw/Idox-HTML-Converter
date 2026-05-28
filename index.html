@@ -1540,7 +1540,7 @@
       <div id="snippet-actions-bar" class="snippet-actions-bar" style="display: none;">
         <button type="button" id="btn-toggle-all-snippets" class="btn-toggle-all">Expand all</button>
       </div>
-      <div id="group-filter-bar" class="group-filter-bar"><button type="button" class="group-filter-pill">All (10)</button><button type="button" class="group-filter-pill">Attachments (2)</button><button type="button" class="group-filter-pill">Configurable Values (2)</button><button type="button" class="group-filter-pill">HTML (1)</button><button type="button" class="group-filter-pill">Internal Recipient (1)</button><button type="button" class="group-filter-pill">Logo (2)</button><button type="button" class="group-filter-pill">Reporting (1)</button><button type="button" class="group-filter-pill active">SMTP &amp; Headers (1)</button></div>
+      <div id="group-filter-bar" class="group-filter-bar"><button type="button" class="group-filter-pill active">All (10)</button><button type="button" class="group-filter-pill">Attachments (2)</button><button type="button" class="group-filter-pill">Configurable Values (2)</button><button type="button" class="group-filter-pill">HTML (1)</button><button type="button" class="group-filter-pill">Internal Recipient (1)</button><button type="button" class="group-filter-pill">Logo (2)</button><button type="button" class="group-filter-pill">Reporting (1)</button><button type="button" class="group-filter-pill">SMTP &amp; Headers (1)</button></div>
       </div>
       <div id="snippets-container"></div>
     </div>
@@ -1581,7 +1581,7 @@
           <span class="panel-label">Rows</span>
           <div class="tbl-stepper">
             <button type="button" class="tbl-stepper-btn" id="tbl-rows-minus" aria-label="Remove row">−</button>
-            <span class="tbl-stepper-val" id="tbl-rows-val">3</span>
+            <span class="tbl-stepper-val" id="tbl-rows-val">2</span>
             <button type="button" class="tbl-stepper-btn" id="tbl-rows-plus" aria-label="Add row">+</button>
           </div>
         </div>
@@ -1600,12 +1600,12 @@
       <span class="panel-label">Cells — highlight text to <strong>B</strong>old, <em>I</em>talicise, mark as a <code>[placeholder]</code> or add a link</span>
       <div class="tbl-grid-wrap" id="tbl-grid-wrap">
         <div class="tbl-col-actions" id="tbl-col-actions" style="grid-template-columns: repeat(2, 1fr) 22px;"><div class="tbl-col-x-cell"><button type="button" class="tbl-x" title="Delete this column">×</button></div><div class="tbl-col-x-cell"><button type="button" class="tbl-x" title="Delete this column">×</button></div><div></div></div>
-        <div id="tbl-rows"><div class="tbl-row-line" style="grid-template-columns: repeat(2, 1fr) 22px;"><div class="tbl-cell" contenteditable="true" data-row="0" data-col="0">Case Reference:</div><div class="tbl-cell" contenteditable="true" data-row="0" data-col="1"><b><span class="ph-tag">[Refval]</span></b></div><button type="button" class="tbl-x" title="Delete this row">×</button></div><div class="tbl-row-line" style="grid-template-columns: repeat(2, 1fr) 22px;"><div class="tbl-cell" contenteditable="true" data-row="1" data-col="0">Site Address:</div><div class="tbl-cell" contenteditable="true" data-row="1" data-col="1"><b><span class="ph-tag">[SiteAddress]</span></b></div><button type="button" class="tbl-x" title="Delete this row">×</button></div><div class="tbl-row-line" style="grid-template-columns: repeat(2, 1fr) 22px;"><div class="tbl-cell" contenteditable="true" data-row="2" data-col="0">Response Target</div><div class="tbl-cell" contenteditable="true" data-row="2" data-col="1"><span class="ph-tag">[<b>TargetResponse</b>]</span></div><button type="button" class="tbl-x" title="Delete this row">×</button></div></div>
+        <div id="tbl-rows"><div class="tbl-row-line" style="grid-template-columns: repeat(2, 1fr) 22px;"><div class="tbl-cell" contenteditable="true" data-row="0" data-col="0"></div><div class="tbl-cell" contenteditable="true" data-row="0" data-col="1"></div><button type="button" class="tbl-x" title="Delete this row">×</button></div><div class="tbl-row-line" style="grid-template-columns: repeat(2, 1fr) 22px;"><div class="tbl-cell" contenteditable="true" data-row="1" data-col="0"></div><div class="tbl-cell" contenteditable="true" data-row="1" data-col="1"></div><button type="button" class="tbl-x" title="Delete this row">×</button></div></div>
       </div>
 
       <span class="panel-label">Preview — how this table will render</span>
       <div class="tbl-preview-wrap">
-        <div class="tbl-preview" id="tbl-preview"><table style="border-collapse: collapse;"><tbody><tr><td style="padding-right:15px;padding-bottom:1px;">Case Reference:</td><td style="padding-bottom:1px;"><strong>[Refval]</strong></td></tr><tr><td style="padding-right:15px;padding-bottom:1px;">Site Address:</td><td style="padding-bottom:1px;"><strong>[SiteAddress]</strong></td></tr><tr><td style="padding-right:15px;">Response Target</td><td><strong>[TargetResponse]</strong></td></tr></tbody></table></div>
+        <div class="tbl-preview" id="tbl-preview"><table style="border-collapse: collapse;"></table></div>
       </div>
 
       <div class="tbl-output-head">
@@ -5187,4 +5187,5 @@
 </script>
 
 
-</body></html>
+
+<movable-div style="position: fixed; top: 0px; left: 0px; z-index: 10000;"></movable-div><a id="bottomBar" style="position: fixed; bottom: -40px; left: 0px; z-index: 9999; transform: translateX(-50%); background-color: transparent; border-radius: 5px 5px 0px 0px; opacity: 0.3; padding: 5px; transition: 0.3s; cursor: pointer; max-height: 100px; max-width: 45px;"><img src="chrome-extension://kobncfkmjelbefaoohoblamnbackjggk/icon/icon_32.png" style="width: 32px; height: 32px;"></a></body></html>
