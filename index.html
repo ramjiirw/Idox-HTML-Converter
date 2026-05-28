@@ -1540,7 +1540,7 @@
       <div id="snippet-actions-bar" class="snippet-actions-bar" style="display: none;">
         <button type="button" id="btn-toggle-all-snippets" class="btn-toggle-all">Collapse all</button>
       </div>
-      <div id="group-filter-bar" class="group-filter-bar"><button type="button" class="group-filter-pill">All (10)</button><button type="button" class="group-filter-pill">Attachments (2)</button><button type="button" class="group-filter-pill">Completion (1)</button><button type="button" class="group-filter-pill">Headers (1)</button><button type="button" class="group-filter-pill">HTML (1)</button><button type="button" class="group-filter-pill">Internal Recipient (1)</button><button type="button" class="group-filter-pill">Logo (2)</button><button type="button" class="group-filter-pill active">Reporting (1)</button><button type="button" class="group-filter-pill">SMTP &amp; Headers (1)</button></div>
+      <div id="group-filter-bar" class="group-filter-bar"><button type="button" class="group-filter-pill">All (10)</button><button type="button" class="group-filter-pill">Attachments (2)</button><button type="button" class="group-filter-pill active">Completion (1)</button><button type="button" class="group-filter-pill">Headers (1)</button><button type="button" class="group-filter-pill">HTML (1)</button><button type="button" class="group-filter-pill">Internal Recipient (1)</button><button type="button" class="group-filter-pill">Logo (2)</button><button type="button" class="group-filter-pill">Reporting (1)</button><button type="button" class="group-filter-pill">SMTP &amp; Headers (1)</button></div>
       </div>
       <div id="snippets-container"></div>
     </div>
@@ -3083,7 +3083,7 @@
       },
       {
         "title": "//TASK COMPLETION",
-        "body": "int TaskDefId = 3000;\nstring TaskTitleText  = \"Title of auto email task here DC/BC/LI/EN/AP(E)\";  \n\n\n// ===================== TASK COMPLETION / SEND - DO NOT TOUCH ====================\n\n//Reporting\ntask.TaskTitle = TaskTitleText; // Configurable above\ntask.TaskHint  = Refval;\ntask.TaskHelp  = SiteAddress;\n\n//Task Completion \nint iEmail = data.GetSQLValueInt(\n    \"SELECT COUNT(*) FROM AETASK s \" +\n    \"WHERE s.TASKTABLEKEY='\" + data.KEYVAL.ToString() + \"' \" +\n    \"AND s.TASKDEFID=\" + TaskDefId);  // Configurable above\n\nif (iEmail < 1)\n    smtp.Send(mailMessage);\n\nreturn false;",
+        "body": "// ===================== TASK COMPLETION / SEND - STRINGS UPDATE ====================\nint TaskDefId = 3000;\nstring TaskTitleText  = \"Title of auto email task here DC/BC/LI/EN/AP(E)\";  \n\n// ===================== ADD THE ABOVE TO STRINGS ====================\n\n// ===================== TASK COMPLETION / SEND - DO NOT TOUCH ====================\n\n//Reporting\ntask.TaskTitle = TaskTitleText; // Configurable above\ntask.TaskHint  = Refval;\ntask.TaskHelp  = SiteAddress;\n\n//Task Completion \nint iEmail = data.GetSQLValueInt(\n    \"SELECT COUNT(*) FROM AETASK s \" +\n    \"WHERE s.TASKTABLEKEY='\" + data.KEYVAL.ToString() + \"' \" +\n    \"AND s.TASKDEFID=\" + TaskDefId);  // Configurable above\n\nif (iEmail < 1)\n    smtp.Send(mailMessage);\n\nreturn false;",
         "group": "Completion"
       },
       {
@@ -5188,5 +5188,6 @@
 
 
 
+<movable-div style="position: fixed; top: 0px; left: 0px; z-index: 10000;"></movable-div><a id="bottomBar" style="position: fixed; bottom: -40px; left: 0px; z-index: 9999; transform: translateX(-50%); background-color: transparent; border-radius: 5px 5px 0px 0px; opacity: 0.3; padding: 5px; transition: 0.3s; cursor: pointer; max-height: 100px; max-width: 45px;"><img src="chrome-extension://kobncfkmjelbefaoohoblamnbackjggk/icon/icon_32.png" style="width: 32px; height: 32px;"></a>
 <movable-div style="position: fixed; top: 0px; left: 0px; z-index: 10000;"></movable-div><a id="bottomBar" style="position: fixed; bottom: -40px; left: 0px; z-index: 9999; transform: translateX(-50%); background-color: transparent; border-radius: 5px 5px 0px 0px; opacity: 0.3; padding: 5px; transition: 0.3s; cursor: pointer; max-height: 100px; max-width: 45px;"><img src="chrome-extension://kobncfkmjelbefaoohoblamnbackjggk/icon/icon_32.png" style="width: 32px; height: 32px;"></a>
 <movable-div style="position: fixed; top: 0px; left: 0px; z-index: 10000;"></movable-div><a id="bottomBar" style="position: fixed; bottom: -40px; left: 0px; z-index: 9999; transform: translateX(-50%); background-color: transparent; border-radius: 5px 5px 0px 0px; opacity: 0.3; padding: 5px; transition: 0.3s; cursor: pointer; max-height: 100px; max-width: 45px;"><img src="chrome-extension://kobncfkmjelbefaoohoblamnbackjggk/icon/icon_32.png" style="width: 32px; height: 32px;"></a></body></html>
