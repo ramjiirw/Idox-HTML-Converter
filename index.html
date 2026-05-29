@@ -336,6 +336,51 @@
     font-size: 14px;
     color: var(--idox-cobalt);
   }
+  #view-help .help-example {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    max-width: 880px;
+    margin: 0 0 24px;
+  }
+  #view-help .help-example-pane {
+    background: var(--idox-panel-tint);
+    border: 1px solid #cdd3e0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    box-shadow: 0 2px 8px rgba(10, 31, 143, 0.06);
+  }
+  #view-help .help-example-label {
+    display: block;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--idox-cobalt);
+    margin-bottom: 8px;
+  }
+  #view-help .help-example-body {
+    margin: 0;
+    font-family: ui-monospace, Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #222;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  #view-help .help-example-body.help-example-prose {
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  #view-help .help-example-body .ph {
+    background: rgba(70, 170, 230, 0.18);
+    border-radius: 3px;
+    padding: 0 2px;
+  }
+  @media (max-width: 720px) {
+    #view-help .help-example { grid-template-columns: 1fr; }
+  }
   #view-snippets h1 { margin-bottom: 6px; }
   .snippets-title-row {
     display: flex;
@@ -1491,7 +1536,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version">v1.9.1<br>May 2026</div>
+    <div class="version">v1.9.2<br>May 2026</div>
     </div>
   </aside>
 
@@ -1637,12 +1682,56 @@
       <p class="hint"><strong>It's already the exact string you want.</strong> The word inside the brackets is the final string. Only the brackets need to go. Use <code>Output without [ ]</code> — it strips the brackets for you (so <code>[Refval]</code> becomes <code>Refval</code>), saving you from deleting every set by hand.</p>
       <p class="hint">The brackets always stay visible in the input above — these buttons only change what gets copied.</p>
 
+      <p class="hint"><strong>Worked example:</strong></p>
+      <div class="help-example">
+        <div class="help-example-pane">
+          <span class="help-example-label">You paste / type</span>
+          <p class="help-example-body help-example-prose">Dear <span class="ph">[ToName]</span>,
+
+We received your application <strong>today</strong>.
+
+Kind Regards
+LDC</p>
+        </div>
+        <div class="help-example-pane">
+          <span class="help-example-label">You get</span>
+          <p class="help-example-body">"&lt;p&gt;Dear " + [ToName] + ",&lt;/p&gt;" +
+
+"&lt;p&gt;We received your application &lt;strong&gt;today&lt;/strong&gt;.&lt;/p&gt;" +
+
+"&lt;p&gt;Kind Regards&lt;br&gt;" +
+"LDC&lt;/p&gt;"</p>
+        </div>
+      </div>
+
       <h2 class="help-section">Convert plain C# to HTML C#</h2>
       <p class="hint">Click <code>Convert plain C# to HTML</code> in the side panel to open a separate view. Paste your existing plain-text email body (the kind that uses <code>Environment.NewLine</code>) into the input box, and the converted HTML version appears automatically in the output. Edits to the input update the output live. Use this to upgrade old-style email templates to the new HTML format.</p>
       <p class="hint">Highlight text in the input to <strong>B</strong> bold or <em>I</em> italic any section before conversion.</p>
       <p class="hint"><strong>Important reminder:</strong> after converting, you also need to add this line to your C#:</p>
       <p class="hint"><code class="help-snippet">mailMessage.IsBodyHtml = true;</code></p>
       <p class="hint">Place it directly below the line <code>mailMessage.Body = emailbody;</code> in your code. While you're using the plain converter, a reminder box appears in the side panel with a Copy button for this line.</p>
+
+      <p class="hint"><strong>Worked example:</strong></p>
+      <div class="help-example">
+        <div class="help-example-pane">
+          <span class="help-example-label">You paste</span>
+          <p class="help-example-body">"Dear " + ToName + "," +
+Environment.NewLine +
+Environment.NewLine +
+"We received your application." +
+Environment.NewLine +
+Environment.NewLine +
+"Kind Regards";</p>
+        </div>
+        <div class="help-example-pane">
+          <span class="help-example-label">You get</span>
+          <p class="help-example-body">"&lt;p&gt;Dear " + ToName + ",&lt;/p&gt;" +
+
+"&lt;p&gt;We received your application.&lt;/p&gt;" +
+
+"&lt;p&gt;Kind Regards&lt;/p&gt;"</p>
+        </div>
+      </div>
 
       <h2 class="help-section">HTML Tables</h2>
       <p class="hint">Click <code>HTML Tables</code> in the side panel to build a two-column (or more) HTML table for property statements and similar label/value layouts. Set the columns and rows with the +/− steppers, then fill in the cells.</p>
@@ -1654,6 +1743,28 @@
       <p class="hint"><strong>It's already the exact string you want.</strong> The word inside the brackets is the final string. Only the brackets need to go. Use <code>Output without [ ]</code> — it strips the brackets for you (so <code>[Refval]</code> becomes <code>Refval</code>), saving you from deleting every set by hand.</p>
       <p class="hint">Click whichever you need, then <code>Copy output</code>. The brackets always stay visible in the cells and the preview above — these buttons only change what gets copied.</p>
       <p class="hint">Use the × buttons above each column or beside each row to delete that column or row. If the cells being removed contain content, you'll be asked to confirm.</p>
+
+      <p class="hint"><strong>Worked example</strong> — a 2×2 table with two label/value rows, with the right column bolded and marked as placeholders:</p>
+      <div class="help-example">
+        <div class="help-example-pane">
+          <span class="help-example-label">You build</span>
+          <p class="help-example-body help-example-prose">Case Reference:    <strong><span class="ph">[Refval]</span></strong>
+Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
+        </div>
+        <div class="help-example-pane">
+          <span class="help-example-label">You get</span>
+          <p class="help-example-body">"&lt;table&gt;" +
+"&lt;tr&gt;" +
+"&lt;td style='padding-right:15px;'&gt;Case Reference:&lt;/td&gt;" +
+"&lt;td&gt;&lt;strong&gt;" + [Refval] + "&lt;/strong&gt;&lt;/td&gt;" +
+"&lt;/tr&gt;" +
+"&lt;tr&gt;" +
+"&lt;td style='padding-right:15px;'&gt;Site Address:&lt;/td&gt;" +
+"&lt;td&gt;&lt;strong&gt;" + [SiteAddress] + "&lt;/strong&gt;&lt;/td&gt;" +
+"&lt;/tr&gt;" +
+"&lt;/table&gt;" +</p>
+        </div>
+      </div>
 
       <h2 class="help-section">Code Snippets</h2>
       <p class="hint">Click <code>Code Snippets</code> in the side panel for ready-to-copy boilerplate C# (e.g. email header setup). Highlight any text in a snippet to copy just the part you need, or use the <strong>Copy all</strong> button to grab the whole block. <kbd>Ctrl+C</kbd> on a selection works as well.</p>
@@ -3998,7 +4109,7 @@
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url;
-        a.download = 'Idox HTML Converter v1.9.1.html';
+        a.download = 'Idox HTML Converter v1.9.2.html';
         document.body.appendChild(a);
         a.click();
         a.remove();
