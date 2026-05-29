@@ -1569,7 +1569,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version">v1.9.3<br>May 2026</div>
+    <div class="version">v1.9.4<br>May 2026</div>
     </div>
   </aside>
 
@@ -1581,6 +1581,12 @@
       <div>
         <span class="panel-label">Input — paste email text here</span>
         <div id="input" contenteditable="true"></div>
+      </div>
+      <div>
+        <span class="panel-label">Preview — how this will render</span>
+        <div class="main-preview-wrap">
+          <div class="main-preview" id="main-preview"><p class="main-preview-empty">Start typing in the input above to see a preview.</p></div>
+        </div>
       </div>
       <div>
         <div class="tbl-output-head">
@@ -1595,12 +1601,6 @@
           </div>
         </div>
         <textarea id="output" readonly=""></textarea>
-      </div>
-      <div>
-        <span class="panel-label">Preview — how this will render</span>
-        <div class="main-preview-wrap">
-          <div class="main-preview" id="main-preview"><p class="main-preview-empty">Start typing in the input above to see a preview.</p></div>
-        </div>
       </div>
     </div>
     </div>
@@ -2486,6 +2486,58 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     lockMainOutput();
     schedulePreviewUpdate();
   });
+
+  // ===== Enter key: never inherit formatting from the previous line =====
+  // When the cursor is inside a <strong>/<b>/<em>/<i>/<a>/.ph-tag and the user
+  // presses Enter, the browser's default behaviour continues that formatting
+  // onto the new line. That's confusing — pressing Enter should always give a
+  // clean line. This handler intercepts Enter in those cases, breaks out of
+  // every formatting wrapper, and inserts a fresh empty line after them.
+  function attachEnterCleanLine(editable) {
+    if (!editable) return;
+    editable.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' || e.isComposing) return;
+      var sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return;
+      var range = sel.getRangeAt(0);
+      // Find the outermost formatting ancestor (still inside the editable root)
+      var node = range.commonAncestorContainer;
+      var topFmt = null;
+      while (node && node !== editable) {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          var tag = node.tagName ? node.tagName.toLowerCase() : '';
+          var isFmt = (tag === 'strong' || tag === 'b' || tag === 'em' ||
+                       tag === 'i' || tag === 'a' ||
+                       (node.classList && node.classList.contains('ph-tag')));
+          if (isFmt) topFmt = node;
+        }
+        node = node.parentNode;
+      }
+      if (!topFmt) return; // not inside any formatting — let browser handle it
+
+      e.preventDefault();
+      // Insert a fresh empty <div><br></div> right after the outermost formatting
+      // element and move the cursor inside it. This matches what contenteditable
+      // creates for a normal Enter, so the rest of the converter sees the line
+      // break naturally.
+      var fresh = document.createElement('div');
+      fresh.appendChild(document.createElement('br'));
+      if (topFmt.nextSibling) {
+        topFmt.parentNode.insertBefore(fresh, topFmt.nextSibling);
+      } else {
+        topFmt.parentNode.appendChild(fresh);
+      }
+      var newRange = document.createRange();
+      newRange.setStart(fresh, 0);
+      newRange.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(newRange);
+      // Fire input so listeners (preview, autosave, lock state) refresh.
+      editable.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  }
+  attachEnterCleanLine(inputEl);
+  attachEnterCleanLine(document.getElementById('plain-input'));
 
   document.querySelectorAll('.btn-clear').forEach(function (btn) {
     // Tables view has its own clear logic — skip
@@ -4178,7 +4230,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url;
-        a.download = 'Idox HTML Converter v1.9.3.html';
+        a.download = 'Idox HTML Converter v1.9.4.html';
         document.body.appendChild(a);
         a.click();
         a.remove();
