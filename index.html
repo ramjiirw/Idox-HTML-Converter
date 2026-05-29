@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Idox HTML Converter v1.10.0.b3 — May 2026 -->
+<!-- Idox HTML Converter v1.10.0.b4 — May 2026 -->
 <html lang="en"><head>
 <meta charset="UTF-8">
 <title>Idox — HTML Converter</title>
@@ -1636,6 +1636,24 @@
     gap: 10px;
     flex-wrap: wrap;
   }
+  /* Inline output status sits just left of Convert, out of the layout flow
+     so it can fade in/out without nudging Convert, the rocker, or Copy. */
+  #main-output-actions { position: relative; }
+  .main-output-status {
+    position: absolute;
+    right: 100%;
+    margin-right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--idox-sky);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+  }
+  .main-output-status.show { opacity: 1; }
   .tbl-mode-group {
     display: flex;
     width: 360px;
@@ -1870,7 +1888,6 @@
         <button class="btn-convert" style="display: none;">Convert</button>
         <button class="btn-copy" style="display: none;">Copy output</button>
         <button class="btn-clear">Clear / Reset</button>
-        <span class="status status-msg"></span>
       </div>
     </div>
 
@@ -1911,7 +1928,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">v1.10.0.b3<br>May 2026</div>
+    <div class="version" id="app-version">v1.10.0.b4<br>May 2026</div>
     </div>
   </aside>
 
@@ -1933,6 +1950,7 @@
         <div class="tbl-output-head">
           <span class="panel-label">Output — C# string</span>
           <div class="tbl-output-actions is-locked" id="main-output-actions">
+            <span class="status-msg main-output-status"></span>
             <button type="button" id="main-convert-inline" class="tbl-output-convert">Convert</button>
             <div class="tbl-mode-group">
               <button type="button" id="main-mode-with" class="tbl-mode-btn is-active">Output with [ ]</button>
@@ -2318,7 +2336,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // ===== Build stamp =====
   // Single source of truth for the version+build string shown in the sidebar.
   // Bump this (and the matching comment on line 2) on every save.
-  var IDOX_BUILD = 'v1.10.0.b3';
+  var IDOX_BUILD = 'v1.10.0.b4';
   (function () {
     var v = document.getElementById('app-version');
     if (v) v.innerHTML = IDOX_BUILD + '<br>May 2026';
