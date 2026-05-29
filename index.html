@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Idox HTML Converter v1.9.5 — May 2026 -->
+<!-- Idox HTML Converter v1.10.0 — May 2026 -->
 <html lang="en"><head>
 <meta charset="UTF-8">
 <title>Idox — HTML Converter</title>
@@ -1184,6 +1184,368 @@
   /* Hide the in-content controls — buttons live in the rail */
   main .controls { display: none; }
 
+  /* ===== Insert Table feature ===== */
+  /* Input pane header strip (mirrors .tbl-output-head from the Output) */
+  .main-input-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 6px;
+  }
+  .main-input-head .panel-label { margin: 0; }
+  .main-input-actions { display: flex; gap: 8px; align-items: center; }
+  .main-insert-table-btn {
+    background: var(--idox-cobalt);
+    color: #fff;
+    border: 1px solid var(--idox-cobalt);
+    border-radius: 6px;
+    padding: 7px 14px;
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .main-insert-table-btn:hover {
+    background: var(--idox-cobalt-deep);
+    border-color: var(--idox-cobalt-deep);
+  }
+  .main-insert-table-btn .tbl-pill-icon {
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  /* The pill inside the Input */
+  .tbl-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(70, 170, 230, 0.22);
+    border: 1px solid var(--idox-sky);
+    color: var(--idox-cobalt);
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    cursor: pointer;
+    user-select: none;
+    vertical-align: baseline;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+  .tbl-pill:hover { background: rgba(70, 170, 230, 0.32); }
+  .tbl-pill-icon { font-size: 12px; line-height: 1; }
+
+  /* Hover hint tooltip (text only, no buttons) */
+  .tbl-pill-hint {
+    position: absolute;
+    background: var(--idox-cobalt);
+    color: #fff;
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(10, 31, 143, 0.25);
+    z-index: 100;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  /* Click popover with rendered preview + buttons */
+  .tbl-pill-popover {
+    position: absolute;
+    background: #fff;
+    border: 1px solid var(--idox-cobalt);
+    border-radius: 8px;
+    padding: 14px 16px;
+    box-shadow: 0 6px 24px rgba(10, 31, 143, 0.22);
+    z-index: 100;
+    min-width: 320px;
+    max-width: 480px;
+  }
+  .tbl-pill-popover .tbl-pop-label {
+    display: block;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--idox-cobalt);
+    margin-bottom: 10px;
+  }
+  .tbl-pill-popover .tbl-pop-preview {
+    margin-bottom: 14px;
+    overflow-x: auto;
+  }
+  .tbl-pill-popover .tbl-pop-preview table {
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    border-collapse: collapse;
+  }
+  .tbl-pill-popover .tbl-pop-preview .ph-tag {
+    background: rgba(70, 170, 230, 0.18);
+    border-radius: 3px;
+    padding: 0 2px;
+  }
+  .tbl-pill-popover .tbl-pop-actions {
+    display: flex;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid #cdd3e0;
+    flex-wrap: wrap;
+  }
+  .tbl-pill-popover .tbl-pop-btn {
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .tbl-pop-btn-edit {
+    background: var(--idox-cobalt);
+    color: #fff;
+    border: 1px solid var(--idox-cobalt);
+  }
+  .tbl-pop-btn-edit:hover {
+    background: var(--idox-cobalt-deep);
+    border-color: var(--idox-cobalt-deep);
+  }
+  .tbl-pop-btn-delete {
+    background: transparent;
+    color: #A32D2D;
+    border: 1px solid #A32D2D;
+  }
+  .tbl-pop-btn-delete:hover { background: #A32D2D; color: #fff; }
+  .tbl-pop-btn-close {
+    background: transparent;
+    color: var(--idox-stone);
+    border: 1px solid #cdd3e0;
+  }
+  .tbl-pop-btn-close:hover {
+    background: var(--idox-panel-tint);
+    color: var(--idox-cobalt);
+  }
+
+  /* Insert Table modal */
+  #insert-table-modal .modal-card {
+    max-width: 640px;
+    width: 90vw;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+  }
+  .it-modal-head {
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid #cdd3e0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .it-modal-head h2 {
+    margin: 0;
+    font-family: 'DM Serif Text', serif;
+    font-size: 22px;
+    color: #222;
+    font-weight: 400;
+  }
+  .it-modal-body {
+    padding: 18px 24px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+  }
+  .it-modal-foot {
+    padding: 14px 24px;
+    border-top: 1px solid #cdd3e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 10px;
+  }
+  .it-modal-foot-right { display: flex; gap: 10px; }
+  .it-modal-btn {
+    border-radius: 6px;
+    padding: 7px 14px;
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .it-modal-btn-cancel {
+    background: transparent;
+    color: var(--idox-stone);
+    border: 1px solid #cdd3e0;
+  }
+  .it-modal-btn-cancel:hover {
+    background: var(--idox-panel-tint);
+    color: var(--idox-cobalt);
+  }
+  .it-modal-btn-primary {
+    background: var(--idox-cobalt);
+    color: #fff;
+    border: 1px solid var(--idox-cobalt);
+  }
+  .it-modal-btn-primary:hover {
+    background: var(--idox-cobalt-deep);
+    border-color: var(--idox-cobalt-deep);
+  }
+  .it-modal-btn-delete {
+    background: transparent;
+    color: #A32D2D;
+    border: 1px solid #A32D2D;
+  }
+  .it-modal-btn-delete:hover { background: #A32D2D; color: #fff; }
+  .it-modal-btn-delete.hidden { display: none; }
+
+  /* Reuse table-view controls inside the modal */
+  #insert-table-modal .it-controls-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-end;
+    margin-bottom: 18px;
+  }
+  #insert-table-modal .it-control { display: flex; flex-direction: column; }
+  #insert-table-modal .it-stepper { display: flex; align-items: center; gap: 5px; }
+  #insert-table-modal .it-stepper-btn {
+    width: 28px; height: 28px;
+    border: 1px solid #cdd3e0;
+    background: var(--idox-panel-tint);
+    color: var(--idox-cobalt);
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 14px; font-weight: 500; line-height: 1;
+    padding: 0;
+  }
+  #insert-table-modal .it-stepper-btn:hover {
+    background: var(--idox-cobalt);
+    color: #fff;
+    border-color: var(--idox-cobalt);
+  }
+  #insert-table-modal .it-stepper-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: var(--idox-panel-tint);
+    color: var(--idox-cobalt);
+  }
+  #insert-table-modal .it-stepper-val {
+    min-width: 26px; text-align: center;
+    font-size: 15px; font-weight: 500;
+  }
+  #insert-table-modal .it-num-input {
+    width: 68px; height: 30px;
+    padding: 0 10px;
+    border: 1px solid #cdd3e0;
+    background: var(--idox-panel-tint);
+    border-radius: 6px;
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 14px;
+    color: #222;
+  }
+  #insert-table-modal .it-num-input:focus {
+    outline: none;
+    border-color: var(--idox-cobalt);
+    box-shadow: 0 0 0 3px rgba(10, 31, 143, 0.08);
+    background: #fff;
+  }
+  #insert-table-modal .it-grid-wrap {
+    background: var(--idox-panel-tint);
+    border: 1px solid #cdd3e0;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+  #insert-table-modal .it-col-actions { display: grid; gap: 8px; margin-bottom: 6px; }
+  #insert-table-modal .it-row-line {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: start;
+  }
+  #insert-table-modal .it-row-line:last-child { margin-bottom: 0; }
+  #insert-table-modal .it-cell {
+    border: 1px solid #cdd3e0;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+    min-height: 38px;
+    background: #fff;
+    outline: none;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  #insert-table-modal .it-cell:focus {
+    border-color: var(--idox-cobalt);
+    box-shadow: 0 0 0 3px rgba(10, 31, 143, 0.08);
+  }
+  #insert-table-modal .it-cell .ph-tag {
+    background: rgba(70, 170, 230, 0.18);
+    border-radius: 3px;
+    padding: 0 2px;
+  }
+  #insert-table-modal .it-x {
+    width: 20px; height: 20px;
+    border: 1px solid #cdd3e0;
+    background: #fff;
+    color: var(--idox-stone);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 11px; line-height: 1;
+    padding: 0;
+    align-self: center;
+    justify-self: center;
+  }
+  #insert-table-modal .it-x:hover {
+    background: var(--idox-cobalt);
+    color: #fff;
+    border-color: var(--idox-cobalt);
+  }
+  #insert-table-modal .it-x:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background: #fff;
+    color: var(--idox-stone);
+    border-color: #cdd3e0;
+  }
+  #insert-table-modal .it-col-x-cell { display: flex; justify-content: center; }
+  #insert-table-modal .it-preview-wrap {
+    background: var(--idox-panel-tint);
+    border: 1px solid #cdd3e0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    overflow-x: auto;
+  }
+  #insert-table-modal .it-preview table {
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+    border-collapse: collapse;
+  }
+  #insert-table-modal .it-section-label {
+    display: block;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--idox-cobalt);
+    margin-bottom: 8px;
+  }
+
   /* ===== Tables view ===== */
   #view-tables {
     flex: 1;
@@ -1537,7 +1899,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version">v1.9.5<br>May 2026</div>
+    <div class="version">v1.10.0<br>May 2026</div>
     </div>
   </aside>
 
@@ -1547,7 +1909,12 @@
 
     <div class="grid">
       <div>
-        <span class="panel-label">Input — paste email text here</span>
+        <div class="main-input-head">
+          <span class="panel-label">Input — paste email text here</span>
+          <div class="main-input-actions">
+            <button type="button" id="insert-table-btn" class="main-insert-table-btn"><span class="tbl-pill-icon">▦</span> Insert table</button>
+          </div>
+        </div>
         <div id="input" contenteditable="true"></div>
       </div>
       <div>
@@ -1683,6 +2050,9 @@
       <p class="hint"><strong>It's already the exact string you want.</strong> The word inside the brackets is the final string. Only the brackets need to go. Use <code>Output without [ ]</code> — it strips the brackets for you (so <code>[Refval]</code> becomes <code>Refval</code>), saving you from deleting every set by hand.</p>
       <p class="hint">The brackets always stay visible in the input above — these buttons only change what gets copied.</p>
 
+      <p class="hint"><strong>Insert table:</strong> click the <code>▦ Insert table</code> button in the Input header to drop a table at your cursor. The table appears in the input as a small pill (e.g. <code>▦ Table 2×2</code>) — <strong>hover</strong> to see a hint, <strong>click</strong> the pill for a popover showing the rendered preview with Edit / Delete / Close buttons. <strong>Backspace</strong> removes the pill like any character.</p>
+      <p class="hint">When you <code>Convert</code>, each pill becomes a self-contained table in the C# output at its position in the email.</p>
+
       <p class="hint"><strong>Worked example:</strong></p>
       <div class="help-example">
         <div class="help-example-pane">
@@ -1786,6 +2156,60 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       <div class="modal-actions">
         <button type="button" id="confirm-cancel" class="modal-btn modal-btn-cancel">Cancel</button>
         <button type="button" id="confirm-ok" class="modal-btn modal-btn-confirm">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="insert-table-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card">
+      <div class="it-modal-head">
+        <h2 id="it-modal-title">Insert table</h2>
+      </div>
+      <div class="it-modal-body">
+        <div class="it-controls-row">
+          <div class="it-control">
+            <span class="it-section-label">Columns</span>
+            <div class="it-stepper">
+              <button type="button" class="it-stepper-btn" id="it-cols-minus" aria-label="Remove column">−</button>
+              <span class="it-stepper-val" id="it-cols-val">2</span>
+              <button type="button" class="it-stepper-btn" id="it-cols-plus" aria-label="Add column">+</button>
+            </div>
+          </div>
+          <div class="it-control">
+            <span class="it-section-label">Rows</span>
+            <div class="it-stepper">
+              <button type="button" class="it-stepper-btn" id="it-rows-minus" aria-label="Remove row">−</button>
+              <span class="it-stepper-val" id="it-rows-val">2</span>
+              <button type="button" class="it-stepper-btn" id="it-rows-plus" aria-label="Add row">+</button>
+            </div>
+          </div>
+          <div class="it-control">
+            <span class="it-section-label">Right pad (px)</span>
+            <input type="number" min="0" max="200" id="it-pad-right" class="it-num-input" value="15">
+          </div>
+          <div class="it-control">
+            <span class="it-section-label">Row gap (px)</span>
+            <input type="number" min="0" max="200" id="it-pad-bottom" class="it-num-input" value="0">
+          </div>
+        </div>
+
+        <span class="it-section-label">Cells — highlight text to <strong>B</strong>old, <em>I</em>talicise or mark as a [placeholder]</span>
+        <div class="it-grid-wrap">
+          <div class="it-col-actions" id="it-col-actions"></div>
+          <div id="it-rows"></div>
+        </div>
+
+        <span class="it-section-label">Preview</span>
+        <div class="it-preview-wrap">
+          <div class="it-preview" id="it-preview"></div>
+        </div>
+      </div>
+      <div class="it-modal-foot">
+        <button type="button" id="it-delete-btn" class="it-modal-btn it-modal-btn-delete hidden">Delete table</button>
+        <div class="it-modal-foot-right">
+          <button type="button" id="it-cancel-btn" class="it-modal-btn it-modal-btn-cancel">Cancel</button>
+          <button type="button" id="it-confirm-btn" class="it-modal-btn it-modal-btn-primary">Insert</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2083,6 +2507,27 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       if (node.nodeType !== Node.ELEMENT_NODE) return;
 
       var tag = node.tagName.toLowerCase();
+
+      // Table pill — emit as its own block. The pill carries a JSON `data-table`
+      // attribute which the C# emission step (later) reads to produce the table
+      // string. We surround the sentinel with paragraph-break pairs so the
+      // table comes out as its own pTag entry in the output.
+      if (tag === 'span' && node.classList && node.classList.contains('tbl-pill')) {
+        var tableJson = node.getAttribute('data-table') || '';
+        if (tableJson) {
+          // Ensure we're at a paragraph boundary
+          if (text.length > 0 && !text.endsWith('\n\n')) {
+            if (text.endsWith('\n')) text += '\n';
+            else text += '\n\n';
+          }
+          // Encode the JSON so it can't collide with newlines or sentinel markers.
+          // (encodeURIComponent on the whole JSON keeps it on one line, no \n or {{ }}.)
+          text += '{{TABLE|' + encodeURIComponent(tableJson) + '}}';
+          text += '\n\n';
+        }
+        return;
+      }
+
       var bold = isBoldNode(node);
       if (bold) text += '{{B}}';
 
@@ -2172,6 +2617,15 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       b = b.trim();
       if (!b) return;
 
+      // Table sentinel — emitted by walk() when it hit a .tbl-pill. The block
+      // is a paragraph containing one table marker; emit a pTag that the
+      // later C# emission step will replace with the table's C# fragment.
+      var tableMatch = b.match(/^\{\{TABLE\|([^}]+)\}\}$/);
+      if (tableMatch) {
+        pTags.push('{{TABLE|' + tableMatch[1] + '}}');
+        return;
+      }
+
       // Detect list markers anywhere in the block — split into before / list / after
       var listAnywhere = /\{\{(UL|OL)START\}\}([\s\S]*?)\{\{(UL|OL)END\}\}/;
       var lm = b.match(listAnywhere);
@@ -2222,6 +2676,24 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     var out = 'string emailbody =\n';
     pTags.forEach(function (tag, i) {
       var isLast = (i === pTags.length - 1);
+
+      // Table sentinel — decode the JSON state and emit the table's C# fragment.
+      var tableSentinel = tag.match(/^\{\{TABLE\|([^}]+)\}\}$/);
+      if (tableSentinel) {
+        try {
+          var stateJson = decodeURIComponent(tableSentinel[1]);
+          var tableState = JSON.parse(stateJson);
+          var tableCs = '';
+          if (window._idoxInsertTable && typeof window._idoxInsertTable.renderTableCSharpFromState === 'function') {
+            tableCs = window._idoxInsertTable.renderTableCSharpFromState(tableState);
+          }
+          if (tableCs) {
+            out += tableCs + (isLast ? ';' : ' +') + '\n';
+            if (!isLast) out += '\n';
+          }
+        } catch (e) { /* malformed sentinel — skip */ }
+        return;
+      }
 
       // List block: emit each <li> on its own line with wrapping <ul>/<ol>
       var listOpen = tag.match(/^<(ul|ol)>/);
@@ -4162,7 +4634,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url;
-        a.download = 'Idox HTML Converter v1.9.5.html';
+        a.download = 'Idox HTML Converter v1.10.0.html';
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -5248,6 +5720,751 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     // Initial render
     renderGrid();
     scheduleRender();
+  })();
+
+
+  // ===== Insert Table (Text-to-HTML view) =====
+  // Lets the user insert a table at the cursor position in the Input box.
+  // The table renders as a pill (<span class="tbl-pill">) that stores its
+  // table state as JSON in a data attribute. Hover shows a hint; click shows
+  // a popover with the rendered preview plus Edit / Delete / Close buttons.
+  // The Convert walker recognises the pill and emits the table's C# fragment.
+  (function () {
+    var btn = document.getElementById('insert-table-btn');
+    var modal = document.getElementById('insert-table-modal');
+    var modalTitle = document.getElementById('it-modal-title');
+    if (!btn || !modal) return;
+
+    var mainInput = document.getElementById('input');
+
+    // Modal controls
+    var colMinus = document.getElementById('it-cols-minus');
+    var colPlus = document.getElementById('it-cols-plus');
+    var colVal = document.getElementById('it-cols-val');
+    var rowMinus = document.getElementById('it-rows-minus');
+    var rowPlus = document.getElementById('it-rows-plus');
+    var rowVal = document.getElementById('it-rows-val');
+    var padRightInput = document.getElementById('it-pad-right');
+    var padBottomInput = document.getElementById('it-pad-bottom');
+    var colActionsRow = document.getElementById('it-col-actions');
+    var rowsContainer = document.getElementById('it-rows');
+    var preview = document.getElementById('it-preview');
+    var cancelBtn = document.getElementById('it-cancel-btn');
+    var confirmBtn = document.getElementById('it-confirm-btn');
+    var deleteBtn = document.getElementById('it-delete-btn');
+
+    var MAX_COLS = 6, MAX_ROWS = 20, MIN_COLS = 1, MIN_ROWS = 1;
+
+    // Modal state (cloned from a pill or fresh)
+    var state = null;
+    // Mode: 'insert' (new) or 'edit' (existing pill). When 'edit', editingPill is the pill element.
+    var mode = 'insert';
+    var editingPill = null;
+    // Saved cursor range to insert at when in 'insert' mode
+    var savedRange = null;
+
+    function freshState() {
+      return {
+        cols: 2,
+        rows: 2,
+        padRight: 15,
+        padBottom: 0,
+        cells: [['', ''], ['', '']]
+      };
+    }
+
+    function escapeText(s) {
+      return (s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+    function escapeAttr(s) {
+      return (s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+    function escapeForCs(s) {
+      return (s || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    }
+
+    function cellIsEmpty(html) {
+      if (!html) return true;
+      var tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      return (tmp.textContent || '').trim() === '';
+    }
+    function cleanCellHtml(html) {
+      if (!html) return '';
+      var tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      while (tmp.lastChild && tmp.lastChild.nodeType === Node.ELEMENT_NODE &&
+             tmp.lastChild.tagName === 'BR') {
+        tmp.removeChild(tmp.lastChild);
+      }
+      return tmp.innerHTML.trim();
+    }
+
+    // Detect if a placeholder span has bold/italic applied on or inside it
+    function phEmphasis(span) {
+      var bold = false, italic = false;
+      if (span.style) {
+        var fw = span.style.fontWeight;
+        if (fw && (fw === 'bold' || fw === 'bolder' || (parseInt(fw, 10) >= 600))) bold = true;
+        if (span.style.fontStyle === 'italic') italic = true;
+      }
+      if (span.querySelector) {
+        if (span.querySelector('strong, b')) bold = true;
+        if (span.querySelector('em, i')) italic = true;
+      }
+      return { bold: bold, italic: italic };
+    }
+
+    // Convert a cell's HTML to email-safe HTML (for the rendered previews)
+    function cellHtmlToEmailHtml(html) {
+      if (!html) return '';
+      var tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      var out = '';
+      function walk(node) {
+        if (node.nodeType === Node.TEXT_NODE) { out += escapeText(node.nodeValue); return; }
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
+        var tag = node.tagName.toLowerCase();
+        if (tag === 'span' && node.classList && node.classList.contains('ph-tag')) {
+          var ownBold = false, ownItalic = false;
+          if (node.style) {
+            var phFw = node.style.fontWeight;
+            if (phFw && (phFw === 'bold' || phFw === 'bolder' || (parseInt(phFw, 10) >= 600))) ownBold = true;
+            if (node.style.fontStyle === 'italic') ownItalic = true;
+          }
+          // Render the placeholder as a styled span so the preview shows the blue highlight
+          if (ownBold) out += '<strong>';
+          if (ownItalic) out += '<em>';
+          out += '<span class="ph-tag">';
+          for (var pj = 0; pj < node.childNodes.length; pj++) walk(node.childNodes[pj]);
+          out += '</span>';
+          if (ownItalic) out += '</em>';
+          if (ownBold) out += '</strong>';
+          return;
+        }
+        if (tag === 'br') { out += '<br>'; return; }
+        if (tag === 'b' || tag === 'strong') {
+          out += '<strong>';
+          for (var i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
+          out += '</strong>'; return;
+        }
+        if (tag === 'i' || tag === 'em') {
+          out += '<em>';
+          for (var i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
+          out += '</em>'; return;
+        }
+        if (tag === 'a') {
+          var href = node.getAttribute('href') || '';
+          out += "<a href='" + href.replace(/'/g, '&apos;').replace(/"/g, '&quot;') + "'>";
+          for (var i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
+          out += '</a>'; return;
+        }
+        var bold = false, italic = false;
+        if (node.style) {
+          var fw = node.style.fontWeight;
+          if (fw && (fw === 'bold' || fw === 'bolder' || (parseInt(fw, 10) >= 600))) bold = true;
+          if (node.style.fontStyle === 'italic') italic = true;
+        }
+        if (bold) out += '<strong>';
+        if (italic) out += '<em>';
+        for (var i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
+        if (italic) out += '</em>';
+        if (bold) out += '</strong>';
+      }
+      for (var i = 0; i < tmp.childNodes.length; i++) walk(tmp.childNodes[i]);
+      return out;
+    }
+
+    // Render a table state as HTML (for previews — popover and modal)
+    function renderTableHtmlFromState(s) {
+      var html = '<table style="border-collapse: collapse;">';
+      for (var r = 0; r < s.rows; r++) {
+        var rowCells = [];
+        var anyContent = false;
+        for (var c = 0; c < s.cols; c++) {
+          var raw = s.cells[r][c];
+          if (!cellIsEmpty(raw)) anyContent = true;
+          rowCells.push(raw);
+        }
+        if (!anyContent) continue;
+        html += '<tr>';
+        for (var c2 = 0; c2 < s.cols; c2++) {
+          if (cellIsEmpty(rowCells[c2])) continue;
+          var styles = [];
+          if (c2 < s.cols - 1 && s.padRight > 0) styles.push('padding-right:' + s.padRight + 'px');
+          if (r < s.rows - 1 && s.padBottom > 0) styles.push('padding-bottom:' + s.padBottom + 'px');
+          var styleAttr = styles.length ? ' style="' + styles.join(';') + ';"' : '';
+          html += '<td' + styleAttr + '>' + cellHtmlToEmailHtml(rowCells[c2]) + '</td>';
+        }
+        html += '</tr>';
+      }
+      html += '</table>';
+      return html;
+    }
+
+    // Generate the C# fragment for a table — used by the Convert walker.
+    // Returns a string that fits inside an existing concatenation
+    // (each line ends with ' +', no leading/trailing C# wrapping).
+    function renderTableCSharpFromState(s) {
+      var lines = [];
+      var anyRow = false;
+      lines.push('"<table>"');
+      for (var r = 0; r < s.rows; r++) {
+        var rowCells = [];
+        var anyContent = false;
+        for (var c = 0; c < s.cols; c++) {
+          var raw = s.cells[r][c];
+          if (!cellIsEmpty(raw)) anyContent = true;
+          rowCells.push(raw);
+        }
+        if (!anyContent) continue;
+        anyRow = true;
+        lines.push('"<tr>"');
+        for (var c2 = 0; c2 < s.cols; c2++) {
+          if (cellIsEmpty(rowCells[c2])) continue;
+          var styles = [];
+          if (c2 < s.cols - 1 && s.padRight > 0) styles.push('padding-right:' + s.padRight + 'px');
+          if (r < s.rows - 1 && s.padBottom > 0) styles.push('padding-bottom:' + s.padBottom + 'px');
+          var styleAttr = styles.length ? " style='" + styles.join(';') + ";'" : '';
+          var fragments = cellHtmlToCSharpFragments(rowCells[c2]);
+          var openTd = '"<td' + styleAttr + '>';
+          var built = [openTd];
+          for (var f = 0; f < fragments.length; f++) {
+            var frag = fragments[f];
+            if (frag.kind === 'lit') {
+              var prev = built[built.length - 1];
+              if (typeof prev === 'string' && prev.charAt(0) === '"' && !prev.endsWith('"')) {
+                built[built.length - 1] = prev + escapeForCs(frag.text);
+              } else if (typeof prev === 'string' && prev.charAt(0) === '"' && prev.endsWith('"')) {
+                built[built.length - 1] = prev.slice(0, -1) + escapeForCs(frag.text) + '"';
+              } else {
+                built.push('"' + escapeForCs(frag.text) + '"');
+              }
+            } else {
+              var last = built[built.length - 1];
+              if (typeof last === 'string' && last.charAt(0) === '"' && !last.endsWith('"')) {
+                built[built.length - 1] = last + '"';
+              }
+              built.push(frag.name);
+            }
+          }
+          var lastBuilt = built[built.length - 1];
+          if (typeof lastBuilt === 'string' && lastBuilt.charAt(0) === '"' && !lastBuilt.endsWith('"')) {
+            built[built.length - 1] = lastBuilt + '</td>"';
+          } else if (typeof lastBuilt === 'string' && lastBuilt.charAt(0) === '"' && lastBuilt.endsWith('"')) {
+            built[built.length - 1] = lastBuilt.slice(0, -1) + '</td>"';
+          } else {
+            built.push('"</td>"');
+          }
+          lines.push(built.join(' + '));
+        }
+        lines.push('"</tr>"');
+      }
+      lines.push('"</table>"');
+      if (!anyRow) return '';
+      return lines.join(' +\n');
+    }
+
+    function cellHtmlToCSharpFragments(html) {
+      if (!html) return [];
+      var tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      var fragments = [];
+      function emitLit(text) {
+        if (!text) return;
+        if (fragments.length && fragments[fragments.length - 1].kind === 'lit') {
+          fragments[fragments.length - 1].text += text;
+        } else {
+          fragments.push({ kind: 'lit', text: text });
+        }
+      }
+      function walk(node) {
+        if (node.nodeType === Node.TEXT_NODE) { emitLit(escapeText(node.nodeValue)); return; }
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
+        var tag = node.tagName.toLowerCase();
+        if (tag === 'span' && node.classList && node.classList.contains('ph-tag')) {
+          var inner = (node.textContent || '').trim();
+          if (inner) {
+            var ph = phEmphasis(node);
+            if (ph.bold) emitLit('<strong>');
+            if (ph.italic) emitLit('<em>');
+            fragments.push({ kind: 'var', name: inner });
+            if (ph.italic) emitLit('</em>');
+            if (ph.bold) emitLit('</strong>');
+          }
+          return;
+        }
+        if (tag === 'br') { emitLit('<br>'); return; }
+        if (tag === 'b' || tag === 'strong') {
+          emitLit('<strong>');
+          for (var i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
+          emitLit('</strong>'); return;
+        }
+        if (tag === 'i' || tag === 'em') {
+          emitLit('<em>');
+          for (var i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
+          emitLit('</em>'); return;
+        }
+        if (tag === 'a') {
+          var href = node.getAttribute('href') || '';
+          emitLit("<a href='" + href.replace(/'/g, '&apos;') + "'>");
+          for (var i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
+          emitLit('</a>'); return;
+        }
+        var bold = false, italic = false;
+        if (node.style) {
+          var fw = node.style.fontWeight;
+          if (fw && (fw === 'bold' || fw === 'bolder' || (parseInt(fw, 10) >= 600))) bold = true;
+          if (node.style.fontStyle === 'italic') italic = true;
+        }
+        if (bold) emitLit('<strong>');
+        if (italic) emitLit('<em>');
+        for (var i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
+        if (italic) emitLit('</em>');
+        if (bold) emitLit('</strong>');
+      }
+      for (var i = 0; i < tmp.childNodes.length; i++) walk(tmp.childNodes[i]);
+      return fragments;
+    }
+    // Expose so the Convert walker can use it
+    window._idoxInsertTable = {
+      renderTableCSharpFromState: renderTableCSharpFromState,
+      cellHtmlToCSharpFragments: cellHtmlToCSharpFragments
+    };
+
+    // === Modal: render the editable grid from state ===
+    function renderGrid() {
+      colActionsRow.style.gridTemplateColumns = 'repeat(' + state.cols + ', 1fr) 22px';
+      colActionsRow.innerHTML = '';
+      for (var c = 0; c < state.cols; c++) {
+        var wrap = document.createElement('div');
+        wrap.className = 'it-col-x-cell';
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'it-x';
+        b.title = 'Delete this column';
+        b.textContent = '×';
+        if (state.cols <= MIN_COLS) b.disabled = true;
+        (function (idx) { b.addEventListener('click', function () { deleteColumn(idx); }); })(c);
+        wrap.appendChild(b);
+        colActionsRow.appendChild(wrap);
+      }
+      var sp = document.createElement('div'); colActionsRow.appendChild(sp);
+
+      rowsContainer.innerHTML = '';
+      for (var r = 0; r < state.rows; r++) {
+        var line = document.createElement('div');
+        line.className = 'it-row-line';
+        line.style.gridTemplateColumns = 'repeat(' + state.cols + ', 1fr) 22px';
+        for (var c2 = 0; c2 < state.cols; c2++) {
+          var cell = document.createElement('div');
+          cell.className = 'it-cell';
+          cell.setAttribute('contenteditable', 'true');
+          cell.setAttribute('data-row', r);
+          cell.setAttribute('data-col', c2);
+          cell.innerHTML = state.cells[r][c2] || '';
+          cell.addEventListener('input', onCellInput);
+          cell.addEventListener('paste', onCellPaste);
+          line.appendChild(cell);
+        }
+        var rb = document.createElement('button');
+        rb.type = 'button'; rb.className = 'it-x';
+        rb.title = 'Delete this row'; rb.textContent = '×';
+        if (state.rows <= MIN_ROWS) rb.disabled = true;
+        (function (idx) { rb.addEventListener('click', function () { deleteRow(idx); }); })(r);
+        line.appendChild(rb);
+        rowsContainer.appendChild(line);
+      }
+
+      colVal.textContent = state.cols;
+      rowVal.textContent = state.rows;
+      colMinus.disabled = state.cols <= MIN_COLS;
+      colPlus.disabled = state.cols >= MAX_COLS;
+      rowMinus.disabled = state.rows <= MIN_ROWS;
+      rowPlus.disabled = state.rows >= MAX_ROWS;
+    }
+    function onCellInput(e) {
+      var el = e.currentTarget;
+      var r = parseInt(el.getAttribute('data-row'), 10);
+      var c = parseInt(el.getAttribute('data-col'), 10);
+      state.cells[r][c] = cleanCellHtml(el.innerHTML);
+      scheduleRender();
+    }
+    function onCellPaste(e) {
+      e.preventDefault();
+      var cb = e.clipboardData || window.clipboardData;
+      var text = cb.getData('text/plain') || '';
+      document.execCommand('insertText', false, text);
+    }
+    var renderTimer;
+    function scheduleRender() {
+      clearTimeout(renderTimer);
+      renderTimer = setTimeout(function () {
+        preview.innerHTML = renderTableHtmlFromState(state);
+      }, 120);
+    }
+    function syncStateFromDom() {
+      for (var r = 0; r < state.rows; r++) {
+        for (var c = 0; c < state.cols; c++) {
+          var el = rowsContainer.querySelector('.it-cell[data-row="' + r + '"][data-col="' + c + '"]');
+          if (el) state.cells[r][c] = cleanCellHtml(el.innerHTML);
+        }
+      }
+    }
+    function countNonEmpty(arr) {
+      var n = 0;
+      arr.forEach(function (c) { if (!cellIsEmpty(c)) n++; });
+      return n;
+    }
+    function confirmLossThen(lostCount, where, action) {
+      if (lostCount <= 0) { action(); return; }
+      var cellWord = (lostCount === 1 ? 'cell' : 'cells');
+      confirmModal.show(action, {
+        title: 'Delete content?',
+        body: 'This will delete ' + lostCount + ' ' + cellWord + ' of content' +
+              (where ? ' from the ' + where : '') + '. You can\u2019t undo this.',
+        confirmLabel: 'Delete'
+      });
+    }
+    function deleteColumn(idx) {
+      if (state.cols <= MIN_COLS) return;
+      var lost = [];
+      for (var r = 0; r < state.rows; r++) lost.push(state.cells[r][idx]);
+      confirmLossThen(countNonEmpty(lost), '', function () {
+        syncStateFromDom();
+        for (var r2 = 0; r2 < state.rows; r2++) state.cells[r2].splice(idx, 1);
+        state.cols--;
+        renderGrid(); scheduleRender();
+      });
+    }
+    function deleteRow(idx) {
+      if (state.rows <= MIN_ROWS) return;
+      confirmLossThen(countNonEmpty(state.cells[idx]), '', function () {
+        syncStateFromDom();
+        state.cells.splice(idx, 1);
+        state.rows--;
+        renderGrid(); scheduleRender();
+      });
+    }
+    function decreaseCols() {
+      if (state.cols <= MIN_COLS) return;
+      var lastCol = state.cols - 1;
+      var lost = [];
+      for (var r = 0; r < state.rows; r++) lost.push(state.cells[r][lastCol]);
+      confirmLossThen(countNonEmpty(lost), 'last column', function () {
+        syncStateFromDom();
+        for (var r2 = 0; r2 < state.rows; r2++) state.cells[r2].pop();
+        state.cols--;
+        renderGrid(); scheduleRender();
+      });
+    }
+    function increaseCols() {
+      if (state.cols >= MAX_COLS) return;
+      syncStateFromDom();
+      for (var r = 0; r < state.rows; r++) state.cells[r].push('');
+      state.cols++;
+      renderGrid(); scheduleRender();
+    }
+    function decreaseRows() {
+      if (state.rows <= MIN_ROWS) return;
+      var last = state.rows - 1;
+      confirmLossThen(countNonEmpty(state.cells[last]), 'last row', function () {
+        syncStateFromDom();
+        state.cells.pop();
+        state.rows--;
+        renderGrid(); scheduleRender();
+      });
+    }
+    function increaseRows() {
+      if (state.rows >= MAX_ROWS) return;
+      syncStateFromDom();
+      var newRow = [];
+      for (var c = 0; c < state.cols; c++) newRow.push('');
+      state.cells.push(newRow);
+      state.rows++;
+      renderGrid(); scheduleRender();
+    }
+    colMinus.addEventListener('click', decreaseCols);
+    colPlus.addEventListener('click', increaseCols);
+    rowMinus.addEventListener('click', decreaseRows);
+    rowPlus.addEventListener('click', increaseRows);
+    padRightInput.addEventListener('input', function () {
+      var v = parseInt(padRightInput.value, 10);
+      if (isNaN(v) || v < 0) v = 0;
+      if (v > 200) v = 200;
+      state.padRight = v;
+      scheduleRender();
+    });
+    padBottomInput.addEventListener('input', function () {
+      var v = parseInt(padBottomInput.value, 10);
+      if (isNaN(v) || v < 0) v = 0;
+      if (v > 200) v = 200;
+      state.padBottom = v;
+      scheduleRender();
+    });
+
+    // === Modal open/close ===
+    function openModal() {
+      modal.style.display = 'flex';
+      void modal.offsetWidth;
+      modal.classList.add('show');
+      padRightInput.value = String(state.padRight);
+      padBottomInput.value = String(state.padBottom);
+      renderGrid();
+      scheduleRender();
+    }
+    function closeModal() {
+      modal.classList.remove('show');
+      setTimeout(function () { modal.style.display = 'none'; }, 200);
+    }
+
+    // === Click handlers for Cancel / Confirm / Delete ===
+    cancelBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (!modal.classList.contains('show')) return;
+      if (e.key === 'Escape') closeModal();
+    });
+
+    confirmBtn.addEventListener('click', function () {
+      syncStateFromDom();
+      if (mode === 'insert') {
+        insertPillAtSavedRange(state);
+      } else if (mode === 'edit' && editingPill) {
+        updatePill(editingPill, state);
+      }
+      closeModal();
+      // Fire input event so the existing input listener clears stale output
+      mainInput.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    deleteBtn.addEventListener('click', function () {
+      if (mode !== 'edit' || !editingPill) return;
+      confirmModal.show(function () {
+        removePill(editingPill);
+        closeModal();
+        mainInput.dispatchEvent(new Event('input', { bubbles: true }));
+      }, {
+        title: 'Delete table?',
+        body: 'This will remove the table from your email. You can\u2019t undo this.',
+        confirmLabel: 'Delete'
+      });
+    });
+
+    // === Insert button (opens modal in 'insert' mode) ===
+    btn.addEventListener('click', function () {
+      mode = 'insert';
+      editingPill = null;
+      state = freshState();
+      // Save the current selection range inside the input (if any)
+      savedRange = captureRangeInInput();
+      modalTitle.textContent = 'Insert table';
+      confirmBtn.textContent = 'Insert';
+      deleteBtn.classList.add('hidden');
+      openModal();
+    });
+
+    function captureRangeInInput() {
+      var sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return null;
+      var r = sel.getRangeAt(0);
+      // Walk up: is the selection inside the input?
+      var n = r.commonAncestorContainer;
+      while (n) {
+        if (n === mainInput) return r.cloneRange();
+        n = n.parentNode;
+      }
+      return null;
+    }
+
+    // === Build a pill element from a state object ===
+    function buildPill(s) {
+      var pill = document.createElement('span');
+      pill.className = 'tbl-pill';
+      pill.setAttribute('contenteditable', 'false');
+      pill.setAttribute('data-table', JSON.stringify(s));
+      pill.innerHTML = '<span class="tbl-pill-icon">\u25A6</span> Table ' + s.cols + '\u00D7' + s.rows;
+      attachPillHandlers(pill);
+      return pill;
+    }
+
+    function updatePillLabel(pill, s) {
+      pill.setAttribute('data-table', JSON.stringify(s));
+      pill.innerHTML = '<span class="tbl-pill-icon">\u25A6</span> Table ' + s.cols + '\u00D7' + s.rows;
+    }
+
+    function insertPillAtSavedRange(s) {
+      var pill = buildPill(s);
+      // Insert at saved range, or at end of input if no saved range
+      if (savedRange && mainInput.contains(savedRange.startContainer)) {
+        savedRange.deleteContents();
+        savedRange.insertNode(pill);
+        // Move cursor after the pill
+        var after = document.createRange();
+        after.setStartAfter(pill);
+        after.collapse(true);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(after);
+      } else {
+        mainInput.appendChild(pill);
+      }
+    }
+
+    function updatePill(pill, s) {
+      updatePillLabel(pill, s);
+    }
+
+    function removePill(pill) {
+      if (pill && pill.parentNode) pill.parentNode.removeChild(pill);
+      hidePopover();
+      hideHint();
+    }
+
+    // === Pill click → popover; hover → hint ===
+    var activeHint = null;
+    var activePopover = null;
+    var activePillForPopover = null;
+
+    function hideHint() {
+      if (activeHint && activeHint.parentNode) activeHint.parentNode.removeChild(activeHint);
+      activeHint = null;
+    }
+    function hidePopover() {
+      if (activePopover && activePopover.parentNode) activePopover.parentNode.removeChild(activePopover);
+      activePopover = null;
+      activePillForPopover = null;
+    }
+
+    function showHint(pill) {
+      hideHint();
+      // Don't show hint if popover is open for this pill
+      if (activePillForPopover === pill) return;
+      var hint = document.createElement('div');
+      hint.className = 'tbl-pill-hint';
+      hint.textContent = 'Click to see preview and edit options';
+      document.body.appendChild(hint);
+      activeHint = hint;
+      var rect = pill.getBoundingClientRect();
+      // Position above the pill if there's room, else below
+      var top = rect.top + window.scrollY - hint.offsetHeight - 6;
+      if (top < window.scrollY + 4) top = rect.bottom + window.scrollY + 6;
+      var left = rect.left + window.scrollX + (rect.width / 2) - (hint.offsetWidth / 2);
+      // Keep within viewport
+      var maxLeft = window.scrollX + document.documentElement.clientWidth - hint.offsetWidth - 8;
+      if (left < window.scrollX + 4) left = window.scrollX + 4;
+      if (left > maxLeft) left = maxLeft;
+      hint.style.top = top + 'px';
+      hint.style.left = left + 'px';
+    }
+
+    function showPopover(pill) {
+      hideHint();
+      hidePopover();
+      var dataStr = pill.getAttribute('data-table');
+      var s;
+      try { s = JSON.parse(dataStr); } catch (e) { return; }
+      var pop = document.createElement('div');
+      pop.className = 'tbl-pill-popover';
+      pop.innerHTML = '<span class="tbl-pop-label">Preview</span>' +
+        '<div class="tbl-pop-preview">' + renderTableHtmlFromState(s) + '</div>' +
+        '<div class="tbl-pop-actions">' +
+          '<button type="button" class="tbl-pop-btn tbl-pop-btn-edit">Edit</button>' +
+          '<button type="button" class="tbl-pop-btn tbl-pop-btn-delete">Delete</button>' +
+          '<button type="button" class="tbl-pop-btn tbl-pop-btn-close">Close</button>' +
+        '</div>';
+      document.body.appendChild(pop);
+      activePopover = pop;
+      activePillForPopover = pill;
+      // Position next to the pill
+      var rect = pill.getBoundingClientRect();
+      var top = rect.bottom + window.scrollY + 8;
+      var left = rect.left + window.scrollX;
+      var maxLeft = window.scrollX + document.documentElement.clientWidth - pop.offsetWidth - 8;
+      if (left > maxLeft) left = maxLeft;
+      if (left < window.scrollX + 4) left = window.scrollX + 4;
+      pop.style.top = top + 'px';
+      pop.style.left = left + 'px';
+
+      pop.querySelector('.tbl-pop-btn-edit').addEventListener('click', function () {
+        openEditFor(pill);
+        hidePopover();
+      });
+      pop.querySelector('.tbl-pop-btn-delete').addEventListener('click', function () {
+        confirmModal.show(function () {
+          removePill(pill);
+          mainInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }, {
+          title: 'Delete table?',
+          body: 'This will remove the table from your email. You can\u2019t undo this.',
+          confirmLabel: 'Delete'
+        });
+      });
+      pop.querySelector('.tbl-pop-btn-close').addEventListener('click', hidePopover);
+    }
+
+    function openEditFor(pill) {
+      var dataStr = pill.getAttribute('data-table');
+      var s;
+      try { s = JSON.parse(dataStr); } catch (e) { return; }
+      mode = 'edit';
+      editingPill = pill;
+      // Deep clone the state so cancel doesn't mutate the pill
+      state = JSON.parse(JSON.stringify(s));
+      modalTitle.textContent = 'Edit table';
+      confirmBtn.textContent = 'Save changes';
+      deleteBtn.classList.remove('hidden');
+      openModal();
+    }
+
+    function attachPillHandlers(pill) {
+      pill.addEventListener('mouseenter', function () { showHint(pill); });
+      pill.addEventListener('mouseleave', hideHint);
+      pill.addEventListener('click', function (e) {
+        e.stopPropagation();
+        showPopover(pill);
+      });
+    }
+
+    // Wire up handlers for any pills that arrive via paste/restore
+    function rebindAllPills() {
+      var pills = mainInput.querySelectorAll('.tbl-pill');
+      pills.forEach(function (p) {
+        // Avoid double-binding: use a marker attribute
+        if (!p._idoxBound) {
+          attachPillHandlers(p);
+          p._idoxBound = true;
+        }
+      });
+    }
+    // Initial bind (in case session restore brought pills back)
+    rebindAllPills();
+    // After any input event, ensure new pills (or restored ones) are bound
+    mainInput.addEventListener('input', rebindAllPills);
+
+    // Clicking elsewhere on the page closes the popover (but clicks inside it don't)
+    document.addEventListener('click', function (e) {
+      if (!activePopover) return;
+      if (activePopover.contains(e.target)) return;
+      // Don't close if the click was on a pill (that handler opens its own popover)
+      var t = e.target;
+      while (t) {
+        if (t.classList && t.classList.contains('tbl-pill')) return;
+        t = t.parentNode;
+      }
+      hidePopover();
+    });
+    // Hide popover/hint when scrolling the input (positions go stale)
+    document.addEventListener('scroll', function () { hideHint(); hidePopover(); }, true);
   })();
 
 
