@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Idox HTML Converter v1.10.0 — May 2026 -->
+<!-- Idox HTML Converter v1.10.0.b1 — May 2026 -->
 <html lang="en"><head>
 <meta charset="UTF-8">
 <title>Idox — HTML Converter</title>
@@ -1910,7 +1910,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version">v1.10.0<br>May 2026</div>
+    <div class="version" id="app-version">v1.10.0.b1<br>May 2026</div>
     </div>
   </aside>
 
@@ -2314,6 +2314,14 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
 <script>
   var inputEl  = document.getElementById('input');
   var outputEl = document.getElementById('output');
+  // ===== Build stamp =====
+  // Single source of truth for the version+build string shown in the sidebar.
+  // Bump this (and the matching comment on line 2) on every save.
+  var IDOX_BUILD = 'v1.10.0.b1';
+  (function () {
+    var v = document.getElementById('app-version');
+    if (v) v.innerHTML = IDOX_BUILD + '<br>May 2026';
+  })();
   // When true, the Text-to-HTML output drops the outer [ ] from placeholders.
   var mainStripBrackets = false;
   // ===== Confirm modal helper =====
