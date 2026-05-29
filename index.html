@@ -2704,7 +2704,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
           var tableState = JSON.parse(stateJson);
           var tableCs = '';
           if (window._idoxInsertTable && typeof window._idoxInsertTable.renderTableCSharpFromState === 'function') {
-            tableCs = window._idoxInsertTable.renderTableCSharpFromState(tableState);
+            tableCs = window._idoxInsertTable.renderTableCSharpFromState(tableState, mainStripBrackets);
           }
           if (tableCs) {
             out += tableCs + (isLast ? ';' : ' +') + '\n';
@@ -5934,7 +5934,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     // Generate the C# fragment for a table — used by the Convert walker.
     // Returns a string that fits inside an existing concatenation
     // (each line ends with ' +', no leading/trailing C# wrapping).
-    function renderTableCSharpFromState(s) {
+    function renderTableCSharpFromState(s, strip) {
       var lines = [];
       var anyRow = false;
       lines.push('"<table>"');
@@ -5974,7 +5974,14 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
               if (typeof last === 'string' && last.charAt(0) === '"' && !last.endsWith('"')) {
                 built[built.length - 1] = last + '"';
               }
-              built.push(frag.name);
+              // When "Output without [ ]" is active, drop the outer square
+              // brackets so [Refval] -> Refval, matching the non-table path.
+              var varName = frag.name;
+              if (strip) {
+                var mPh = /^\[(.+)\]$/.exec(varName);
+                if (mPh) varName = mPh[1];
+              }
+              built.push(varName);
             }
           }
           var lastBuilt = built[built.length - 1];
