@@ -2515,20 +2515,16 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
 
       var tag = node.tagName.toLowerCase();
 
-      // Table pill — emit as its own block. The pill carries a JSON `data-table`
-      // attribute which the C# emission step (later) reads to produce the table
-      // string. We surround the sentinel with paragraph-break pairs so the
-      // table comes out as its own pTag entry in the output.
+      // Table pill — must emit as its own block (a <table> can't sit inside a
+      // <p>). Always emit \n\n either side so the sentinel sits as its own
+      // block. The spacer-counting loop below treats table-adjacent runs
+      // specially so that N user-typed enters around the pill produces N
+      // spacers (one per enter), which differs from the normal-text rule
+      // where N enters produces N-1 spacers.
       if (tag === 'span' && node.classList && node.classList.contains('tbl-pill')) {
         var tableJson = node.getAttribute('data-table') || '';
         if (tableJson) {
-          // Ensure we're at a paragraph boundary
-          if (text.length > 0 && !text.endsWith('\n\n')) {
-            if (text.endsWith('\n')) text += '\n';
-            else text += '\n\n';
-          }
-          // Encode the JSON so it can't collide with newlines or sentinel markers.
-          // (encodeURIComponent on the whole JSON keeps it on one line, no \n or {{ }}.)
+          text += '\n';
           text += '{{TABLE|' + encodeURIComponent(tableJson) + '}}';
           text += '\n\n';
         }
