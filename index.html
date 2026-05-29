@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Idox HTML Converter v1.10.0.b2 — May 2026 -->
+<!-- Idox HTML Converter v1.10.0.b3 — May 2026 -->
 <html lang="en"><head>
 <meta charset="UTF-8">
 <title>Idox — HTML Converter</title>
@@ -272,6 +272,7 @@
   #view-converter .grid {
     flex: 1;
     overflow-y: auto;
+    scrollbar-gutter: stable;
     min-height: 0;
     margin-top: 48px;
   }
@@ -1910,7 +1911,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">v1.10.0.b2<br>May 2026</div>
+    <div class="version" id="app-version">v1.10.0.b3<br>May 2026</div>
     </div>
   </aside>
 
@@ -2317,7 +2318,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // ===== Build stamp =====
   // Single source of truth for the version+build string shown in the sidebar.
   // Bump this (and the matching comment on line 2) on every save.
-  var IDOX_BUILD = 'v1.10.0.b2';
+  var IDOX_BUILD = 'v1.10.0.b3';
   (function () {
     var v = document.getElementById('app-version');
     if (v) v.innerHTML = IDOX_BUILD + '<br>May 2026';
@@ -2866,21 +2867,19 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   }
 
   // Run the conversion, show the output, and unlock the rocker + Copy.
+  // Convert in place (no blanking, no timeout) so the output box doesn't
+  // collapse and spring back — same approach the rocker uses.
   function runMainConvert() {
-    outputEl.value = '';
+    var result = convert();
+    outputEl.value = result;
     autoResizeOutput();
-    setTimeout(function () {
-      var result = convert();
-      outputEl.value = result;
-      autoResizeOutput();
-      if (result) {
-        unlockMainOutput();
-        setStatus('Converted.');
-      } else {
-        // Nothing converted (empty input) — keep things locked.
-        lockMainOutput();
-      }
-    }, 60);
+    if (result) {
+      unlockMainOutput();
+      setStatus('Converted.');
+    } else {
+      // Nothing converted (empty input) — keep things locked.
+      lockMainOutput();
+    }
   }
 
   // Quietly re-run the conversion in place — no blanking, no delay — so a
