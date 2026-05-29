@@ -1240,6 +1240,13 @@
   }
   .tbl-pill:hover { background: rgba(70, 170, 230, 0.32); }
   .tbl-pill-icon { font-size: 12px; line-height: 1; }
+  /* Visual-only breathing room around the pill when it sits inside the main
+     Input box. Purely CSS — does not affect the converter output, which only
+     reads the pill's data-table attribute. */
+  #input .tbl-pill {
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
 
   /* Hover hint tooltip (text only, no buttons) */
   .tbl-pill-hint {
