@@ -1242,8 +1242,12 @@
   .tbl-pill-icon { font-size: 12px; line-height: 1; }
   /* Visual-only breathing room around the pill when it sits inside the main
      Input box. Purely CSS — does not affect the converter output, which only
-     reads the pill's data-table attribute. */
+     reads the pill's data-table attribute. The pill is forced onto its own
+     line (display: flex with fit-content width) so the user can never end up
+     with text-pill-text on the same line after editing. */
   #input .tbl-pill {
+    display: flex;
+    width: fit-content;
     margin-top: 1em;
     margin-bottom: 1em;
   }
@@ -2524,9 +2528,12 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       if (tag === 'span' && node.classList && node.classList.contains('tbl-pill')) {
         var tableJson = node.getAttribute('data-table') || '';
         if (tableJson) {
-          text += '\n';
+          // Always emit \n\n either side so the pill becomes its own block,
+          // regardless of how the surrounding DOM is structured (text could
+          // be in the same div as the pill, e.g. after a backspace edit).
+          text += '\n\n';
           text += '{{TABLE|' + encodeURIComponent(tableJson) + '}}';
-          text += '\n';
+          text += '\n\n';
         }
         return;
       }
@@ -2668,6 +2675,15 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       if (idx < runMatches.length) {
         var nlCount = runMatches[idx].length;
         var extras = nlCount - 2;
+        // If the NEXT segment is a table sentinel, the pill's own unconditional
+        // \n\n leading contributed 2 newlines to this run. Combined with the
+        // surrounding div's contribution, we end up with 1 newline too many.
+        // Subtract it so N user-typed enters before the pill produces N spacers.
+        var nextSeg = segments[idx + 1] || '';
+        if (/^\{\{TABLE\|[^}]+\}\}$/.test(nextSeg.trim())) {
+          extras -= 1;
+          if (extras < 0) extras = 0;
+        }
         for (var s = 0; s < extras; s++) {
           pTags.push('<p>&nbsp;</p>');
         }
