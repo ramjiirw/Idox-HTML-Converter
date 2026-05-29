@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Idox HTML Converter v1.10.0.b4 — May 2026 -->
+<!-- Idox HTML Converter v1.10.0.b5 — May 2026 -->
 <html lang="en"><head>
 <meta charset="UTF-8">
 <title>Idox — HTML Converter</title>
@@ -1646,12 +1646,17 @@
     top: 50%;
     transform: translateY(-50%);
     white-space: nowrap;
-    font-size: 14px;
+    font-size: 17px;
     font-weight: 500;
     color: var(--idox-sky);
     opacity: 0;
     transition: opacity 0.35s ease;
     pointer-events: none;
+  }
+  .main-output-status.is-ok::before {
+    content: "\2713";
+    margin-right: 6px;
+    font-weight: 700;
   }
   .main-output-status.show { opacity: 1; }
   .tbl-mode-group {
@@ -1928,7 +1933,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">v1.10.0.b4<br>May 2026</div>
+    <div class="version" id="app-version">v1.10.0.b5<br>May 2026</div>
     </div>
   </aside>
 
@@ -2336,7 +2341,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // ===== Build stamp =====
   // Single source of truth for the version+build string shown in the sidebar.
   // Bump this (and the matching comment on line 2) on every save.
-  var IDOX_BUILD = 'v1.10.0.b4';
+  var IDOX_BUILD = 'v1.10.0.b5';
   (function () {
     var v = document.getElementById('app-version');
     if (v) v.innerHTML = IDOX_BUILD + '<br>May 2026';
@@ -2826,10 +2831,12 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     return out;
   }
 
-  function setStatus(msg) {
+  function setStatus(msg, ok) {
+    if (ok === undefined) ok = true;   // success by default → shows a tick
     var els = document.querySelectorAll('.status-msg');
     els.forEach(function (el) {
       el.textContent = msg;
+      el.classList.toggle('is-ok', !!ok);
       el.classList.add('show');
     });
     setTimeout(function () {
@@ -2893,7 +2900,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     autoResizeOutput();
     if (result) {
       unlockMainOutput();
-      setStatus('Converted.');
+      setStatus('Converted');
     } else {
       // Nothing converted (empty input) — keep things locked.
       lockMainOutput();
@@ -2911,10 +2918,10 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   }
 
   function copyMainOutput() {
-    if (!outputEl.value) { setStatus('Nothing to copy.'); return; }
+    if (!outputEl.value) { setStatus('Nothing to copy', false); return; }
     outputEl.select();
     document.execCommand('copy');
-    setStatus('Copied.');
+    setStatus('Copied');
   }
 
   // Sidebar Convert (hidden for this tool, but kept wired) + inline Convert.
@@ -3016,7 +3023,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         autoResizeOutput();
         setMainBracketMode(false);
         lockMainOutput();
-        setStatus('Cleared.');
+        setStatus('Cleared');
       });
     });
   });
