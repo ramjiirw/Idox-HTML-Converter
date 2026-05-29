@@ -2982,6 +2982,9 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         if (n.nodeType === Node.ELEMENT_NODE && n.classList && n.classList.contains('tbl-cell')) {
           return { sel: sel, range: range, container: 'tables' };
         }
+        if (n.nodeType === Node.ELEMENT_NODE && n.classList && n.classList.contains('it-cell')) {
+          return { sel: sel, range: range, container: 'insert-table' };
+        }
         n = n.parentNode;
       }
       return null;
@@ -3018,8 +3021,8 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       while (node && node !== inputEl && node !== plainInputEl) {
         if (node.nodeType === Node.ELEMENT_NODE) {
           if (node.classList && node.classList.contains('ph-tag')) return node;
-          // Stop walking up when we hit the table cell boundary
-          if (node.classList && node.classList.contains('tbl-cell')) return null;
+          // Stop walking up when we hit a table cell boundary (Tables view or Insert Table modal)
+          if (node.classList && (node.classList.contains('tbl-cell') || node.classList.contains('it-cell'))) return null;
         }
         node = node.parentNode;
       }
@@ -3032,7 +3035,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       btnBold.classList.toggle('active', document.queryCommandState('bold'));
       btnItalic.classList.toggle('active', document.queryCommandState('italic'));
       var isPlain = (info.container === 'plain');
-      var isTables = (info.container === 'tables');
+      var isTables = (info.container === 'tables' || info.container === 'insert-table');
       // Placeholder + link: available in main and tables, hidden in plain
       btnPh.style.display = isPlain ? 'none' : '';
       btnLink.style.display = isPlain ? 'none' : '';
@@ -3064,7 +3067,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       var node = sel.getRangeAt(0).commonAncestorContainer;
       while (node && node.parentNode) {
         if (node.nodeType === Node.ELEMENT_NODE && node.classList &&
-            node.classList.contains('tbl-cell')) {
+            (node.classList.contains('tbl-cell') || node.classList.contains('it-cell'))) {
           node.dispatchEvent(new Event('input', { bubbles: true }));
           return;
         }
@@ -3158,7 +3161,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         if (node === inputEl || node === plainInputEl) return null;
         if (node.nodeType === Node.ELEMENT_NODE) {
           if (node.tagName && node.tagName.toLowerCase() === 'a') return node;
-          if (node.classList && node.classList.contains('tbl-cell')) return null;
+          if (node.classList && (node.classList.contains('tbl-cell') || node.classList.contains('it-cell'))) return null;
         }
         node = node.parentNode;
       }
