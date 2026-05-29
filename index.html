@@ -274,6 +274,39 @@
     min-height: 0;
     margin-top: 48px;
   }
+  #view-converter .main-preview-wrap {
+    background: var(--idox-panel-tint);
+    border: 1px solid #cdd3e0;
+    border-radius: 8px;
+    padding: 18px 20px;
+    box-shadow: 0 2px 8px rgba(10, 31, 143, 0.06);
+    overflow-x: auto;
+  }
+  #view-converter .main-preview {
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    color: #222;
+  }
+  #view-converter .main-preview p { margin: 0 0 1em; }
+  #view-converter .main-preview p:last-child { margin-bottom: 0; }
+  #view-converter .main-preview ul,
+  #view-converter .main-preview ol { margin: 0 0 1em; padding-left: 1.6em; }
+  #view-converter .main-preview li { margin: 0.2em 0; }
+  #view-converter .main-preview a {
+    color: var(--idox-cobalt);
+    text-decoration: underline;
+  }
+  #view-converter .main-preview .ph-tag {
+    background: rgba(70, 170, 230, 0.18);
+    border-radius: 3px;
+    padding: 0 2px;
+  }
+  #view-converter .main-preview-empty {
+    color: var(--idox-stone);
+    font-style: italic;
+    margin: 0;
+  }
   #view-snippets, #view-help {
     flex: 1;
     overflow-y: auto;
@@ -1536,7 +1569,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version">v1.9.2<br>May 2026</div>
+    <div class="version">v1.9.3<br>May 2026</div>
     </div>
   </aside>
 
@@ -1562,6 +1595,12 @@
           </div>
         </div>
         <textarea id="output" readonly=""></textarea>
+      </div>
+      <div>
+        <span class="panel-label">Preview — how this will render</span>
+        <div class="main-preview-wrap">
+          <div class="main-preview" id="main-preview"><p class="main-preview-empty">Start typing in the input above to see a preview.</p></div>
+        </div>
       </div>
     </div>
     </div>
@@ -2216,6 +2255,25 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       }
     });
 
+    // Render the visual preview from the same pTags array that produces the C#
+    // output, so the preview always exactly matches what would be generated.
+    try {
+      var previewEl = document.getElementById('main-preview');
+      if (previewEl) {
+        if (pTags.length === 0) {
+          previewEl.innerHTML = '<p class="main-preview-empty">Start typing in the input above to see a preview.</p>';
+        } else {
+          // Wrap any [Placeholder] occurrences in a ph-tag span for visual highlighting,
+          // matching the placeholder styling used elsewhere in the tool.
+          var previewHtml = pTags.join('').replace(
+            /\[([^\[\]\n]+?)\]/g,
+            function (_, inner) { return '<span class="ph-tag">[' + inner + ']</span>'; }
+          );
+          previewEl.innerHTML = previewHtml;
+        }
+      }
+    } catch (e) { /* preview is best-effort */ }
+
     if (pTags.length === 0) return '';
 
     var out = 'string emailbody =\n';
@@ -2411,12 +2469,22 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
 
   // The moment the input is edited, any existing output is stale: clear it,
   // re-lock the rocker + Copy, and leave only Convert active again.
+  // Also update the live preview (debounced) so the user can see how the email
+  // will render as they type, without having to click Convert.
+  var previewDebounce;
+  function schedulePreviewUpdate() {
+    clearTimeout(previewDebounce);
+    previewDebounce = setTimeout(function () {
+      try { convert(); } catch (e) { /* preview is best-effort */ }
+    }, 180);
+  }
   inputEl.addEventListener('input', function () {
     if (outputEl.value) {
       outputEl.value = '';
       autoResizeOutput();
     }
     lockMainOutput();
+    schedulePreviewUpdate();
   });
 
   document.querySelectorAll('.btn-clear').forEach(function (btn) {
@@ -2431,6 +2499,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         autoResizeOutput();
         setMainBracketMode(false);
         lockMainOutput();
+        schedulePreviewUpdate();
         setStatus('Cleared.');
       });
     });
@@ -4109,7 +4178,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url;
-        a.download = 'Idox HTML Converter v1.9.2.html';
+        a.download = 'Idox HTML Converter v1.9.3.html';
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -5228,6 +5297,10 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       // otherwise leave them locked until the user converts.
       if (mainOut && mainOut.value && typeof unlockMainOutput === 'function') {
         unlockMainOutput();
+      }
+      // If main input was restored, populate the live preview pane.
+      if (mi && mainIn && typeof convert === 'function') {
+        try { convert(); } catch (e) { /* preview is best-effort */ }
       }
     } catch (e) { /* sessionStorage may be unavailable */ }
 
