@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Idox HTML Converter v1.10.0.b15 — May 2026 -->
+<!-- Idox HTML Converter v1.10.0.b16 — May 2026 -->
 <html lang="en"><head>
 <meta charset="UTF-8">
 <title>Idox — HTML Converter</title>
@@ -204,13 +204,12 @@
   }
   #plain-reminder {
     position: fixed;
-    top: 18px;
-    left: 460px;
+    top: 96px;
     right: 24px;
     z-index: 900;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 20px;
     flex-wrap: nowrap;
     background: #fff;
     color: var(--idox-cobalt);
@@ -218,7 +217,7 @@
     border-radius: 8px;
     padding: 12px 18px;
     font-size: 15px;
-    line-height: 1.4;
+    line-height: 1.3;
     box-shadow: 0 6px 20px rgba(10, 31, 143, 0.18);
   }
   #plain-reminder code {
@@ -230,15 +229,16 @@
     color: var(--idox-cobalt);
     white-space: nowrap;
   }
-  .plain-reminder-text { font-weight: 600; white-space: nowrap; }
+  .plain-reminder-pair { display: flex; flex-direction: column; }
+  .plain-reminder-text { font-weight: 600; margin-bottom: 5px; }
   .plain-reminder-snippet {
     background: var(--idox-panel-tint);
-    padding: 6px 10px;
+    padding: 5px 8px;
     border-radius: 4px;
     white-space: nowrap;
   }
   .plain-reminder-snippet code { background: transparent; padding: 0; font-size: 14px; }
-  .plain-reminder-text-below { font-size: 15px; line-height: 1.3; }
+  .plain-reminder-text-below { font-weight: 600; margin-bottom: 5px; font-size: 15px; }
   .plain-reminder-copy {
     background: var(--idox-cobalt);
     color: #fff;
@@ -1939,7 +1939,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">v1.10.0.b15<br>May 2026</div>
+    <div class="version" id="app-version">v1.10.0.b16<br>May 2026</div>
     </div>
   </aside>
 
@@ -2193,9 +2193,14 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     <button type="button" id="btn-link" title="Link (toggle)"><span class="ph">🔗</span></button>
   </div>
   <div id="plain-reminder" style="display:none;">
-    <div class="plain-reminder-text">Add this line to your C#:</div>
-    <div class="plain-reminder-snippet"><code id="plain-reminder-code">mailMessage.IsBodyHtml = true;</code></div>
-    <div class="plain-reminder-text-below">Place it directly below the line <code>mailMessage.Body = emailbody;</code></div>
+    <div class="plain-reminder-pair">
+      <div class="plain-reminder-text">Add this line to your C#:</div>
+      <div class="plain-reminder-snippet"><code id="plain-reminder-code">mailMessage.IsBodyHtml = true;</code></div>
+    </div>
+    <div class="plain-reminder-pair">
+      <div class="plain-reminder-text-below">Place it directly below the line:</div>
+      <div class="plain-reminder-snippet"><code>mailMessage.Body = emailbody;</code></div>
+    </div>
     <button type="button" id="plain-reminder-copy" class="plain-reminder-copy">Copy line</button>
   </div>
   <div id="confirm-modal" class="modal-backdrop" style="display: none;">
@@ -2355,7 +2360,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // ===== Build stamp =====
   // Single source of truth for the version+build string shown in the sidebar.
   // Bump this (and the matching comment on line 2) on every save.
-  var IDOX_BUILD = 'v1.10.0.b15';
+  var IDOX_BUILD = 'v1.10.0.b16';
   (function () {
     var v = document.getElementById('app-version');
     if (v) v.innerHTML = IDOX_BUILD + '<br>May 2026';
