@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Idox HTML Converter v1.10.0.b16 — May 2026 -->
+<!-- Idox HTML Converter v1.10.0.b17 — May 2026 -->
 <html lang="en"><head>
 <meta charset="UTF-8">
 <title>Idox — HTML Converter</title>
@@ -203,14 +203,12 @@
     margin-top: 8px;
   }
   #plain-reminder {
-    position: fixed;
-    top: 96px;
-    right: 24px;
-    z-index: 900;
     display: flex;
     align-items: center;
     gap: 20px;
     flex-wrap: nowrap;
+    width: fit-content;
+    max-width: 100%;
     background: #fff;
     color: var(--idox-cobalt);
     border: 1px solid #c2c9da;
@@ -218,7 +216,6 @@
     padding: 12px 18px;
     font-size: 15px;
     line-height: 1.3;
-    box-shadow: 0 6px 20px rgba(10, 31, 143, 0.18);
   }
   #plain-reminder code {
     font-family: ui-monospace, Consolas, 'Courier New', monospace;
@@ -250,7 +247,6 @@
     text-align: center;
     cursor: pointer;
     white-space: nowrap;
-    margin-left: auto;
   }
   .plain-reminder-copy:hover {
     background: var(--idox-cobalt-deep);
@@ -1939,7 +1935,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">v1.10.0.b16<br>May 2026</div>
+    <div class="version" id="app-version">v1.10.0.b17<br>May 2026</div>
     </div>
   </aside>
 
@@ -2005,6 +2001,17 @@
         <div>
           <span class="panel-label">Plain C# input — paste here</span>
           <div id="plain-input" contenteditable="true" spellcheck="false"></div>
+        </div>
+        <div id="plain-reminder" style="display:none;">
+          <div class="plain-reminder-pair">
+            <div class="plain-reminder-text">Add this line to your C#:</div>
+            <div class="plain-reminder-snippet"><code id="plain-reminder-code">mailMessage.IsBodyHtml = true;</code></div>
+          </div>
+          <div class="plain-reminder-pair">
+            <div class="plain-reminder-text-below">Place it directly below the line:</div>
+            <div class="plain-reminder-snippet"><code>mailMessage.Body = emailbody;</code></div>
+          </div>
+          <button type="button" id="plain-reminder-copy" class="plain-reminder-copy">Copy line</button>
         </div>
         <div>
           <div class="tbl-output-head">
@@ -2192,17 +2199,6 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     <button type="button" id="btn-ol" class="wide" title="Numbered list (toggle)" style="display: none;"><span class="icon">1,2</span><span>List</span></button>
     <button type="button" id="btn-link" title="Link (toggle)"><span class="ph">🔗</span></button>
   </div>
-  <div id="plain-reminder" style="display:none;">
-    <div class="plain-reminder-pair">
-      <div class="plain-reminder-text">Add this line to your C#:</div>
-      <div class="plain-reminder-snippet"><code id="plain-reminder-code">mailMessage.IsBodyHtml = true;</code></div>
-    </div>
-    <div class="plain-reminder-pair">
-      <div class="plain-reminder-text-below">Place it directly below the line:</div>
-      <div class="plain-reminder-snippet"><code>mailMessage.Body = emailbody;</code></div>
-    </div>
-    <button type="button" id="plain-reminder-copy" class="plain-reminder-copy">Copy line</button>
-  </div>
   <div id="confirm-modal" class="modal-backdrop" style="display: none;">
     <div class="modal-card">
       <h2 class="modal-title">Clear everything?</h2>
@@ -2360,7 +2356,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // ===== Build stamp =====
   // Single source of truth for the version+build string shown in the sidebar.
   // Bump this (and the matching comment on line 2) on every save.
-  var IDOX_BUILD = 'v1.10.0.b16';
+  var IDOX_BUILD = 'v1.10.0.b17';
   (function () {
     var v = document.getElementById('app-version');
     if (v) v.innerHTML = IDOX_BUILD + '<br>May 2026';
