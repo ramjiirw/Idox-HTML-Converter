@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Idox HTML Converter v1.10.0.b13 — May 2026 -->
+<!-- Idox HTML Converter v1.10.0.b14 — May 2026 -->
 <html lang="en"><head>
 <meta charset="UTF-8">
 <title>Idox — HTML Converter</title>
@@ -202,55 +202,59 @@
     padding-top: 18px;
     margin-top: 8px;
   }
-  aside #plain-reminder {
-    margin-top: 14px;
+  #plain-reminder {
+    position: fixed;
+    top: 18px;
+    right: 24px;
+    z-index: 900;
+    width: 300px;
     background: #fff;
     color: var(--idox-cobalt);
-    border-radius: 6px;
-    padding: 12px 14px;
-    font-size: 13px;
+    border: 1px solid #c2c9da;
+    border-radius: 8px;
+    padding: 16px 18px;
+    font-size: 15px;
     line-height: 1.5;
+    box-shadow: 0 6px 20px rgba(10, 31, 143, 0.18);
   }
-  aside #plain-reminder code {
+  #plain-reminder code {
     font-family: ui-monospace, Consolas, 'Courier New', monospace;
-    font-size: 12px;
+    font-size: 14px;
     background: rgba(10, 31, 143, 0.08);
     padding: 1px 4px;
     border-radius: 3px;
     color: var(--idox-cobalt);
-    word-break: break-all;
   }
-  aside .plain-reminder-text { margin-bottom: 8px; }
-  aside .plain-reminder-snippet {
+  .plain-reminder-text { margin-bottom: 8px; font-weight: 600; }
+  .plain-reminder-snippet {
     background: var(--idox-panel-tint);
     padding: 8px 10px;
     border-radius: 4px;
     margin-bottom: 8px;
-    word-break: break-all;
   }
-  aside .plain-reminder-snippet code {
+  .plain-reminder-snippet code {
     background: transparent;
     padding: 0;
-    font-size: 12px;
+    font-size: 14px;
   }
-  aside .plain-reminder-text-below {
+  .plain-reminder-text-below {
     margin-bottom: 10px;
-    font-size: 12px;
+    font-size: 15px;
     line-height: 1.4;
   }
-  aside .plain-reminder-copy {
+  .plain-reminder-copy {
     width: 100%;
     background: var(--idox-cobalt);
     color: #fff;
     border: 1px solid var(--idox-cobalt);
-    padding: 8px 12px;
+    padding: 10px 12px;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 15px;
     font-weight: 500;
     text-align: center;
     cursor: pointer;
   }
-  aside .plain-reminder-copy:hover {
+  .plain-reminder-copy:hover {
     background: var(--idox-cobalt-deep);
   }
 
@@ -1890,13 +1894,6 @@
       <button class="btn-nav" id="btn-nav-tables">HTML Tables</button>
     </div>
 
-    <div id="plain-reminder" style="display:none;">
-      <div class="plain-reminder-text">Add this line to your C#:</div>
-      <div class="plain-reminder-snippet"><code id="plain-reminder-code">mailMessage.IsBodyHtml = true;</code></div>
-      <div class="plain-reminder-text-below">Place it directly below the line <code>mailMessage.Body = emailbody;</code></div>
-      <button type="button" id="plain-reminder-copy" class="plain-reminder-copy">Copy line</button>
-    </div>
-
     <div id="main-actions-wrapper" style="">
       <span class="label">Actions</span>
       <div class="side-actions">
@@ -1944,7 +1941,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">v1.10.0.b13<br>May 2026</div>
+    <div class="version" id="app-version">v1.10.0.b14<br>May 2026</div>
     </div>
   </aside>
 
@@ -2197,6 +2194,12 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     <button type="button" id="btn-ol" class="wide" title="Numbered list (toggle)" style="display: none;"><span class="icon">1,2</span><span>List</span></button>
     <button type="button" id="btn-link" title="Link (toggle)"><span class="ph">🔗</span></button>
   </div>
+  <div id="plain-reminder" style="display:none;">
+    <div class="plain-reminder-text">Add this line to your C#:</div>
+    <div class="plain-reminder-snippet"><code id="plain-reminder-code">mailMessage.IsBodyHtml = true;</code></div>
+    <div class="plain-reminder-text-below">Place it directly below the line <code>mailMessage.Body = emailbody;</code></div>
+    <button type="button" id="plain-reminder-copy" class="plain-reminder-copy">Copy line</button>
+  </div>
   <div id="confirm-modal" class="modal-backdrop" style="display: none;">
     <div class="modal-card">
       <h2 class="modal-title">Clear everything?</h2>
@@ -2354,7 +2357,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // ===== Build stamp =====
   // Single source of truth for the version+build string shown in the sidebar.
   // Bump this (and the matching comment on line 2) on every save.
-  var IDOX_BUILD = 'v1.10.0.b13';
+  var IDOX_BUILD = 'v1.10.0.b14';
   (function () {
     var v = document.getElementById('app-version');
     if (v) v.innerHTML = IDOX_BUILD + '<br>May 2026';
