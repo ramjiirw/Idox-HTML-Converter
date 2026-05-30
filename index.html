@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Idox HTML Converter v1.10.0.b6 — May 2026 -->
+<!-- Idox HTML Converter v1.10.0.b7 — May 2026 -->
 <html lang="en"><head>
 <meta charset="UTF-8">
 <title>Idox — HTML Converter</title>
@@ -144,6 +144,15 @@
   }
   aside .btn-copy:hover, aside .btn-clear:hover {
     background: rgba(255,255,255,0.12); border-color: #fff;
+  }
+  aside .btn-clear-all {
+    background: transparent; color: rgba(255,255,255,0.6);
+    border: 1px dashed rgba(255,255,255,0.3);
+    font-size: 13px; padding: 9px 16px;
+  }
+  aside .btn-clear-all:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.6); color: #fff;
   }
   aside .status {
     font-size: 14px; color: var(--idox-sky); font-weight: 500; min-height: 16px;
@@ -1894,6 +1903,7 @@
         <button class="btn-convert" style="display: none;">Convert</button>
         <button class="btn-copy" style="display: none;">Copy output</button>
         <button class="btn-clear">Clear / Reset</button>
+        <button type="button" class="btn-clear-all">Clear all tools</button>
       </div>
     </div>
 
@@ -1902,6 +1912,7 @@
       <div class="side-actions">
         <button id="btn-plain-copy" class="btn-copy" style="display: none;">Copy output</button>
         <button id="btn-plain-clear" class="btn-clear">Clear / Reset</button>
+        <button type="button" class="btn-clear-all">Clear all tools</button>
       </div>
     </div>
 
@@ -1910,6 +1921,7 @@
       <div class="side-actions">
         <button id="btn-tables-copy" class="btn-copy btn-tables-action" style="display: none;">Copy output</button>
         <button id="btn-tables-clear" class="btn-clear btn-tables-action">Clear / Reset</button>
+        <button type="button" class="btn-clear-all">Clear all tools</button>
       </div>
     </div>
 
@@ -1932,7 +1944,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">v1.10.0.b6<br>May 2026</div>
+    <div class="version" id="app-version">v1.10.0.b7<br>May 2026</div>
     </div>
   </aside>
 
@@ -2342,7 +2354,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // ===== Build stamp =====
   // Single source of truth for the version+build string shown in the sidebar.
   // Bump this (and the matching comment on line 2) on every save.
-  var IDOX_BUILD = 'v1.10.0.b6';
+  var IDOX_BUILD = 'v1.10.0.b7';
   (function () {
     var v = document.getElementById('app-version');
     if (v) v.innerHTML = IDOX_BUILD + '<br>May 2026';
@@ -3018,13 +3030,35 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     btn.addEventListener('click', function () {
       // If everything's already empty, just no-op
       if (!inputEl.innerHTML && !outputEl.value) return;
+      confirmModal.show(resetMainTool);
+    });
+  });
+
+  // Reusable reset for the Text-to-HTML tool (used by its own Clear/Reset and
+  // by the global "Clear all tools" button).
+  function resetMainTool() {
+    inputEl.innerHTML = '';
+    outputEl.value = '';
+    autoResizeOutput();
+    setMainBracketMode(false);
+    lockMainOutput();
+    setStatus('Cleared');
+  }
+  (window._idoxClearFns = window._idoxClearFns || []).push(resetMainTool);
+
+  // ===== Clear all tools =====
+  // Always-visible button (present in every tool's Actions block). One confirm,
+  // then run every tool's registered reset so all three are blanked at once.
+  document.querySelectorAll('.btn-clear-all').forEach(function (btn) {
+    btn.addEventListener('click', function () {
       confirmModal.show(function () {
-        inputEl.innerHTML = '';
-        outputEl.value = '';
-        autoResizeOutput();
-        setMainBracketMode(false);
-        lockMainOutput();
-        setStatus('Cleared');
+        (window._idoxClearFns || []).forEach(function (fn) {
+          try { fn(); } catch (e) { /* keep going if one tool errors */ }
+        });
+      }, {
+        title: 'Clear all tools?',
+        body: 'This resets Text to HTML, Plain C# to HTML, and HTML Tables to blank. You can\u2019t undo this.',
+        confirmLabel: 'Clear all'
       });
     });
   });
@@ -3734,14 +3768,16 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     if (btnPlainClear) {
       btnPlainClear.addEventListener('click', function () {
         if (!input.innerHTML && !output.value) return;
-        confirmModal.show(function () {
-          input.innerHTML = '';
-          output.value = '';
-          setPlainStatus('Cleared');
-          updateReminderVisibility();
-        });
+        confirmModal.show(resetPlainTool);
       });
     }
+    function resetPlainTool() {
+      input.innerHTML = '';
+      output.value = '';
+      setPlainStatus('Cleared');
+      updateReminderVisibility();
+    }
+    (window._idoxClearFns = window._idoxClearFns || []).push(resetPlainTool);
 
     var reminderCopyBtn = document.getElementById('plain-reminder-copy');
     var reminderCodeEl = document.getElementById('plain-reminder-code');
@@ -5746,24 +5782,27 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
           state.padRight === 15 && state.padBottom === 0) {
         return;
       }
-      confirmModal.show(function () {
-        state.cols = 2;
-        state.rows = 2;
-        state.padRight = 15;
-        state.padBottom = 0;
-        state.cells = [['', ''], ['', '']];
-        padRightInput.value = '15';
-        padBottomInput.value = '0';
-        setBracketMode(false);
-        renderGrid();
-        scheduleRender();
-        setStatus('Cleared');
-      }, {
+      confirmModal.show(resetTablesTool, {
         title: 'Clear the table?',
         body: 'This resets the table to a blank 2x2 grid. You can\u2019t undo this.',
         confirmLabel: 'Clear'
       });
     });
+
+    function resetTablesTool() {
+      state.cols = 2;
+      state.rows = 2;
+      state.padRight = 15;
+      state.padBottom = 0;
+      state.cells = [['', ''], ['', '']];
+      padRightInput.value = '15';
+      padBottomInput.value = '0';
+      setBracketMode(false);
+      renderGrid();
+      scheduleRender();
+      setStatus('Cleared');
+    }
+    (window._idoxClearFns = window._idoxClearFns || []).push(resetTablesTool);
 
     // Expose state hooks for the auto-save module
     window._idoxTables = {
