@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Idox HTML Converter v1.10.0.b11 — May 2026 -->
+<!-- Idox HTML Converter v1.10.0.b12 — May 2026 -->
 <html lang="en"><head>
 <meta charset="UTF-8">
 <title>Idox — HTML Converter</title>
@@ -32,8 +32,7 @@
     align-self: flex-start;
     height: 100vh;
     max-height: 100vh;
-    overflow-y: auto;
-    scrollbar-gutter: stable;
+    overflow: hidden;
   }
   aside {
     position: relative;
@@ -118,6 +117,9 @@
     padding: 24px 3px 24px 18px;
     display: flex; flex-direction: column; gap: 24px;
     flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
   }
   aside .logo-wrap {
     display: inline-flex; align-items: center;
@@ -1945,7 +1947,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">v1.10.0.b11<br>May 2026</div>
+    <div class="version" id="app-version">v1.10.0.b12<br>May 2026</div>
     </div>
   </aside>
 
@@ -2355,7 +2357,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // ===== Build stamp =====
   // Single source of truth for the version+build string shown in the sidebar.
   // Bump this (and the matching comment on line 2) on every save.
-  var IDOX_BUILD = 'v1.10.0.b11';
+  var IDOX_BUILD = 'v1.10.0.b12';
   (function () {
     var v = document.getElementById('app-version');
     if (v) v.innerHTML = IDOX_BUILD + '<br>May 2026';
