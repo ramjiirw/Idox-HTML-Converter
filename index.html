@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Idox HTML Converter v1.10.0.b5 — May 2026 -->
+<!-- Idox HTML Converter v1.10.0.b6 — May 2026 -->
 <html lang="en"><head>
 <meta charset="UTF-8">
 <title>Idox — HTML Converter</title>
@@ -1636,10 +1636,11 @@
     gap: 10px;
     flex-wrap: wrap;
   }
-  /* Inline output status sits just left of Convert, out of the layout flow
-     so it can fade in/out without nudging Convert, the rocker, or Copy. */
-  #main-output-actions { position: relative; }
-  .main-output-status {
+  /* Inline output status sits just left of the output buttons, out of the
+     layout flow so it can fade in/out without nudging anything. Shared by all
+     three tools (Text-to-HTML, Plain C#, HTML Tables). */
+  #main-output-actions, #plain-output-actions, #tables-output-actions { position: relative; }
+  .inline-output-status {
     position: absolute;
     right: 100%;
     margin-right: 12px;
@@ -1653,12 +1654,12 @@
     transition: opacity 0.35s ease;
     pointer-events: none;
   }
-  .main-output-status.is-ok::before {
+  .inline-output-status.is-ok::before {
     content: "\2713";
     margin-right: 6px;
     font-weight: 700;
   }
-  .main-output-status.show { opacity: 1; }
+  .inline-output-status.show { opacity: 1; }
   .tbl-mode-group {
     display: flex;
     width: 360px;
@@ -1901,7 +1902,6 @@
       <div class="side-actions">
         <button id="btn-plain-copy" class="btn-copy" style="display: none;">Copy output</button>
         <button id="btn-plain-clear" class="btn-clear">Clear / Reset</button>
-        <span class="status status-msg-plain"></span>
       </div>
     </div>
 
@@ -1910,7 +1910,6 @@
       <div class="side-actions">
         <button id="btn-tables-copy" class="btn-copy btn-tables-action" style="display: none;">Copy output</button>
         <button id="btn-tables-clear" class="btn-clear btn-tables-action">Clear / Reset</button>
-        <span class="status status-msg-tables"></span>
       </div>
     </div>
 
@@ -1933,7 +1932,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">v1.10.0.b5<br>May 2026</div>
+    <div class="version" id="app-version">v1.10.0.b6<br>May 2026</div>
     </div>
   </aside>
 
@@ -1955,7 +1954,7 @@
         <div class="tbl-output-head">
           <span class="panel-label">Output — C# string</span>
           <div class="tbl-output-actions is-locked" id="main-output-actions">
-            <span class="status-msg main-output-status"></span>
+            <span class="status-msg inline-output-status"></span>
             <button type="button" id="main-convert-inline" class="tbl-output-convert">Convert</button>
             <div class="tbl-mode-group">
               <button type="button" id="main-mode-with" class="tbl-mode-btn is-active">Output with [ ]</button>
@@ -2003,7 +2002,8 @@
         <div>
           <div class="tbl-output-head">
             <span class="panel-label">HTML C# output</span>
-            <div class="tbl-output-actions">
+            <div class="tbl-output-actions" id="plain-output-actions">
+              <span class="status-msg-plain inline-output-status"></span>
               <button type="button" id="plain-output-copy" class="tbl-output-copy">Copy output</button>
             </div>
           </div>
@@ -2058,7 +2058,8 @@
 
       <div class="tbl-output-head">
         <span class="panel-label">Output — C# string</span>
-        <div class="tbl-output-actions">
+        <div class="tbl-output-actions" id="tables-output-actions">
+          <span class="status-msg-tables inline-output-status"></span>
           <div class="tbl-mode-group">
             <button type="button" id="tbl-mode-with" class="tbl-mode-btn is-active">Output with [ ]</button>
             <button type="button" id="tbl-mode-without" class="tbl-mode-btn">Output without [ ]</button>
@@ -2341,7 +2342,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // ===== Build stamp =====
   // Single source of truth for the version+build string shown in the sidebar.
   // Bump this (and the matching comment on line 2) on every save.
-  var IDOX_BUILD = 'v1.10.0.b5';
+  var IDOX_BUILD = 'v1.10.0.b6';
   (function () {
     var v = document.getElementById('app-version');
     if (v) v.innerHTML = IDOX_BUILD + '<br>May 2026';
@@ -3697,10 +3698,12 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     var btnPlainCopy = document.getElementById('btn-plain-copy');
     var btnPlainClear = document.getElementById('btn-plain-clear');
 
-    function setPlainStatus(msg) {
+    function setPlainStatus(msg, ok) {
+      if (ok === undefined) ok = true;
       var els = document.querySelectorAll('.status-msg-plain');
       els.forEach(function (el) {
         el.textContent = msg;
+        el.classList.toggle('is-ok', !!ok);
         el.classList.add('show');
       });
       setTimeout(function () {
@@ -3713,19 +3716,19 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
 
     if (btnPlainCopy) {
       btnPlainCopy.addEventListener('click', function () {
-        if (!output.value) { setPlainStatus('Nothing to copy.'); return; }
+        if (!output.value) { setPlainStatus('Nothing to copy', false); return; }
         output.select();
         document.execCommand('copy');
-        setPlainStatus('Copied.');
+        setPlainStatus('Copied');
       });
     }
     var plainOutputCopy = document.getElementById('plain-output-copy');
     if (plainOutputCopy) {
       plainOutputCopy.addEventListener('click', function () {
-        if (!output.value) { setPlainStatus('Nothing to copy.'); return; }
+        if (!output.value) { setPlainStatus('Nothing to copy', false); return; }
         output.select();
         document.execCommand('copy');
-        setPlainStatus('Copied.');
+        setPlainStatus('Copied');
       });
     }
     if (btnPlainClear) {
@@ -3734,7 +3737,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         confirmModal.show(function () {
           input.innerHTML = '';
           output.value = '';
-          setPlainStatus('Cleared.');
+          setPlainStatus('Cleared');
           updateReminderVisibility();
         });
       });
@@ -5138,9 +5141,11 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     var MIN_COLS = 1;
     var MIN_ROWS = 1;
 
-    function setStatus(msg) {
+    function setStatus(msg, ok) {
       if (!statusEl) return;
+      if (ok === undefined) ok = true;
       statusEl.textContent = msg;
+      statusEl.classList.toggle('is-ok', !!ok);
       statusEl.classList.add('show');
       clearTimeout(setStatus._t);
       setStatus._t = setTimeout(function () {
@@ -5707,10 +5712,10 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     });
 
     function doCopyOutput() {
-      if (!output.value) { setStatus('Nothing to copy.'); return; }
+      if (!output.value) { setStatus('Nothing to copy', false); return; }
       output.select();
       document.execCommand('copy');
-      setStatus('Copied.');
+      setStatus('Copied');
     }
 
     copyBtn.addEventListener('click', doCopyOutput);
@@ -5752,7 +5757,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         setBracketMode(false);
         renderGrid();
         scheduleRender();
-        setStatus('Cleared.');
+        setStatus('Cleared');
       }, {
         title: 'Clear the table?',
         body: 'This resets the table to a blank 2x2 grid. You can\u2019t undo this.',
