@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- Idox HTML Converter v1.10.0.b21 — May 2026 -->
 <html lang="en"><head>
 <meta charset="UTF-8">
 <title>Idox — HTML Converter</title>
@@ -1964,17 +1963,17 @@
       <div>
         <div class="tbl-output-head">
           <span class="panel-label">Output — C# string</span>
-          <div class="tbl-output-actions is-locked" id="main-output-actions">
-            <span class="status-msg inline-output-status"></span>
+          <div class="tbl-output-actions" id="main-output-actions">
+            <span class="status-msg inline-output-status is-ok"></span>
             <button type="button" id="main-convert-inline" class="tbl-output-convert">Convert</button>
             <div class="tbl-mode-group">
-              <button type="button" id="main-mode-with" class="tbl-mode-btn is-active">Output with [ ]</button>
-              <button type="button" id="main-mode-without" class="tbl-mode-btn">Output without [ ]</button>
+              <button type="button" id="main-mode-with" class="tbl-mode-btn">Output with [ ]</button>
+              <button type="button" id="main-mode-without" class="tbl-mode-btn is-active">Output without [ ]</button>
             </div>
             <button type="button" id="main-output-copy" class="tbl-output-copy">Copy output</button>
           </div>
         </div>
-        <textarea id="output" readonly=""></textarea>
+        <textarea id="output" readonly="" style="height: 622px;"></textarea>
       </div>
     </div>
     </div>
@@ -1983,7 +1982,7 @@
       <div class="snippets-sticky-head">
       <div class="snippets-title-row">
         <h1>Code Snippets</h1>
-        <button type="button" class="btn-toggle-all btn-toggle-all-inline" style="display: inline-block;">Collapse all</button>
+        <button type="button" class="btn-toggle-all btn-toggle-all-inline" style="display: inline-block;">Expand all</button>
       </div>
 
       <div class="edit-banner" id="edit-banner">
@@ -1996,9 +1995,9 @@
       </div>
 
       <div id="snippet-actions-bar" class="snippet-actions-bar" style="display: none;">
-        <button type="button" id="btn-toggle-all-snippets" class="btn-toggle-all">Collapse all</button>
+        <button type="button" id="btn-toggle-all-snippets" class="btn-toggle-all">Expand all</button>
       </div>
-      <div id="group-filter-bar" class="group-filter-bar"><button type="button" class="group-filter-pill">All (10)</button><button type="button" class="group-filter-pill">Attachments (2)</button><button type="button" class="group-filter-pill active">Completion (1)</button><button type="button" class="group-filter-pill">Headers (1)</button><button type="button" class="group-filter-pill">HTML (1)</button><button type="button" class="group-filter-pill">Internal Recipient (1)</button><button type="button" class="group-filter-pill">Logo (2)</button><button type="button" class="group-filter-pill">Reporting (1)</button><button type="button" class="group-filter-pill">SMTP &amp; Headers (1)</button></div>
+      <div id="group-filter-bar" class="group-filter-bar"><button type="button" class="group-filter-pill active">All (11)</button><button type="button" class="group-filter-pill">Attachments (2)</button><button type="button" class="group-filter-pill">Completion (1)</button><button type="button" class="group-filter-pill">Headers (1)</button><button type="button" class="group-filter-pill">HTML (2)</button><button type="button" class="group-filter-pill">Internal Recipient (1)</button><button type="button" class="group-filter-pill">Logo (2)</button><button type="button" class="group-filter-pill">Reporting (1)</button><button type="button" class="group-filter-pill">SMTP &amp; Headers (1)</button></div>
       </div>
       <div id="snippets-container"></div>
     </div>
@@ -2010,7 +2009,7 @@
           <span class="panel-label">Plain C# input — paste here</span>
           <div id="plain-input" contenteditable="true" spellcheck="false"></div>
         </div>
-        <div id="plain-reminder" style="display:none;">
+        <div id="plain-reminder" style="display: none;">
           <div class="plain-reminder-rows">
             <div class="plain-reminder-pair">
               <div class="plain-reminder-text">Add this line to your C#:</div>
@@ -2027,7 +2026,7 @@
           <div class="tbl-output-head">
             <span class="panel-label">HTML C# output</span>
             <div class="tbl-output-actions" id="plain-output-actions">
-              <span class="status-msg-plain inline-output-status"></span>
+              <span class="status-msg-plain inline-output-status is-ok"></span>
               <button type="button" id="plain-output-copy" class="tbl-output-copy">Copy output</button>
             </div>
           </div>
@@ -2083,7 +2082,7 @@
       <div class="tbl-output-head">
         <span class="panel-label">Output — C# string</span>
         <div class="tbl-output-actions" id="tables-output-actions">
-          <span class="status-msg-tables inline-output-status"></span>
+          <span class="status-msg-tables inline-output-status is-ok"></span>
           <div class="tbl-mode-group">
             <button type="button" id="tbl-mode-with" class="tbl-mode-btn is-active">Output with [ ]</button>
             <button type="button" id="tbl-mode-without" class="tbl-mode-btn">Output without [ ]</button>
@@ -2201,21 +2200,21 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       <p class="hint">Click <code>Code Snippets</code> in the side panel for ready-to-copy boilerplate C# (e.g. email header setup). Highlight any text in a snippet to copy just the part you need, or use the <strong>Copy all</strong> button to grab the whole block. <kbd>Ctrl+C</kbd> on a selection works as well.</p>
     </div>
   </main>
-  <div id="sel-toolbar" role="toolbar" aria-label="Format selection" class="" style="top: 364.188px; left: 724.289px;">
+  <div id="sel-toolbar" role="toolbar" aria-label="Format selection" class="" style="top: 308.969px; left: 189.5px;">
     <button type="button" id="btn-bold" title="Bold (toggle)" class="active"><span class="b">B</span></button>
     <button type="button" id="btn-italic" title="Italic (toggle)"><span class="i">I</span></button>
-    <button type="button" id="btn-placeholder" title="Placeholder (toggle)" class="active"><span class="ph">[ ]</span></button>
-    <button type="button" id="btn-ul" class="wide" title="Bullet list (toggle)" style="display: none;"><span class="icon">•</span><span>List</span></button>
-    <button type="button" id="btn-ol" class="wide" title="Numbered list (toggle)" style="display: none;"><span class="icon">1,2</span><span>List</span></button>
-    <button type="button" id="btn-link" title="Link (toggle)"><span class="ph">🔗</span></button>
+    <button type="button" id="btn-placeholder" title="Placeholder (toggle)" class=""><span class="ph">[ ]</span></button>
+    <button type="button" id="btn-ul" class="wide" title="Bullet list (toggle)" style=""><span class="icon">•</span><span>List</span></button>
+    <button type="button" id="btn-ol" class="wide" title="Numbered list (toggle)" style=""><span class="icon">1,2</span><span>List</span></button>
+    <button type="button" id="btn-link" title="Link (toggle)" class=""><span class="ph">🔗</span></button>
   </div>
   <div id="confirm-modal" class="modal-backdrop" style="display: none;">
     <div class="modal-card">
-      <h2 class="modal-title">Clear everything?</h2>
-      <p class="modal-body">This will remove all content from the input and output. You can't undo this.</p>
+      <h2 class="modal-title">Clear all tools?</h2>
+      <p class="modal-body">This resets Text to HTML, Plain C# to HTML, and HTML Tables to blank. You can’t undo this.</p>
       <div class="modal-actions">
         <button type="button" id="confirm-cancel" class="modal-btn modal-btn-cancel">Cancel</button>
-        <button type="button" id="confirm-ok" class="modal-btn modal-btn-confirm">Clear</button>
+        <button type="button" id="confirm-ok" class="modal-btn modal-btn-confirm">Clear all</button>
       </div>
     </div>
   </div>
@@ -2255,13 +2254,13 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
 
         <span class="it-section-label">Cells — highlight text to <strong>B</strong>old, <em>I</em>talicise or mark as a [placeholder]</span>
         <div class="it-grid-wrap">
-          <div class="it-col-actions" id="it-col-actions"></div>
-          <div id="it-rows"></div>
+          <div class="it-col-actions" id="it-col-actions" style="grid-template-columns: repeat(2, 1fr) 22px;"><div class="it-col-x-cell"><button type="button" class="it-x" title="Delete this column">×</button></div><div class="it-col-x-cell"><button type="button" class="it-x" title="Delete this column">×</button></div><div></div></div>
+          <div id="it-rows"><div class="it-row-line" style="grid-template-columns: repeat(2, 1fr) 22px;"><div class="it-cell" contenteditable="true" data-row="0" data-col="0">Reference:</div><div class="it-cell" contenteditable="true" data-row="0" data-col="1"><span style="background-color: rgba(70, 170, 230, 0.18);"><b><span class="ph-tag">[Refval]</span></b></span></div><button type="button" class="it-x" title="Delete this row">×</button></div><div class="it-row-line" style="grid-template-columns: repeat(2, 1fr) 22px;"><div class="it-cell" contenteditable="true" data-row="1" data-col="0">Site Address</div><div class="it-cell" contenteditable="true" data-row="1" data-col="1"><span class="ph-tag"><b>[SiteAddress]</b></span></div><button type="button" class="it-x" title="Delete this row">×</button></div></div>
         </div>
 
         <span class="it-section-label">Preview</span>
         <div class="it-preview-wrap">
-          <div class="it-preview" id="it-preview"></div>
+          <div class="it-preview" id="it-preview"><table style="border-collapse: collapse;"><tbody><tr><td style="padding-right:15px;">Reference:</td><td><strong><span class="ph-tag">[Refval]</span></strong></td></tr><tr><td style="padding-right:15px;">Site Address</td><td><span class="ph-tag"><strong>[SiteAddress]</strong></span></td></tr></tbody></table></div>
         </div>
       </div>
       <div class="it-modal-foot">
@@ -2314,7 +2313,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
           <button type="button" class="reorder-modal-sort" id="reorder-modal-sort">Sort A–Z</button>
         </span>
       </div>
-      <div class="reorder-list" id="reorder-list"><div class="reorder-item" draggable="true" data-pos="0"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//Attach a Single File - Coding</span><span class="snippet-group-pill has-group" style="display: inline-block;">Attachments</span></div><div class="reorder-item" draggable="true" data-pos="1"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//Attach all files in a folder - Coding</span><span class="snippet-group-pill has-group" style="display: inline-block;">Attachments</span></div><div class="reorder-item" draggable="true" data-pos="2"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//strings email</span><span class="snippet-group-pill has-group" style="display: inline-block;">Headers</span></div><div class="reorder-item" draggable="true" data-pos="3"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//TASK COMPLETION</span><span class="snippet-group-pill has-group" style="display: inline-block;">Completion</span></div><div class="reorder-item" draggable="true" data-pos="4"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//html tRUE</span><span class="snippet-group-pill has-group" style="display: inline-block;">HTML</span></div><div class="reorder-item" draggable="true" data-pos="5"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//CASE OFFICER EMAIL</span><span class="snippet-group-pill has-group" style="display: inline-block;">Internal Recipient</span></div><div class="reorder-item" draggable="true" data-pos="6"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//Strings logo - Update Below</span><span class="snippet-group-pill has-group" style="display: inline-block;">Logo</span></div><div class="reorder-item" draggable="true" data-pos="7"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//logo coding</span><span class="snippet-group-pill has-group" style="display: inline-block;">Logo</span></div><div class="reorder-item" draggable="true" data-pos="8"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//Reporting</span><span class="snippet-group-pill has-group" style="display: inline-block;">Reporting</span></div><div class="reorder-item" draggable="true" data-pos="9"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//EMAIL HEADERS</span><span class="snippet-group-pill has-group" style="display: inline-block;">SMTP &amp; Headers</span></div></div>
+      <div class="reorder-list" id="reorder-list"><div class="reorder-item" draggable="true" data-pos="0"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//Attach a Single File - Coding</span><span class="snippet-group-pill has-group" style="display: inline-block;">Attachments</span></div><div class="reorder-item" draggable="true" data-pos="1"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//Attach all files in a folder - Coding</span><span class="snippet-group-pill has-group" style="display: inline-block;">Attachments</span></div><div class="reorder-item" draggable="true" data-pos="2"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//TASK COMPLETION</span><span class="snippet-group-pill has-group" style="display: inline-block;">Completion</span></div><div class="reorder-item" draggable="true" data-pos="3"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//strings email</span><span class="snippet-group-pill has-group" style="display: inline-block;">Headers</span></div><div class="reorder-item" draggable="true" data-pos="4"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//html tRUE</span><span class="snippet-group-pill has-group" style="display: inline-block;">HTML</span></div><div class="reorder-item" draggable="true" data-pos="5"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//Vertical Line (green)</span><span class="snippet-group-pill has-group" style="display: inline-block;">HTML</span></div><div class="reorder-item" draggable="true" data-pos="6"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//CASE OFFICER EMAIL</span><span class="snippet-group-pill has-group" style="display: inline-block;">Internal Recipient</span></div><div class="reorder-item" draggable="true" data-pos="7"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//logo coding</span><span class="snippet-group-pill has-group" style="display: inline-block;">Logo</span></div><div class="reorder-item" draggable="true" data-pos="8"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//Strings logo - Update Below</span><span class="snippet-group-pill has-group" style="display: inline-block;">Logo</span></div><div class="reorder-item" draggable="true" data-pos="9"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//Reporting</span><span class="snippet-group-pill has-group" style="display: inline-block;">Reporting</span></div><div class="reorder-item" draggable="true" data-pos="10"><span class="reorder-item-grip">⠿</span><span class="reorder-item-text">//EMAIL HEADERS</span><span class="snippet-group-pill has-group" style="display: inline-block;">SMTP &amp; Headers</span></div></div>
       <div class="reorder-modal-actions">
         <button type="button" class="modal-btn modal-btn-cancel" id="reorder-cancel">Cancel</button>
         <button type="button" class="modal-btn modal-btn-confirm" id="reorder-save">Save</button>
@@ -3834,18 +3833,23 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         "group": "Attachments"
       },
       {
-        "title": "//strings email",
-        "body": "string Refval = data.REFVAL; \nstring SiteAddress = data.ADDRESS.Replace(\"\\r\",\" \");\nstring CaseDetails = Refval + \" \" + SiteAddress;\n\n\nstring EmailSubjectText = \"Add text here \" + CaseDetails;\nstring EmailFromAddress = \"enterprise@idoxgroup.com\";",
-        "group": "Headers"
-      },
-      {
         "title": "//TASK COMPLETION",
         "body": "// ===================== TASK COMPLETION / SEND - STRINGS UPDATE ====================\nint TaskDefId = 3000;\nstring TaskTitleText  = \"Title of auto email task here DC/BC/LI/EN/AP(E)\";  \n\n// ===================== ADD THE ABOVE TO STRINGS ====================\n\n// ===================== TASK COMPLETION / SEND - DO NOT TOUCH ====================\n\n//Reporting\ntask.TaskTitle = TaskTitleText; // Configurable above\ntask.TaskHint  = Refval;\ntask.TaskHelp  = SiteAddress;\n\n//Task Completion \nint iEmail = data.GetSQLValueInt(\n    \"SELECT COUNT(*) FROM AETASK s \" +\n    \"WHERE s.TASKTABLEKEY='\" + data.KEYVAL.ToString() + \"' \" +\n    \"AND s.TASKDEFID=\" + TaskDefId);  // Configurable above\n\nif (iEmail < 1)\n    smtp.Send(mailMessage);\n\nreturn false;",
         "group": "Completion"
       },
       {
+        "title": "//strings email",
+        "body": "string Refval = data.REFVAL; \nstring SiteAddress = data.ADDRESS.Replace(\"\\r\",\" \");\nstring CaseDetails = Refval + \" \" + SiteAddress;\n\n\nstring EmailSubjectText = \"Add text here \" + CaseDetails;\nstring EmailFromAddress = \"enterprise@idoxgroup.com\";",
+        "group": "Headers"
+      },
+      {
         "title": "//html tRUE",
         "body": "mailMessage.IsBodyHtml = true;",
+        "group": "HTML"
+      },
+      {
+        "title": "//Vertical Line (green)",
+        "body": "\"<p><strong>Comment Received</strong></p>\" +\n\n\"<div style=\\\"padding: 15px; border-left: 4px solid #006400; margin: 10px 0;\\\">\" +\n    sComments +\n\"</div>\" +\n\n\"<p>&nbsp;</p>\" +\n\n\"<p>Kind Regards</p>\" +",
         "group": "HTML"
       },
       {
@@ -3854,13 +3858,13 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         "group": "Internal Recipient"
       },
       {
-        "title": "//Strings logo - Update Below",
-        "body": "string logoPath = @\"D:\\Logo\\NNCLogo.jpg\";   // Full file path to your logo\nstring logoWidth = \"300\";                  // Width in pixels as string\n// Logo Strings - Update Above",
+        "title": "//logo coding",
+        "body": "// ===================== ADD LOGO (SAFE CID BLOCK USING VARIABLES) DO NOT TOUCH BELOW =====================\n\nif (System.IO.File.Exists(logoPath))\n{\n// Build the HTML body including the inline logo\nstring htmlBodyWithLogo =\n\"<html><body>\" +\nemailbody +\n\"<p><img src='cid:CouncilLogo' alt='Council Logo' \" +\n\"width='\" + logoWidth + \"' style='width:\" + logoWidth + \"px; height:auto;'></p>\" +\n\"</body></html>\";\n\n// Create the HTML view\nSystem.Net.Mail.AlternateView htmlView =\nSystem.Net.Mail.AlternateView.CreateAlternateViewFromString(htmlBodyWithLogo, null, \"text/html\");\n\n// Embed the logo in the email\nSystem.Net.Mail.LinkedResource logo = new System.Net.Mail.LinkedResource(logoPath);\nlogo.ContentId = \"CouncilLogo\";  // Hardcoded ID that matches the cid: in the <img> tag\nlogo.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;\n\n// Add the image and view to the mail message\nhtmlView.LinkedResources.Add(logo);\nmailMessage.AlternateViews.Add(htmlView);\n}\nelse\n{\n// Fallback – no logo (avoids broken image / red X)\nstring htmlBodyWithoutLogo = \"<html><body>\" + emailbody + \"</body></html>\";\n\nSystem.Net.Mail.AlternateView htmlView =\nSystem.Net.Mail.AlternateView.CreateAlternateViewFromString(htmlBodyWithoutLogo, null, \"text/html\");\n\nmailMessage.AlternateViews.Add(htmlView);\n}\n\n// ===================== END LOGO BLOCK DO NOT TOUCH ABOVE =====================",
         "group": "Logo"
       },
       {
-        "title": "//logo coding",
-        "body": "// ===================== ADD LOGO (SAFE CID BLOCK USING VARIABLES) DO NOT TOUCH BELOW =====================\n\nif (System.IO.File.Exists(logoPath))\n{\n// Build the HTML body including the inline logo\nstring htmlBodyWithLogo =\n\"<html><body>\" +\nemailbody +\n\"<p><img src='cid:CouncilLogo' alt='Council Logo' \" +\n\"width='\" + logoWidth + \"' style='width:\" + logoWidth + \"px; height:auto;'></p>\" +\n\"</body></html>\";\n\n// Create the HTML view\nSystem.Net.Mail.AlternateView htmlView =\nSystem.Net.Mail.AlternateView.CreateAlternateViewFromString(htmlBodyWithLogo, null, \"text/html\");\n\n// Embed the logo in the email\nSystem.Net.Mail.LinkedResource logo = new System.Net.Mail.LinkedResource(logoPath);\nlogo.ContentId = \"CouncilLogo\";  // Hardcoded ID that matches the cid: in the <img> tag\nlogo.TransferEncoding = System.Net.Mime.TransferEncoding.Base64;\n\n// Add the image and view to the mail message\nhtmlView.LinkedResources.Add(logo);\nmailMessage.AlternateViews.Add(htmlView);\n}\nelse\n{\n// Fallback – no logo (avoids broken image / red X)\nstring htmlBodyWithoutLogo = \"<html><body>\" + emailbody + \"</body></html>\";\n\nSystem.Net.Mail.AlternateView htmlView =\nSystem.Net.Mail.AlternateView.CreateAlternateViewFromString(htmlBodyWithoutLogo, null, \"text/html\");\n\nmailMessage.AlternateViews.Add(htmlView);\n}\n\n// ===================== END LOGO BLOCK DO NOT TOUCH ABOVE =====================",
+        "title": "//Strings logo - Update Below",
+        "body": "string logoPath = @\"D:\\Logo\\NNCLogo.jpg\";   // Full file path to your logo\nstring logoWidth = \"300\";                  // Width in pixels as string\n// Logo Strings - Update Above",
         "group": "Logo"
       },
       {
@@ -6702,6 +6706,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
 
 
 
+<movable-div style="position: fixed; top: 0px; left: 0px; z-index: 10000;"></movable-div><a id="bottomBar" style="position: fixed; bottom: -40px; left: 0px; z-index: 9999; transform: translateX(-50%); background-color: transparent; border-radius: 5px 5px 0px 0px; opacity: 0.3; padding: 5px; transition: 0.3s; cursor: pointer; max-height: 100px; max-width: 45px;"><img src="chrome-extension://kobncfkmjelbefaoohoblamnbackjggk/icon/icon_32.png" style="width: 32px; height: 32px;"></a>
 <movable-div style="position: fixed; top: 0px; left: 0px; z-index: 10000;"></movable-div><a id="bottomBar" style="position: fixed; bottom: -40px; left: 0px; z-index: 9999; transform: translateX(-50%); background-color: transparent; border-radius: 5px 5px 0px 0px; opacity: 0.3; padding: 5px; transition: 0.3s; cursor: pointer; max-height: 100px; max-width: 45px;"><img src="chrome-extension://kobncfkmjelbefaoohoblamnbackjggk/icon/icon_32.png" style="width: 32px; height: 32px;"></a>
 <movable-div style="position: fixed; top: 0px; left: 0px; z-index: 10000;"></movable-div><a id="bottomBar" style="position: fixed; bottom: -40px; left: 0px; z-index: 9999; transform: translateX(-50%); background-color: transparent; border-radius: 5px 5px 0px 0px; opacity: 0.3; padding: 5px; transition: 0.3s; cursor: pointer; max-height: 100px; max-width: 45px;"><img src="chrome-extension://kobncfkmjelbefaoohoblamnbackjggk/icon/icon_32.png" style="width: 32px; height: 32px;"></a>
 <movable-div style="position: fixed; top: 0px; left: 0px; z-index: 10000;"></movable-div><a id="bottomBar" style="position: fixed; bottom: -40px; left: 0px; z-index: 9999; transform: translateX(-50%); background-color: transparent; border-radius: 5px 5px 0px 0px; opacity: 0.3; padding: 5px; transition: 0.3s; cursor: pointer; max-height: 100px; max-width: 45px;"><img src="chrome-extension://kobncfkmjelbefaoohoblamnbackjggk/icon/icon_32.png" style="width: 32px; height: 32px;"></a></body></html>
