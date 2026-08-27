@@ -1800,7 +1800,38 @@
     color: var(--idox-stone);
     border-color: #cdd3e0;
   }
-  #insert-table-modal .it-col-x-cell { display: flex; justify-content: center; }
+  #insert-table-modal .it-col-x-cell { display: flex; justify-content: center; gap: 6px; }
+  #insert-table-modal .it-ph {
+    height: 20px;
+    padding: 0 6px;
+    border: 1px solid #cdd3e0;
+    background: #fff;
+    color: var(--idox-stone);
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: -1px;
+    line-height: 1;
+    align-self: center;
+  }
+  #insert-table-modal .it-ph:hover {
+    background: var(--idox-cobalt);
+    color: #fff;
+    border-color: var(--idox-cobalt);
+  }
+  #insert-table-modal .it-ph.is-on {
+    background: var(--idox-cobalt);
+    color: #fff;
+    border-color: var(--idox-cobalt);
+  }
+  #insert-table-modal .it-ph:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background: #fff;
+    color: var(--idox-stone);
+    border-color: #cdd3e0;
+  }
   #insert-table-modal .it-preview-wrap {
     background: var(--idox-panel-tint);
     border: 1px solid #cdd3e0;
@@ -2121,7 +2152,38 @@
     color: var(--idox-stone);
     border-color: #cdd3e0;
   }
-  #view-tables .tbl-col-x-cell { display: flex; justify-content: center; }
+  #view-tables .tbl-col-x-cell { display: flex; justify-content: center; gap: 6px; }
+  #view-tables .tbl-ph {
+    height: 22px;
+    padding: 0 7px;
+    border: 1px solid #cdd3e0;
+    background: #fff;
+    color: var(--idox-stone);
+    border-radius: 11px;
+    cursor: pointer;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: -1px;
+    line-height: 1;
+    align-self: center;
+  }
+  #view-tables .tbl-ph:hover {
+    background: var(--idox-cobalt);
+    color: #fff;
+    border-color: var(--idox-cobalt);
+  }
+  #view-tables .tbl-ph.is-on {
+    background: var(--idox-cobalt);
+    color: #fff;
+    border-color: var(--idox-cobalt);
+  }
+  #view-tables .tbl-ph:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background: #fff;
+    color: var(--idox-stone);
+    border-color: #cdd3e0;
+  }
   #view-tables .tbl-row-gutter { width: 22px; }
   #view-tables .tbl-preview-wrap {
     background: var(--idox-panel-tint);
@@ -2229,7 +2291,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">Build 2.8</div>
+    <div class="version" id="app-version">Build 2.9</div>
     </div>
   </aside>
 
@@ -2360,7 +2422,7 @@
 
       <span class="panel-label">Cells — highlight text to <strong>B</strong>old, <em>I</em>talicise, mark as a <code>[placeholder]</code> or add a link</span>
       <div class="tbl-grid-wrap" id="tbl-grid-wrap">
-        <div class="tbl-col-actions" id="tbl-col-actions" style="grid-template-columns: 22px repeat(2, 1fr) 22px;"><div></div><div class="tbl-col-x-cell"><button type="button" class="tbl-x" title="Delete this column">×</button></div><div class="tbl-col-x-cell"><button type="button" class="tbl-x" title="Delete this column">×</button></div><div></div></div>
+        <div class="tbl-col-actions" id="tbl-col-actions" style="grid-template-columns: 22px repeat(2, 1fr) 22px;"><div></div><div class="tbl-col-x-cell"><button type="button" class="tbl-ph" title="Mark this whole column as a [placeholder]">[ ]</button><button type="button" class="tbl-x" title="Delete this column">×</button></div><div class="tbl-col-x-cell"><button type="button" class="tbl-ph" title="Mark this whole column as a [placeholder]">[ ]</button><button type="button" class="tbl-x" title="Delete this column">×</button></div><div></div></div>
         <div id="tbl-rows"><div class="tbl-row-line" style="grid-template-columns: 22px repeat(2, 1fr) 22px;"><button type="button" class="tbl-grip" title="Drag to move this row" aria-label="Drag to move this row"></button><div class="tbl-cell" contenteditable="true" data-row="0" data-col="0"></div><div class="tbl-cell" contenteditable="true" data-row="0" data-col="1"></div><button type="button" class="tbl-x" title="Delete this row">×</button></div><div class="tbl-row-line" style="grid-template-columns: 22px repeat(2, 1fr) 22px;"><button type="button" class="tbl-grip" title="Drag to move this row" aria-label="Drag to move this row"></button><div class="tbl-cell" contenteditable="true" data-row="1" data-col="0"></div><div class="tbl-cell" contenteditable="true" data-row="1" data-col="1"></div><button type="button" class="tbl-x" title="Delete this row">×</button></div></div>
       </div>
 
@@ -2597,7 +2659,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
 
         <span class="it-section-label">Cells — highlight text to <strong>B</strong>old, <em>I</em>talicise or mark as a [placeholder]</span>
         <div class="it-grid-wrap">
-          <div class="it-col-actions" id="it-col-actions" style="grid-template-columns: 20px repeat(2, 1fr) 22px;"><div></div><div class="it-col-x-cell"><button type="button" class="it-x" title="Delete this column">×</button></div><div class="it-col-x-cell"><button type="button" class="it-x" title="Delete this column">×</button></div><div></div></div>
+          <div class="it-col-actions" id="it-col-actions" style="grid-template-columns: 20px repeat(2, 1fr) 22px;"><div></div><div class="it-col-x-cell"><button type="button" class="it-ph" title="Mark this whole column as a [placeholder]">[ ]</button><button type="button" class="it-x" title="Delete this column">×</button></div><div class="it-col-x-cell"><button type="button" class="it-ph" title="Mark this whole column as a [placeholder]">[ ]</button><button type="button" class="it-x" title="Delete this column">×</button></div><div></div></div>
           <div id="it-rows"><div class="it-row-line" style="grid-template-columns: 20px repeat(2, 1fr) 22px;"><button type="button" class="it-grip" title="Drag to move this row" aria-label="Drag to move this row"></button><div class="it-cell" contenteditable="true" data-row="0" data-col="0">Reference:</div><div class="it-cell" contenteditable="true" data-row="0" data-col="1"><span style="background-color: rgba(70, 170, 230, 0.18);"><b><span class="ph-tag">[Refval]</span></b></span></div><button type="button" class="it-x" title="Delete this row">×</button></div><div class="it-row-line" style="grid-template-columns: 20px repeat(2, 1fr) 22px;"><button type="button" class="it-grip" title="Drag to move this row" aria-label="Drag to move this row"></button><div class="it-cell" contenteditable="true" data-row="1" data-col="0">Site Address</div><div class="it-cell" contenteditable="true" data-row="1" data-col="1"><span class="ph-tag"><b>[SiteAddress]</b></span></div><button type="button" class="it-x" title="Delete this row">×</button></div></div>
         </div>
 
@@ -2709,7 +2771,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // Single source of truth for the build number shown in the sidebar.
   // Bump this on every save. The month underneath comes from the computer's
   // clock, so it always reads as the current month.
-  var IDOX_BUILD = '2.8';
+  var IDOX_BUILD = '2.9';
   (function () {
     var v = document.getElementById('app-version');
     if (!v) return;
@@ -6484,6 +6546,80 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       }
     }
 
+
+    // ---- Column [ ] marking ----
+    // A cell counts as marked when its whole content is one placeholder span.
+    // Mixed cells (part plain text, part placeholder) are left alone.
+    function cellPlaceholderState(html) {
+      if (!html) return 'empty';
+      var tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      if ((tmp.textContent || '').trim() === '') return 'empty';
+      var kids = [];
+      for (var i = 0; i < tmp.childNodes.length; i++) {
+        var n = tmp.childNodes[i];
+        if (n.nodeType === Node.TEXT_NODE && (n.nodeValue || '').trim() === '') continue;
+        kids.push(n);
+      }
+      if (kids.length === 1 && kids[0].nodeType === Node.ELEMENT_NODE &&
+          kids[0].classList && kids[0].classList.contains('ph-tag')) return 'marked';
+      if (tmp.querySelector('.ph-tag')) return 'mixed';
+      return 'plain';
+    }
+
+    function markCellHtml(html) {
+      var tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      var text = (tmp.textContent || '').trim();
+      if (!text) return html;
+      var span = document.createElement('span');
+      span.className = 'ph-tag';
+      span.textContent = '[' + text + ']';
+      var holder = document.createElement('div');
+      holder.appendChild(span);
+      return holder.innerHTML;
+    }
+
+    function unmarkCellHtml(html) {
+      var tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      var span = tmp.querySelector('.ph-tag');
+      if (!span) return html;
+      var inner = (span.textContent || '').trim();
+      if (inner.charAt(0) === '[' && inner.charAt(inner.length - 1) === ']') {
+        inner = inner.slice(1, -1);
+      }
+      var holder = document.createElement('div');
+      holder.appendChild(document.createTextNode(inner));
+      return holder.innerHTML;
+    }
+
+    // A column is "on" when every cell holding text is a placeholder
+    function columnIsMarked(colIdx) {
+      var any = false;
+      for (var r = 0; r < state.rows; r++) {
+        var st = cellPlaceholderState(state.cells[r][colIdx]);
+        if (st === 'empty') continue;
+        any = true;
+        if (st !== 'marked') return false;
+      }
+      return any;
+    }
+
+    function toggleColumnPlaceholder(colIdx) {
+      syncStateFromDom();
+      var turnOn = !columnIsMarked(colIdx);
+      for (var r = 0; r < state.rows; r++) {
+        var html = state.cells[r][colIdx];
+        var st = cellPlaceholderState(html);
+        if (st === 'empty' || st === 'mixed') continue;
+        if (turnOn && st === 'plain') state.cells[r][colIdx] = markCellHtml(html);
+        else if (!turnOn && st === 'marked') state.cells[r][colIdx] = unmarkCellHtml(html);
+      }
+      renderGrid();
+      scheduleRender();
+    }
+
     // Render the editable grid from state
     function renderGrid() {
       // Column delete buttons row
@@ -6496,6 +6632,16 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       for (var c = 0; c < state.cols; c++) {
         var wrap = document.createElement('div');
         wrap.className = 'tbl-col-x-cell';
+        var phBtn = document.createElement('button');
+        phBtn.type = 'button';
+        phBtn.className = 'tbl-ph';
+        phBtn.title = 'Mark this whole column as a [placeholder]';
+        phBtn.textContent = '[ ]';
+        if (columnIsMarked(c)) phBtn.classList.add('is-on');
+        (function (colIdx) {
+          phBtn.addEventListener('click', function () { toggleColumnPlaceholder(colIdx); });
+        })(c);
+        wrap.appendChild(phBtn);
         var btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'tbl-x';
@@ -7434,6 +7580,77 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       }
     }
 
+
+    // ---- Column [ ] marking (same behaviour as the HTML Tables tool) ----
+    function cellPlaceholderState(html) {
+      if (!html) return 'empty';
+      var tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      if ((tmp.textContent || '').trim() === '') return 'empty';
+      var kids = [];
+      for (var i = 0; i < tmp.childNodes.length; i++) {
+        var n = tmp.childNodes[i];
+        if (n.nodeType === Node.TEXT_NODE && (n.nodeValue || '').trim() === '') continue;
+        kids.push(n);
+      }
+      if (kids.length === 1 && kids[0].nodeType === Node.ELEMENT_NODE &&
+          kids[0].classList && kids[0].classList.contains('ph-tag')) return 'marked';
+      if (tmp.querySelector('.ph-tag')) return 'mixed';
+      return 'plain';
+    }
+
+    function markCellHtml(html) {
+      var tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      var text = (tmp.textContent || '').trim();
+      if (!text) return html;
+      var span = document.createElement('span');
+      span.className = 'ph-tag';
+      span.textContent = '[' + text + ']';
+      var holder = document.createElement('div');
+      holder.appendChild(span);
+      return holder.innerHTML;
+    }
+
+    function unmarkCellHtml(html) {
+      var tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      var span = tmp.querySelector('.ph-tag');
+      if (!span) return html;
+      var inner = (span.textContent || '').trim();
+      if (inner.charAt(0) === '[' && inner.charAt(inner.length - 1) === ']') {
+        inner = inner.slice(1, -1);
+      }
+      var holder = document.createElement('div');
+      holder.appendChild(document.createTextNode(inner));
+      return holder.innerHTML;
+    }
+
+    function columnIsMarked(colIdx) {
+      var any = false;
+      for (var r = 0; r < state.rows; r++) {
+        var st = cellPlaceholderState(state.cells[r][colIdx]);
+        if (st === 'empty') continue;
+        any = true;
+        if (st !== 'marked') return false;
+      }
+      return any;
+    }
+
+    function toggleColumnPlaceholder(colIdx) {
+      syncStateFromDom();
+      var turnOn = !columnIsMarked(colIdx);
+      for (var r = 0; r < state.rows; r++) {
+        var html = state.cells[r][colIdx];
+        var st = cellPlaceholderState(html);
+        if (st === 'empty' || st === 'mixed') continue;
+        if (turnOn && st === 'plain') state.cells[r][colIdx] = markCellHtml(html);
+        else if (!turnOn && st === 'marked') state.cells[r][colIdx] = unmarkCellHtml(html);
+      }
+      renderGrid();
+      scheduleRender();
+    }
+
     function renderGrid() {
       colActionsRow.style.gridTemplateColumns = '20px repeat(' + state.cols + ', 1fr) 22px';
       colActionsRow.innerHTML = '';
@@ -7442,6 +7659,14 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       for (var c = 0; c < state.cols; c++) {
         var wrap = document.createElement('div');
         wrap.className = 'it-col-x-cell';
+        var ph = document.createElement('button');
+        ph.type = 'button';
+        ph.className = 'it-ph';
+        ph.title = 'Mark this whole column as a [placeholder]';
+        ph.textContent = '[ ]';
+        if (columnIsMarked(c)) ph.classList.add('is-on');
+        (function (idx) { ph.addEventListener('click', function () { toggleColumnPlaceholder(idx); }); })(c);
+        wrap.appendChild(ph);
         var b = document.createElement('button');
         b.type = 'button';
         b.className = 'it-x';
