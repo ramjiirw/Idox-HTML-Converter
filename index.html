@@ -2390,7 +2390,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">Build 3.3</div>
+    <div class="version" id="app-version">Build 3.4</div>
     </div>
   </aside>
 
@@ -2919,7 +2919,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // Single source of truth for the build number shown in the sidebar.
   // Bump this on every save. The month underneath comes from the computer's
   // clock, so it always reads as the current month.
-  var IDOX_BUILD = '3.3';
+  var IDOX_BUILD = '3.4';
   (function () {
     var v = document.getElementById('app-version');
     if (!v) return;
@@ -4753,12 +4753,44 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     // re-selected so the size and alignment step still knows where to look.
     function applyColourToSelection(colour) {
       if (!styleRangeSaved) return false;
+      inputEl.focus();
       var sel = window.getSelection();
       sel.removeAllRanges();
       sel.addRange(styleRangeSaved);
       if (sel.isCollapsed) return false;
 
+      // The browser's own colour command handles highlights that run across
+      // bold, placeholders and links. Fall back to building the span by hand
+      // if it isn't available.
+      if (colour && document.queryCommandSupported &&
+          document.queryCommandSupported('foreColor')) {
+        try {
+          document.execCommand('styleWithCSS', false, true);
+          var ok = document.execCommand('foreColor', false, colour);
+          document.execCommand('styleWithCSS', false, false);
+          if (ok) {
+            styleRangeSaved = sel.rangeCount ? sel.getRangeAt(0).cloneRange() : null;
+            return true;
+          }
+        } catch (e) { /* fall through to the manual route */ }
+      }
+
       var range = sel.getRangeAt(0);
+
+      // Clearing the colour: a colour set on a span that wraps the highlight
+      // sits outside it, so clear those on the way up as well.
+      if (!colour) {
+        var up = range.commonAncestorContainer;
+        while (up && up !== inputEl) {
+          if (up.nodeType === Node.ELEMENT_NODE && up.style && up.style.color &&
+              !(up.classList && up.classList.contains('ph-tag'))) {
+            up.style.color = '';
+            if (!up.getAttribute('style')) up.removeAttribute('style');
+          }
+          up = up.parentNode;
+        }
+      }
+
       var contents = range.extractContents();
 
       // Drop any colour already inside the selection so the new one wins
@@ -4843,6 +4875,20 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       if (stylePop.classList.contains('show')) { closeStylePopover(); return; }
       openStylePopover();
     });
+
+    // Clicking in a pop-up must not take the focus off the highlighted text,
+    // or there is nothing left to colour by the time Apply is pressed. The
+    // text and colour boxes are the exception — they need focus to be typed in.
+    function keepSelectionOnMouseDown(popEl) {
+      popEl.addEventListener('mousedown', function (e) {
+        var t = e.target;
+        var tag = t && t.tagName ? t.tagName.toLowerCase() : '';
+        if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+        e.preventDefault();
+      });
+    }
+    keepSelectionOnMouseDown(stylePop);
+    keepSelectionOnMouseDown(barPop);
 
     document.addEventListener('mousedown', function (e) {
       if (!stylePop.classList.contains('show')) return;
