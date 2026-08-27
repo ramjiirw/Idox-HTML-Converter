@@ -1336,7 +1336,24 @@
     font-size: 15px;
     color: var(--idox-stone);
   }
-  .bar-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .bar-actions { display: flex; align-items: center; gap: 8px; }
+  .bar-actions-spacer { flex: 1; }
+  #bar-remove {
+    border: 1px solid #cdd3e0;
+    background: #fff;
+    color: #C0392B;
+  }
+  #bar-remove:hover {
+    background: #C0392B;
+    border-color: #C0392B;
+    color: #fff;
+  }
+  #bar-apply:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: var(--idox-cobalt);
+    border-color: var(--idox-cobalt);
+  }
   .bar-actions button {
     font-family: 'DM Sans', Tahoma, sans-serif;
     font-size: 15px;
@@ -2178,7 +2195,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">b23<br>May 2026</div>
+    <div class="version" id="app-version">b24<br>May 2026</div>
     </div>
   </aside>
 
@@ -2463,6 +2480,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         <button type="button" class="bar-preset-btn" data-preset="all">All four</button>
         <button type="button" class="bar-preset-btn" data-preset="left">Left only</button>
         <button type="button" class="bar-preset-btn" data-preset="topbottom">Top and bottom</button>
+        <button type="button" class="bar-preset-btn" data-preset="none">Clear</button>
       </div>
     </div>
 
@@ -2490,6 +2508,8 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     </div>
 
     <div class="bar-actions">
+      <button type="button" id="bar-remove">Remove bar</button>
+      <span class="bar-actions-spacer"></span>
       <button type="button" id="bar-cancel">Cancel</button>
       <button type="button" id="bar-apply">Apply</button>
     </div>
@@ -2651,7 +2671,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // ===== Build stamp =====
   // Single source of truth for the build string shown in the sidebar.
   // Bump this on every save.
-  var IDOX_BUILD = 'b23';
+  var IDOX_BUILD = 'b24';
   (function () {
     var v = document.getElementById('app-version');
     if (v) v.innerHTML = IDOX_BUILD + '<br>May 2026';
@@ -3575,6 +3595,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     var barPreview = document.getElementById('bar-preview');
     var barApply = document.getElementById('bar-apply');
     var barCancel = document.getElementById('bar-cancel');
+    var barRemove = document.getElementById('bar-remove');
 
     var BAR_SWATCHES = ['#0A1F8F', '#46AAE6', '#006400', '#2E8B57',
                         '#B8860B', '#C0392B', '#6E6E6E', '#222222'];
@@ -3747,6 +3768,37 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       inputEl.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
+    // A bar sitting as the very last thing in the input leaves nowhere to
+    // carry on typing. Make sure there is always a plain empty line after it.
+    function ensureLineAfterTrailingBar() {
+      var last = inputEl.lastChild;
+      // Ignore trailing empty text nodes
+      while (last && last.nodeType === Node.TEXT_NODE &&
+             (last.nodeValue || '').trim() === '') {
+        last = last.previousSibling;
+      }
+      if (!last) return;
+      if (last.nodeType !== Node.ELEMENT_NODE) return;
+      if (!last.classList || !last.classList.contains('bar-block')) return;
+      var line = document.createElement('div');
+      line.appendChild(document.createElement('br'));
+      inputEl.appendChild(line);
+    }
+
+    // Remove a bar that has been emptied of all its text.
+    function dropEmptyBars() {
+      var bars = inputEl.querySelectorAll('.bar-block');
+      var removed = false;
+      for (var i = 0; i < bars.length; i++) {
+        var txt = (bars[i].textContent || '')
+          .replace(/\u00A0/g, ' ')
+          .replace(/[\u200B-\u200D\uFEFF]/g, '')
+          .trim();
+        if (txt === '') { unwrapBar(bars[i]); removed = true; }
+      }
+      return removed;
+    }
+
     // ---- Pop-up ----
     function paintEdgeBox() {
       var edges = barEdgeBox.querySelectorAll('.bar-edge');
@@ -3781,10 +3833,18 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       barPreview.style.padding = barDraft.padding + 'px';
     }
 
+    // Apply needs at least one edge. Remove bar only makes sense when there
+    // is an existing bar to remove.
+    function paintApplyState() {
+      barApply.disabled = (barDraft.sides.length === 0);
+      barRemove.style.display = barEditing ? '' : 'none';
+    }
+
     function paintPopover() {
       paintEdgeBox();
       paintSwatches();
       paintPreview();
+      paintApplyState();
       barWheel.value = barDraft.colour;
       barThickness.value = barDraft.thickness;
       barPadding.value = barDraft.padding;
@@ -3851,6 +3911,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       else barDraft.sides.push(side);
       paintEdgeBox();
       paintPreview();
+      paintApplyState();
     });
 
     barPop.addEventListener('click', function (e) {
@@ -3860,8 +3921,10 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         if (which === 'all') barDraft.sides = ['top', 'right', 'bottom', 'left'];
         else if (which === 'left') barDraft.sides = ['left'];
         else if (which === 'topbottom') barDraft.sides = ['top', 'bottom'];
+        else if (which === 'none') barDraft.sides = [];
         paintEdgeBox();
         paintPreview();
+        paintApplyState();
         return;
       }
       var sw = e.target.closest ? e.target.closest('.bar-swatch') : null;
@@ -3918,18 +3981,22 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
 
     barCancel.addEventListener('click', closeBarPopover);
 
+    barRemove.addEventListener('click', function () {
+      if (barEditing) {
+        unwrapBar(barEditing);
+        fireInputChanged();
+      }
+      closeBarPopover();
+      setTimeout(updateToolbar, 0);
+    });
+
     barApply.addEventListener('click', function () {
       if (!barDraft) return;
       barDraft.thickness = readNum(barThickness, 4, 1, 40);
       barDraft.padding = readNum(barPadding, 15, 0, 100);
 
-      if (barDraft.sides.length === 0) {
-        // No edges left — that means remove the bar
-        if (barEditing) { unwrapBar(barEditing); fireInputChanged(); }
-        closeBarPopover();
-        setTimeout(updateToolbar, 0);
-        return;
-      }
+      // Apply is disabled with no edges, but guard anyway
+      if (barDraft.sides.length === 0) return;
 
       barLast = {
         sides: barDraft.sides.slice(),
@@ -3946,6 +4013,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         if (!made) { closeBarPopover(); return; }
       }
       barChip.style.background = barLast.colour;
+      ensureLineAfterTrailingBar();
       fireInputChanged();
       closeBarPopover();
       setTimeout(updateToolbar, 0);
@@ -3959,6 +4027,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       } else {
         if (!wrapSelectionInBar(barLast)) return;
       }
+      ensureLineAfterTrailingBar();
       fireInputChanged();
       setTimeout(updateToolbar, 0);
     });
@@ -3973,6 +4042,14 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       if (!barPop.classList.contains('show')) return;
       if (barPop.contains(e.target) || barSplit.contains(e.target)) return;
       closeBarPopover();
+    });
+
+    // Housekeeping as the user types: an emptied bar is removed, and a bar
+    // left as the last thing in the box always keeps a line beneath it.
+    inputEl.addEventListener('input', function () {
+      if (!inputEl.querySelector('.bar-block')) return;
+      if (dropEmptyBars()) setTimeout(updateToolbar, 0);
+      ensureLineAfterTrailingBar();
     });
 
     barChip.style.background = barLast.colour;
