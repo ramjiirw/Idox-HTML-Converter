@@ -2195,7 +2195,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">b26<br>May 2026</div>
+    <div class="version" id="app-version">2.7<br>May 2026</div>
     </div>
   </aside>
 
@@ -2671,7 +2671,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // ===== Build stamp =====
   // Single source of truth for the build string shown in the sidebar.
   // Bump this on every save.
-  var IDOX_BUILD = 'b26';
+  var IDOX_BUILD = '2.7';
   (function () {
     var v = document.getElementById('app-version');
     if (v) v.innerHTML = IDOX_BUILD + '<br>May 2026';
@@ -3717,45 +3717,137 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       return node;
     }
 
+    // The browser doesn't always put each visual line in its own block —
+    // typing after a table pill, for instance, keeps everything in one block
+    // with line breaks between. Split such a block into one block per line so
+    // a bar can wrap exactly the lines that were highlighted. A line break and
+    // a block boundary produce the same single newline in the output, so this
+    // never changes the converted C#.
+    function splitIntoLines(el) {
+      if (!el || el.nodeType !== Node.ELEMENT_NODE) return;
+      var tag = el.tagName ? el.tagName.toLowerCase() : '';
+      if (tag !== 'div') return;
+      if (el.classList && el.classList.contains('bar-block')) return;
+
+      var hasBr = false;
+      for (var i = 0; i < el.childNodes.length; i++) {
+        var c = el.childNodes[i];
+        if (c.nodeType === Node.ELEMENT_NODE && c.tagName.toLowerCase() === 'br') {
+          hasBr = true;
+          break;
+        }
+      }
+      if (!hasBr) return;
+
+      var groups = [[]];
+      while (el.firstChild) {
+        var node = el.firstChild;
+        el.removeChild(node);
+        if (node.nodeType === Node.ELEMENT_NODE && node.tagName.toLowerCase() === 'br') {
+          groups.push([]);
+        } else {
+          groups[groups.length - 1].push(node);
+        }
+      }
+
+      var parent = el.parentNode;
+      if (!parent) return;
+      var frag = document.createDocumentFragment();
+      groups.forEach(function (group) {
+        var line = document.createElement('div');
+        if (group.length === 0) {
+          line.appendChild(document.createElement('br'));
+        } else {
+          group.forEach(function (n) { line.appendChild(n); });
+        }
+        frag.appendChild(line);
+      });
+      parent.replaceChild(frag, el);
+    }
+
+    // The node at one edge of a range, drilled down out of any element wrapper
+    // so it survives the block being split underneath it.
+    function rangeEdgeNode(container, offset, atEnd) {
+      if (container.nodeType === Node.TEXT_NODE) return container;
+      var kids = container.childNodes;
+      if (!kids || kids.length === 0) return container;
+      var i = atEnd ? offset - 1 : offset;
+      if (i < 0) i = 0;
+      if (i >= kids.length) i = kids.length - 1;
+      return kids[i];
+    }
+
     function wrapSelectionInBar(cfg) {
       var info = selectionInInput();
       if (!info || info.container !== 'main') return null;
-      var startEl = topLevelChildFor(info.range.startContainer);
-      var endEl = topLevelChildFor(info.range.endContainer);
-      if (!startEl) return null;
-      if (!endEl) endEl = startEl;
+
+      var startNode = rangeEdgeNode(info.range.startContainer, info.range.startOffset, false);
+      var endNode = rangeEdgeNode(info.range.endContainer, info.range.endOffset, true);
+
+      var startTop = topLevelChildFor(startNode);
+      var endTop = topLevelChildFor(endNode);
+      if (!startTop) return null;
+      if (!endTop) endTop = startTop;
 
       // Never nest bars — if the selection already covers or sits inside one,
       // leave it alone rather than wrapping a bar in a bar.
-      var scan = startEl;
-      while (scan) {
+      var scan = startTop;
+      var safety = 0;
+      while (scan && safety++ < 5000) {
         if (scan.nodeType === Node.ELEMENT_NODE && scan.classList &&
             scan.classList.contains('bar-block')) {
           setStatus('That selection already includes a bar', false);
           return null;
         }
-        if (scan === endEl) break;
+        if (scan === endTop) break;
         scan = scan.nextSibling;
       }
+
+      // Break the touched blocks into one block per line, then work out again
+      // which blocks the highlighted text actually sits in.
+      splitIntoLines(startTop);
+      if (endTop !== startTop) splitIntoLines(endTop);
+
+      var startEl = topLevelChildFor(startNode);
+      var endEl = topLevelChildFor(endNode);
+      if (!startEl) return null;
+      if (!endEl) endEl = startEl;
+
+      // Make sure the end really does follow the start; if not, wrap the one line
+      var follows = false;
+      var probe = startEl;
+      var guard = 0;
+      while (probe && guard++ < 5000) {
+        if (probe === endEl) { follows = true; break; }
+        probe = probe.nextSibling;
+      }
+      if (!follows) endEl = startEl;
 
       var block = document.createElement('div');
       block.className = 'bar-block';
       inputEl.insertBefore(block, startEl);
 
       var node = startEl;
-      while (node) {
+      var moved = 0;
+      while (node && moved++ < 5000) {
         var next = node.nextSibling;
         block.appendChild(node);
         if (node === endEl) break;
         node = next;
       }
-      // A bare text node as the only content needs a div round it so Enter
-      // behaves normally inside the bar
-      if (block.childNodes.length === 1 && block.firstChild.nodeType === Node.TEXT_NODE) {
-        var wrap = document.createElement('div');
-        block.replaceChild(wrap, block.firstChild);
-        wrap.appendChild(document.createTextNode(wrap.textContent));
-      }
+
+      // Any bare text sitting directly in the bar gets its own line block so
+      // Enter behaves normally inside it.
+      var kids = Array.prototype.slice.call(block.childNodes);
+      kids.forEach(function (child) {
+        if (child.nodeType !== Node.TEXT_NODE) return;
+        var value = child.nodeValue;
+        if (!value || value.trim() === '') { block.removeChild(child); return; }
+        var line = document.createElement('div');
+        line.appendChild(document.createTextNode(value));
+        block.replaceChild(line, child);
+      });
+
       styleBarBlock(block, cfg);
       return block;
     }
