@@ -201,7 +201,7 @@
     padding-top: 18px;
     margin-top: 8px;
   }
-  #plain-reminder {
+  #plain-reminder, #main-reminder {
     display: flex;
     align-items: center;
     gap: 18px;
@@ -223,7 +223,7 @@
     gap: 8px;
     min-width: 0;
   }
-  #plain-reminder code {
+  #plain-reminder code, #main-reminder code {
     font-family: ui-monospace, Consolas, 'Courier New', monospace;
     font-size: 14px;
     background: rgba(10, 31, 143, 0.08);
@@ -2291,7 +2291,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">Build 3.0</div>
+    <div class="version" id="app-version">Build 3.1</div>
     </div>
   </aside>
 
@@ -2308,6 +2308,19 @@
           </div>
         </div>
         <div id="input" contenteditable="true"></div>
+      </div>
+      <div id="main-reminder" style="display: none;">
+        <div class="plain-reminder-rows">
+          <div class="plain-reminder-pair">
+            <div class="plain-reminder-text">Add this line to your C#:</div>
+            <div class="plain-reminder-snippet"><code id="main-reminder-code">mailMessage.IsBodyHtml = true;</code></div>
+          </div>
+          <div class="plain-reminder-pair">
+            <div class="plain-reminder-text-below">Place it directly below the line:</div>
+            <div class="plain-reminder-snippet"><code>mailMessage.Body = emailbody;</code></div>
+          </div>
+        </div>
+        <button type="button" id="main-reminder-copy" class="plain-reminder-copy">Copy line</button>
       </div>
       <div>
         <div class="tbl-output-head">
@@ -2771,7 +2784,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // Single source of truth for the build number shown in the sidebar.
   // Bump this on every save. The month underneath comes from the computer's
   // clock, so it always reads as the current month.
-  var IDOX_BUILD = '3.0';
+  var IDOX_BUILD = '3.1';
   (function () {
     var v = document.getElementById('app-version');
     if (!v) return;
@@ -3481,13 +3494,50 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
 
   // The moment the input is edited, any existing output is stale: clear it,
   // re-lock the rocker + Copy, and leave only Convert active again.
+  // Reminder strip — same rule as the Plain C# tool: shown as soon as there
+  // is something in the input, hidden when it's empty or the view isn't open.
+  function updateMainReminderVisibility() {
+    var box = document.getElementById('main-reminder');
+    if (!box) return;
+    var hasContent = !!(inputEl.innerText || '').trim();
+    var viewOpen = document.getElementById('view-converter').style.display !== 'none';
+    box.style.display = (hasContent && viewOpen) ? '' : 'none';
+  }
+  window._idoxMainReminder = updateMainReminderVisibility;
+
   inputEl.addEventListener('input', function () {
     if (outputEl.value) {
       outputEl.value = '';
       autoResizeOutput();
     }
     lockMainOutput();
+    updateMainReminderVisibility();
   });
+
+  var mainReminderCopy = document.getElementById('main-reminder-copy');
+  var mainReminderCode = document.getElementById('main-reminder-code');
+  if (mainReminderCopy && mainReminderCode) {
+    mainReminderCopy.addEventListener('click', function () {
+      var text = mainReminderCode.textContent;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+          var orig = mainReminderCopy.textContent;
+          mainReminderCopy.textContent = 'Copied!';
+          setTimeout(function () { mainReminderCopy.textContent = orig; }, 1200);
+        });
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        var orig2 = mainReminderCopy.textContent;
+        mainReminderCopy.textContent = 'Copied!';
+        setTimeout(function () { mainReminderCopy.textContent = orig2; }, 1200);
+      }
+    });
+  }
 
   // ===== Enter key: never inherit formatting from the previous line =====
   // When the cursor is inside a <strong>/<b>/<em>/<i>/<a>/.ph-tag and the user
@@ -3560,6 +3610,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     setMainBracketMode(true);
     lockMainOutput();
     if (window._idoxAutoSave) window._idoxAutoSave.clearMain();
+    updateMainReminderVisibility();
     setStatus('Cleared');
   }
   (window._idoxClearFns = window._idoxClearFns || []).push(resetMainTool);
@@ -4436,6 +4487,10 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       });
     }
 
+    function syncMainReminder() {
+      if (window._idoxMainReminder) window._idoxMainReminder();
+    }
+
     function syncPlainReminder(isPlainView) {
       var pr = document.getElementById('plain-reminder');
       if (!pr) return;
@@ -4470,6 +4525,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       hideAllActions();
       mainActions.style.display = '';
       syncPlainReminder(false);
+      syncMainReminder();
       syncSnippetActions();
       if (typeof hideSnipToolbar === 'function') hideSnipToolbar();
     }
@@ -4481,6 +4537,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       hideAllActions();
       plainActions.style.display = '';
       syncPlainReminder(true);
+      syncMainReminder();
       syncSnippetActions();
     }
 
@@ -4490,6 +4547,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       setCurrentButton(btnNavSnippets);
       hideAllActions();
       syncPlainReminder(false);
+      syncMainReminder();
       syncSnippetActions();
     }
 
@@ -4499,6 +4557,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       setCurrentButton(btnNavHelp);
       hideAllActions();
       syncPlainReminder(false);
+      syncMainReminder();
       syncSnippetActions();
     }
 
@@ -4509,6 +4568,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       hideAllActions();
       if (tablesActions) tablesActions.style.display = '';
       syncPlainReminder(false);
+      syncMainReminder();
       syncSnippetActions();
     }
 
@@ -8212,6 +8272,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         unlockMainOutput();
       }
       if (typeof autoResizeOutput === 'function') autoResizeOutput();
+      if (window._idoxMainReminder) window._idoxMainReminder();
     } catch (e) { /* sessionStorage may be unavailable */ }
 
     function save() {
