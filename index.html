@@ -1244,6 +1244,105 @@
   }
   #sel-toolbar button.btn-bar-colour .caret { font-size: 10px; line-height: 1; }
 
+  #sel-toolbar button.btn-style { width: auto; padding: 0 10px; font-size: 13px; gap: 5px; }
+  #sel-toolbar button.btn-style .style-icon { font-size: 15px; font-weight: 500; line-height: 1; }
+  #sel-toolbar button.btn-style .caret { font-size: 10px; line-height: 1; }
+
+  #style-popover {
+    position: absolute;
+    display: none;
+    width: 300px;
+    background: #fff;
+    border: 1px solid #cdd3e0;
+    border-radius: 8px;
+    box-shadow: 0 8px 28px rgba(10, 31, 143, 0.22);
+    padding: 16px;
+    z-index: 1200;
+    font-family: 'DM Sans', Tahoma, sans-serif;
+  }
+  #style-popover.show { display: block; }
+  #style-popover .bar-label {
+    display: block;
+    font-weight: 700; font-size: 14px;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--idox-cobalt);
+    margin-bottom: 10px;
+  }
+  .style-size-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .style-size-btn {
+    border: 1px solid #cdd3e0;
+    background: #fff;
+    color: #222;
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 15px;
+    text-align: left;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+  }
+  .style-size-btn.style-size-h { font-size: 20px; font-weight: 500; }
+  .style-size-btn.style-size-sub { font-size: 17px; font-weight: 500; }
+  .style-size-btn:hover { border-color: var(--idox-cobalt); }
+  .style-size-btn.is-on {
+    background: var(--idox-cobalt);
+    border-color: var(--idox-cobalt);
+    color: #fff;
+  }
+  .style-align-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 16px; }
+  .style-align-btn {
+    border: 1px solid #cdd3e0;
+    background: #fff;
+    color: var(--idox-stone);
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 15px;
+    padding: 8px 0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+  }
+  .style-align-btn:hover { border-color: var(--idox-cobalt); }
+  .style-align-btn.is-on {
+    background: var(--idox-cobalt);
+    border-color: var(--idox-cobalt);
+    color: #fff;
+  }
+  #style-preview { background: #fff; font-size: 15px; color: var(--idox-stone); }
+  #style-reset { border: 1px solid #cdd3e0; background: #fff; color: #C0392B; }
+  #style-reset:hover { background: #C0392B; border-color: #C0392B; color: #fff; }
+  #style-cancel { border: 1px solid #cdd3e0; background: #fff; color: var(--idox-stone); }
+  #style-cancel:hover { background: var(--idox-panel-tint); }
+  #style-apply { border: 1px solid var(--idox-cobalt); background: var(--idox-cobalt); color: #fff; }
+  #style-apply:hover { background: var(--idox-cobalt-deep); border-color: var(--idox-cobalt-deep); }
+  #style-popover .bar-actions button {
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 9px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  #style-colour-text {
+    flex: 1;
+    border: 1px solid #cdd3e0;
+    border-radius: 6px;
+    padding: 0 12px;
+    height: 36px;
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 15px;
+    color: #222;
+    outline: none;
+  }
+  #style-colour-text:focus {
+    border-color: var(--idox-cobalt);
+    box-shadow: 0 0 0 3px rgba(10, 31, 143, 0.08);
+  }
+  #style-colour-text.is-bad { border-color: #C0392B; }
+
+  /* Styled lines shown in the input box */
+  #input [data-pstyle] { margin: 0; }
+
   #bar-popover {
     position: absolute;
     display: none;
@@ -2291,7 +2390,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">Build 3.1</div>
+    <div class="version" id="app-version">Build 3.2</div>
     </div>
   </aside>
 
@@ -2576,6 +2675,42 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       <button type="button" id="btn-bar" class="wide btn-bar" title="Vertical bar (toggle)"><span class="bar-icon">▌</span><span>Bar</span></button>
       <button type="button" id="btn-bar-colour" class="btn-bar-colour" title="Bar settings"><span class="chip" id="bar-chip"></span><span class="caret">▼</span></button>
     </span>
+    <button type="button" id="btn-style" class="wide btn-style" title="Heading, alignment and colour"><span class="style-icon">H</span><span>Style</span><span class="caret">▼</span></button>
+  </div>
+
+  <div id="style-popover" role="dialog" aria-label="Text style">
+    <span class="bar-label">Size</span>
+    <div class="style-size-list" id="style-size-list">
+      <button type="button" class="style-size-btn" data-size="normal">Normal text</button>
+      <button type="button" class="style-size-btn style-size-h" data-size="heading">Heading</button>
+      <button type="button" class="style-size-btn style-size-sub" data-size="sub">Sub-heading</button>
+    </div>
+
+    <span class="bar-label">Alignment</span>
+    <div class="style-align-row" id="style-align-row">
+      <button type="button" class="style-align-btn" data-align="left">Left</button>
+      <button type="button" class="style-align-btn" data-align="center">Centre</button>
+      <button type="button" class="style-align-btn" data-align="right">Right</button>
+    </div>
+
+    <span class="bar-label">Colour</span>
+    <div class="bar-swatches" id="style-swatches"></div>
+    <div class="bar-colour-row">
+      <input type="color" id="style-colour-wheel" value="#222222" aria-label="Pick a colour">
+      <input type="text" id="style-colour-text" value="Default" spellcheck="false" aria-label="Colour as hex, rgb or name">
+    </div>
+
+    <span class="bar-label">Preview</span>
+    <div class="bar-preview-wrap">
+      <div id="style-preview">Your text sits here</div>
+    </div>
+
+    <div class="bar-actions">
+      <button type="button" id="style-reset">Reset</button>
+      <span class="bar-actions-spacer"></span>
+      <button type="button" id="style-cancel">Cancel</button>
+      <button type="button" id="style-apply">Apply</button>
+    </div>
   </div>
 
   <div id="bar-popover" role="dialog" aria-label="Bar settings">
@@ -2784,7 +2919,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // Single source of truth for the build number shown in the sidebar.
   // Bump this on every save. The month underneath comes from the computer's
   // clock, so it always reads as the current month.
-  var IDOX_BUILD = '3.1';
+  var IDOX_BUILD = '3.2';
   (function () {
     var v = document.getElementById('app-version');
     if (!v) return;
@@ -3006,6 +3141,25 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
 
       var tag = node.tagName.toLowerCase();
 
+      // A styled line (heading size / alignment / colour) becomes its own
+      // paragraph, marked so the emitter can put the style on the <p>.
+      if (node.getAttribute && node.getAttribute('data-pstyle')) {
+        ensureBlockBreak();
+        text += '{{P|' + encodeURIComponent(node.getAttribute('data-pstyle')) + '}}';
+        for (var pi = 0; pi < node.childNodes.length; pi++) walk(node.childNodes[pi]);
+        ensureBlockBreak();
+        return;
+      }
+
+      // Coloured words within a line
+      if (tag === 'span' && node.style && node.style.color &&
+          !(node.classList && node.classList.contains('ph-tag'))) {
+        text += '{{C|' + node.style.color.replace(/\|/g, '') + '}}';
+        for (var ci = 0; ci < node.childNodes.length; ci++) walk(node.childNodes[ci]);
+        text += '{{/C}}';
+        return;
+      }
+
       // Vertical bar block — emits its own opening and closing <div> lines so
       // the paragraphs inside stay as normal paragraphs within the bar.
       if (tag === 'div' && node.classList && node.classList.contains('bar-block')) {
@@ -3121,6 +3275,10 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         return '<a href="' + href.replace(/"/g, '&quot;') + '">';
       });
       esc = esc.replace(/\{\{\/A\}\}/g, '</a>');
+      esc = esc.replace(/\{\{C\|([^}]+)\}\}/g, function (_, col) {
+        return '<span style="color: ' + col.replace(/"/g, '') + ';">';
+      });
+      esc = esc.replace(/\{\{\/C\}\}/g, '</span>');
       esc = esc.replace(/\*([^*\n]+?)\*/g, '<strong>$1</strong>');
       esc = esc.replace(/_([^_\n]+?)_/g, '<em>$1</em>');
       return esc;
@@ -3136,6 +3294,19 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       var tableMatch = b.match(/^\{\{TABLE\|([^}]+)\}\}$/);
       if (tableMatch) {
         pTags.push('{{TABLE|' + tableMatch[1] + '}}');
+        return;
+      }
+
+      // Styled line — heading size, alignment and/or colour on the paragraph
+      var pStyleMatch = b.match(/^\{\{P\|([^}]+)\}\}([\s\S]*)$/);
+      if (pStyleMatch) {
+        var pCfg = null;
+        try { pCfg = JSON.parse(decodeURIComponent(pStyleMatch[1])); } catch (e) { pCfg = null; }
+        var style = lineStyleString(pCfg);
+        var body = pStyleMatch[2].trim();
+        var bodyLines = body.split('\n').map(inlineMarkers);
+        pTags.push('<p' + (style ? ' style="' + style + '"' : '') + '>' +
+                   bodyLines.join('<br>') + '</p>');
         return;
       }
 
@@ -3265,11 +3436,13 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         return;
       }
 
-      var inner = tag.replace(/^<p>/, '').replace(/<\/p>$/, '');
+      var openMatch = tag.match(/^<p[^>]*>/);
+      var openTag = openMatch ? openMatch[0] : '<p>';
+      var inner = tag.replace(/^<p[^>]*>/, '').replace(/<\/p>$/, '');
       var parts = inner.split(/<br>/);
       parts.forEach(function (part, j) {
         var line = '';
-        if (j === 0) line += '<p>';
+        if (j === 0) line += openTag;
         line += part;
         if (j < parts.length - 1) line += '<br>';
         if (j === parts.length - 1) line += '</p>';
@@ -3285,6 +3458,23 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
 
   // Convert a single line of HTML into a C# concatenation, breaking out
   // any [placeholder] markers so they appear as " + [placeholder] + " in the C#.
+  // Builds the inline style string for a styled line (heading size, alignment,
+  // colour). Sizes are in points because Outlook renders email with Word's
+  // engine, which handles points predictably. Normal, left-aligned, uncoloured
+  // text produces no style at all, so ordinary paragraphs stay exactly as they
+  // were and keep inheriting the template's own font.
+  function lineStyleString(cfg) {
+    if (!cfg) return '';
+    var parts = [];
+    if (cfg.size === 'heading') parts.push('font-size: 16pt', 'font-weight: bold');
+    else if (cfg.size === 'sub') parts.push('font-size: 13pt', 'font-weight: bold');
+    if (cfg.align === 'center') parts.push('text-align: center');
+    else if (cfg.align === 'right') parts.push('text-align: right');
+    if (cfg.colour) parts.push('color: ' + cfg.colour);
+    if (parts.length === 0) return '';
+    return parts.join('; ') + ';';
+  }
+
   // Builds the inline style string for a bar block from its settings.
   // All four edges selected collapses to a single "border:" declaration.
   function barStyleString(cfg) {
@@ -3713,8 +3903,9 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       // Bullet/ordered lists: only main view (don't make sense inside table cells or plain text)
       btnUl.style.display = (isPlain || isTables) ? 'none' : '';
       btnOl.style.display = (isPlain || isTables) ? 'none' : '';
-      // Vertical bar: main view only, same as the lists
+      // Vertical bar and Style: main view only, same as the lists
       barSplit.style.display = (isPlain || isTables) ? 'none' : '';
+      btnStyle.style.display = (isPlain || isTables) ? 'none' : '';
       if (!isPlain && !isTables) {
         var inBar = selectionBarBlock();
         btnBar.classList.toggle('active', !!inBar);
@@ -4316,6 +4507,291 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       closeBarPopover();
     });
 
+    // ===== Text style: heading size, alignment and colour =====
+    var btnStyle = document.getElementById('btn-style');
+    var stylePop = document.getElementById('style-popover');
+    var styleSizeList = document.getElementById('style-size-list');
+    var styleAlignRow = document.getElementById('style-align-row');
+    var styleSwatchWrap = document.getElementById('style-swatches');
+    var styleWheel = document.getElementById('style-colour-wheel');
+    var styleText = document.getElementById('style-colour-text');
+    var stylePreview = document.getElementById('style-preview');
+    var styleApply = document.getElementById('style-apply');
+    var styleCancel = document.getElementById('style-cancel');
+    var styleReset = document.getElementById('style-reset');
+
+    var styleDraft = null;
+    var styleRangeSaved = null;
+
+    BAR_SWATCHES.forEach(function (hex) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'bar-swatch';
+      b.style.background = hex;
+      b.setAttribute('data-hex', hex);
+      b.title = hex;
+      b.setAttribute('aria-label', 'Colour ' + hex);
+      styleSwatchWrap.appendChild(b);
+    });
+
+    // How a styled line is drawn in the input box. The output uses points;
+    // the input is in pixels, so these are the matching proportions.
+    function paintStyledLine(el, cfg) {
+      el.style.fontSize = '';
+      el.style.fontWeight = '';
+      el.style.textAlign = '';
+      el.style.color = '';
+      if (cfg.size === 'heading') { el.style.fontSize = '23px'; el.style.fontWeight = '700'; }
+      else if (cfg.size === 'sub') { el.style.fontSize = '19px'; el.style.fontWeight = '700'; }
+      if (cfg.align === 'center') el.style.textAlign = 'center';
+      else if (cfg.align === 'right') el.style.textAlign = 'right';
+      if (cfg.colour) el.style.color = cfg.colour;
+
+      if (cfg.size === 'normal' && cfg.align === 'left' && !cfg.colour) {
+        el.removeAttribute('data-pstyle');
+      } else {
+        el.setAttribute('data-pstyle', JSON.stringify(cfg));
+      }
+    }
+
+    function readLineStyle(el) {
+      try {
+        var cfg = JSON.parse(el.getAttribute('data-pstyle') || '');
+        if (!cfg || typeof cfg !== 'object') return null;
+        return cfg;
+      } catch (e) { return null; }
+    }
+
+    function defaultLineStyle() {
+      return { size: 'normal', align: 'left', colour: null };
+    }
+
+    // Every top-level line the selection touches
+    function selectedLineBlocks() {
+      var info = selectionInInput();
+      if (!info || info.container !== 'main') return [];
+      var startNode = rangeEdgeNode(info.range.startContainer, info.range.startOffset, false);
+      var endNode = rangeEdgeNode(info.range.endContainer, info.range.endOffset, true);
+      var startTop = topLevelChildFor(startNode);
+      var endTop = topLevelChildFor(endNode);
+      if (!startTop) return [];
+      if (!endTop) endTop = startTop;
+
+      splitIntoLines(startTop);
+      if (endTop !== startTop) splitIntoLines(endTop);
+
+      var startEl = topLevelChildFor(startNode);
+      var endEl = topLevelChildFor(endNode);
+      if (!startEl) return [];
+      if (!endEl) endEl = startEl;
+
+      var list = [];
+      var node = startEl;
+      var guard = 0;
+      var found = false;
+      while (node && guard++ < 5000) {
+        if (node.nodeType === Node.ELEMENT_NODE) list.push(node);
+        if (node === endEl) { found = true; break; }
+        node = node.nextSibling;
+      }
+      if (!found) list = (startEl.nodeType === Node.ELEMENT_NODE) ? [startEl] : [];
+      return list;
+    }
+
+    function paintStylePopover() {
+      var sizes = styleSizeList.querySelectorAll('.style-size-btn');
+      for (var i = 0; i < sizes.length; i++) {
+        sizes[i].classList.toggle('is-on', sizes[i].getAttribute('data-size') === styleDraft.size);
+      }
+      var aligns = styleAlignRow.querySelectorAll('.style-align-btn');
+      for (var j = 0; j < aligns.length; j++) {
+        aligns[j].classList.toggle('is-on', aligns[j].getAttribute('data-align') === styleDraft.align);
+      }
+      var sw = styleSwatchWrap.querySelectorAll('.bar-swatch');
+      for (var k = 0; k < sw.length; k++) {
+        sw[k].classList.toggle('is-active', !!styleDraft.colour &&
+          sw[k].getAttribute('data-hex').toLowerCase() === styleDraft.colour.toLowerCase());
+      }
+      styleWheel.value = styleDraft.colour || '#222222';
+      stylePreview.style.fontSize = '';
+      stylePreview.style.fontWeight = '';
+      stylePreview.style.textAlign = styleDraft.align === 'left' ? 'left' : styleDraft.align;
+      stylePreview.style.color = styleDraft.colour || '';
+      if (styleDraft.size === 'heading') { stylePreview.style.fontSize = '23px'; stylePreview.style.fontWeight = '700'; }
+      else if (styleDraft.size === 'sub') { stylePreview.style.fontSize = '19px'; stylePreview.style.fontWeight = '700'; }
+    }
+
+    function positionStylePopover() {
+      stylePop.classList.add('show');
+      var anchor = btnStyle.getBoundingClientRect();
+      var rect = stylePop.getBoundingClientRect();
+      var top = anchor.bottom + window.scrollY + 8;
+      var left = anchor.right + window.scrollX - rect.width;
+      var minLeft = window.scrollX + 8;
+      var maxLeft = window.scrollX + document.documentElement.clientWidth - rect.width - 8;
+      if (left < minLeft) left = minLeft;
+      if (left > maxLeft) left = maxLeft;
+      var maxTop = window.scrollY + document.documentElement.clientHeight - rect.height - 8;
+      if (top > maxTop) top = anchor.top + window.scrollY - rect.height - 8;
+      if (top < window.scrollY + 8) top = window.scrollY + 8;
+      stylePop.style.top = top + 'px';
+      stylePop.style.left = left + 'px';
+    }
+
+    function openStylePopover() {
+      var info = selectionInInput();
+      styleRangeSaved = (info && info.container === 'main') ? info.range.cloneRange() : null;
+      var lines = selectedLineBlocks();
+      var base = null;
+      for (var i = 0; i < lines.length; i++) {
+        var cfg = readLineStyle(lines[i]);
+        if (cfg) { base = cfg; break; }
+      }
+      styleDraft = base ? {
+        size: base.size || 'normal',
+        align: base.align || 'left',
+        colour: base.colour || null
+      } : defaultLineStyle();
+      styleText.value = styleDraft.colour || 'Default';
+      styleText.classList.remove('is-bad');
+      paintStylePopover();
+      positionStylePopover();
+    }
+
+    function closeStylePopover() {
+      stylePop.classList.remove('show');
+      styleDraft = null;
+      styleRangeSaved = null;
+    }
+
+    styleSizeList.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('.style-size-btn') : null;
+      if (!b || !styleDraft) return;
+      styleDraft.size = b.getAttribute('data-size');
+      paintStylePopover();
+    });
+
+    styleAlignRow.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('.style-align-btn') : null;
+      if (!b || !styleDraft) return;
+      styleDraft.align = b.getAttribute('data-align');
+      paintStylePopover();
+    });
+
+    styleSwatchWrap.addEventListener('click', function (e) {
+      var sw = e.target.closest ? e.target.closest('.bar-swatch') : null;
+      if (!sw || !styleDraft) return;
+      styleDraft.colour = sw.getAttribute('data-hex').toLowerCase();
+      styleText.value = styleDraft.colour;
+      styleText.classList.remove('is-bad');
+      paintStylePopover();
+    });
+
+    styleWheel.addEventListener('input', function () {
+      if (!styleDraft) return;
+      styleDraft.colour = styleWheel.value.toLowerCase();
+      styleText.value = styleDraft.colour;
+      styleText.classList.remove('is-bad');
+      paintStylePopover();
+    });
+
+    styleText.addEventListener('input', function () {
+      if (!styleDraft) return;
+      var raw = (styleText.value || '').trim();
+      if (raw === '' || /^default$/i.test(raw)) {
+        styleDraft.colour = null;
+        styleText.classList.remove('is-bad');
+        paintStylePopover();
+        return;
+      }
+      var hex = normaliseColour(raw);
+      if (!hex) { styleText.classList.add('is-bad'); return; }
+      styleText.classList.remove('is-bad');
+      styleDraft.colour = hex;
+      paintStylePopover();
+    });
+
+    // Colour applies to whatever was highlighted — a few words or a whole line
+    function applyColourToSelection(colour) {
+      if (!styleRangeSaved) return false;
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(styleRangeSaved);
+      if (sel.isCollapsed) return false;
+      var range = sel.getRangeAt(0);
+      var contents = range.extractContents();
+      // Drop any colour already inside the selection so the new one wins
+      var existing = contents.querySelectorAll ? contents.querySelectorAll('span[style]') : [];
+      for (var i = 0; i < existing.length; i++) {
+        if (existing[i].style && existing[i].style.color &&
+            !(existing[i].classList && existing[i].classList.contains('ph-tag'))) {
+          existing[i].style.color = '';
+        }
+      }
+      if (colour) {
+        var span = document.createElement('span');
+        span.style.color = colour;
+        span.appendChild(contents);
+        range.insertNode(span);
+      } else {
+        range.insertNode(contents);
+      }
+      return true;
+    }
+
+    function applyStyle(cfg) {
+      var lines = selectedLineBlocks();
+      // Colour first, while the saved selection still matches the DOM
+      var wholeLine = (lines.length > 1) || isWholeLineSelected(lines[0]);
+      if (!wholeLine) {
+        applyColourToSelection(cfg.colour);
+      }
+      lines.forEach(function (line) {
+        var lineCfg = {
+          size: cfg.size,
+          align: cfg.align,
+          colour: wholeLine ? cfg.colour : (readLineStyle(line) || defaultLineStyle()).colour
+        };
+        paintStyledLine(line, lineCfg);
+      });
+      fireInputChanged();
+    }
+
+    // True when the selection covers all the text in the line
+    function isWholeLineSelected(line) {
+      if (!line || !styleRangeSaved) return true;
+      var lineText = (line.textContent || '').trim();
+      var selText = (styleRangeSaved.toString() || '').trim();
+      return lineText !== '' && selText === lineText;
+    }
+
+    styleApply.addEventListener('click', function () {
+      if (!styleDraft) return;
+      applyStyle(styleDraft);
+      closeStylePopover();
+      setTimeout(updateToolbar, 0);
+    });
+
+    styleReset.addEventListener('click', function () {
+      if (!styleDraft) return;
+      applyStyle(defaultLineStyle());
+      closeStylePopover();
+      setTimeout(updateToolbar, 0);
+    });
+
+    styleCancel.addEventListener('click', closeStylePopover);
+
+    btnStyle.addEventListener('click', function () {
+      if (stylePop.classList.contains('show')) { closeStylePopover(); return; }
+      openStylePopover();
+    });
+
+    document.addEventListener('mousedown', function (e) {
+      if (!stylePop.classList.contains('show')) return;
+      if (stylePop.contains(e.target) || btnStyle.contains(e.target)) return;
+      closeStylePopover();
+    });
+
     // Housekeeping as the user types: an emptied bar is removed, and a bar
     // left as the last thing in the box always keeps a line beneath it.
     inputEl.addEventListener('input', function () {
@@ -4326,7 +4802,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
 
     barChip.style.background = barLast.colour;
 
-    [btnBold, btnItalic, btnPh, btnUl, btnOl, btnLink, btnBar, btnBarColour].forEach(function (b) {
+    [btnBold, btnItalic, btnPh, btnUl, btnOl, btnLink, btnBar, btnBarColour, btnStyle].forEach(function (b) {
       b.addEventListener('mousedown', function (e) { e.preventDefault(); });
     });
 
