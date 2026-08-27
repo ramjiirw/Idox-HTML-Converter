@@ -2195,7 +2195,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">b25<br>May 2026</div>
+    <div class="version" id="app-version">b26<br>May 2026</div>
     </div>
   </aside>
 
@@ -2671,7 +2671,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // ===== Build stamp =====
   // Single source of truth for the build string shown in the sidebar.
   // Bump this on every save.
-  var IDOX_BUILD = 'b25';
+  var IDOX_BUILD = 'b26';
   (function () {
     var v = document.getElementById('app-version');
     if (v) v.innerHTML = IDOX_BUILD + '<br>May 2026';
@@ -3433,6 +3433,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     autoResizeOutput();
     setMainBracketMode(true);
     lockMainOutput();
+    if (window._idoxAutoSave) window._idoxAutoSave.clearMain();
     setStatus('Cleared');
   }
   (window._idoxClearFns = window._idoxClearFns || []).push(resetMainTool);
@@ -4647,6 +4648,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     function resetPlainTool() {
       input.innerHTML = '';
       output.value = '';
+      if (window._idoxAutoSave) window._idoxAutoSave.clearPlain();
       setPlainStatus('Cleared');
       updateReminderVisibility();
     }
@@ -6806,6 +6808,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       setBracketMode(true);
       renderGrid();
       scheduleRender();
+      if (window._idoxAutoSave) window._idoxAutoSave.clearTables();
       setStatus('Cleared');
     }
     (window._idoxClearFns = window._idoxClearFns || []).push(resetTablesTool);
@@ -7799,6 +7802,22 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     document.querySelectorAll('.btn-convert').forEach(function (btn) {
       btn.addEventListener('click', function () { setTimeout(save, 200); });
     });
+
+    // Clearing a tool blanks the boxes directly, which fires no input event,
+    // so the saved copy has to be removed explicitly or a refresh brings the
+    // cleared content straight back. Each tool clears only its own keys.
+    // Code Snippets are stored separately and are never touched here.
+    function drop(keys) {
+      clearTimeout(saveTimer);
+      try {
+        keys.forEach(function (k) { sessionStorage.removeItem(k); });
+      } catch (e) { /* sessionStorage may be unavailable */ }
+    }
+    window._idoxAutoSave = {
+      clearMain: function () { drop([KEY_MAIN_INPUT, KEY_MAIN_OUTPUT]); },
+      clearPlain: function () { drop([KEY_PLAIN_INPUT, KEY_PLAIN_OUTPUT]); },
+      clearTables: function () { drop([KEY_TABLES_STATE]); }
+    };
   })();
 
 
