@@ -937,6 +937,40 @@
     overflow: hidden;
     resize: none;
   }
+  /* Placeholder highlighting. A textarea can't colour individual words, so a
+     matching layer sits behind it and paints the blocks. The text box itself
+     is untouched — selecting, copying and resizing all behave as before. */
+  .output-hl-wrap { position: relative; }
+  #output-highlight {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    margin: 0;
+    padding: 18px 20px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-family: ui-monospace, Consolas, 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow: hidden;
+    color: transparent;
+    background: var(--idox-panel-tint);
+    pointer-events: none;
+    z-index: 0;
+  }
+  #output-highlight mark {
+    background: rgba(70, 170, 230, 0.18);
+    color: transparent;
+    border-radius: 3px;
+  }
+  .output-hl-wrap #output {
+    position: relative;
+    z-index: 1;
+    background: transparent;
+  }
+  .output-hl-wrap #output:focus { background: transparent; }
+
   #output:focus {
     outline: none;
     border-color: var(--idox-cobalt);
@@ -2195,7 +2229,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">2.7<br>May 2026</div>
+    <div class="version" id="app-version">Build 2.8</div>
     </div>
   </aside>
 
@@ -2226,7 +2260,10 @@
             <button type="button" id="main-output-copy" class="tbl-output-copy">Copy output</button>
           </div>
         </div>
-        <textarea id="output" readonly="" style="height: 202px;"></textarea>
+        <div class="output-hl-wrap">
+          <div id="output-highlight" aria-hidden="true"></div>
+          <textarea id="output" readonly="" style="height: 202px;"></textarea>
+        </div>
       </div>
     </div>
     </div>
@@ -2669,12 +2706,18 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   var inputEl  = document.getElementById('input');
   var outputEl = document.getElementById('output');
   // ===== Build stamp =====
-  // Single source of truth for the build string shown in the sidebar.
-  // Bump this on every save.
-  var IDOX_BUILD = '2.7';
+  // Single source of truth for the build number shown in the sidebar.
+  // Bump this on every save. The month underneath comes from the computer's
+  // clock, so it always reads as the current month.
+  var IDOX_BUILD = '2.8';
   (function () {
     var v = document.getElementById('app-version');
-    if (v) v.innerHTML = IDOX_BUILD + '<br>May 2026';
+    if (!v) return;
+    var months = ['January', 'February', 'March', 'April', 'May', 'June',
+                  'July', 'August', 'September', 'October', 'November', 'December'];
+    var now = new Date();
+    v.innerHTML = 'Build ' + IDOX_BUILD + '<br>' +
+                  months[now.getMonth()] + ' ' + now.getFullYear();
   })();
   // When true, the Text-to-HTML output drops the outer [ ] from placeholders.
   var mainStripBrackets = true;
@@ -3263,12 +3306,32 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     return null;
   }
 
+  // Paint the pale blue blocks behind each [placeholder] in the output box.
+  // Purely a reading aid — it never touches the text, so Copy output is
+  // unaffected. Only shown in "Output with [ ]" mode.
+  var outputHighlightEl = document.getElementById('output-highlight');
+  function paintOutputHighlight() {
+    if (!outputHighlightEl) return;
+    if (mainStripBrackets) { outputHighlightEl.innerHTML = ''; return; }
+    var text = outputEl.value || '';
+    var html = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    html = html.replace(/\[([^\[\]\n]+?)\]/g, function (whole) {
+      return '<mark>' + whole + '</mark>';
+    });
+    // Trailing newline so the last line lines up with the text box
+    outputHighlightEl.innerHTML = html + '\n';
+  }
+
   function autoResizeOutput() {
     var sp = getScrollParent(outputEl);
     var prev = sp ? sp.scrollTop : 0;
     outputEl.style.height = 'auto';
     outputEl.style.height = (outputEl.scrollHeight + 4) + 'px';
     if (sp) sp.scrollTop = prev;
+    paintOutputHighlight();
   }
 
   // ===== Text-to-HTML output action row (Convert / rocker / Copy) =====
@@ -3291,6 +3354,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     mainStripBrackets = strip;
     if (mainModeWith) mainModeWith.classList.toggle('is-active', !strip);
     if (mainModeWithout) mainModeWithout.classList.toggle('is-active', strip);
+    paintOutputHighlight();
   }
 
   // Run the conversion, show the output, and unlock the rocker + Copy.
@@ -7843,6 +7907,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       if (mainOut && mainOut.value && typeof unlockMainOutput === 'function') {
         unlockMainOutput();
       }
+      if (typeof autoResizeOutput === 'function') autoResizeOutput();
     } catch (e) { /* sessionStorage may be unavailable */ }
 
     function save() {
