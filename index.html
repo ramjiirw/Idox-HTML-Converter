@@ -2195,7 +2195,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">b24<br>May 2026</div>
+    <div class="version" id="app-version">b25<br>May 2026</div>
     </div>
   </aside>
 
@@ -2220,8 +2220,8 @@
             <span class="status-msg inline-output-status is-ok"></span>
             <button type="button" id="main-convert-inline" class="tbl-output-convert">Convert</button>
             <div class="tbl-mode-group">
-              <button type="button" id="main-mode-with" class="tbl-mode-btn is-active">Output with [ ]</button>
-              <button type="button" id="main-mode-without" class="tbl-mode-btn">Output without [ ]</button>
+              <button type="button" id="main-mode-with" class="tbl-mode-btn">Output with [ ]</button>
+              <button type="button" id="main-mode-without" class="tbl-mode-btn is-active">Output without [ ]</button>
             </div>
             <button type="button" id="main-output-copy" class="tbl-output-copy">Copy output</button>
           </div>
@@ -2337,8 +2337,8 @@
         <div class="tbl-output-actions" id="tables-output-actions">
           <span class="status-msg-tables inline-output-status is-ok"></span>
           <div class="tbl-mode-group">
-            <button type="button" id="tbl-mode-with" class="tbl-mode-btn is-active">Output with [ ]</button>
-            <button type="button" id="tbl-mode-without" class="tbl-mode-btn">Output without [ ]</button>
+            <button type="button" id="tbl-mode-with" class="tbl-mode-btn">Output with [ ]</button>
+            <button type="button" id="tbl-mode-without" class="tbl-mode-btn is-active">Output without [ ]</button>
           </div>
           <button type="button" id="tbl-output-copy" class="tbl-output-copy">Copy output</button>
         </div>
@@ -2671,13 +2671,13 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // ===== Build stamp =====
   // Single source of truth for the build string shown in the sidebar.
   // Bump this on every save.
-  var IDOX_BUILD = 'b24';
+  var IDOX_BUILD = 'b25';
   (function () {
     var v = document.getElementById('app-version');
     if (v) v.innerHTML = IDOX_BUILD + '<br>May 2026';
   })();
   // When true, the Text-to-HTML output drops the outer [ ] from placeholders.
-  var mainStripBrackets = false;
+  var mainStripBrackets = true;
   // ===== Confirm modal helper =====
   var confirmModal = (function () {
     var backdrop = document.getElementById('confirm-modal');
@@ -3297,6 +3297,8 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // Convert in place (no blanking, no timeout) so the output box doesn't
   // collapse and spring back — same approach the rocker uses.
   function runMainConvert() {
+    // Convert always starts from "Output without [ ]"
+    setMainBracketMode(true);
     var result = convert();
     outputEl.value = result;
     autoResizeOutput();
@@ -3429,7 +3431,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     inputEl.innerHTML = '';
     outputEl.value = '';
     autoResizeOutput();
-    setMainBracketMode(false);
+    setMainBracketMode(true);
     lockMainOutput();
     setStatus('Cleared');
   }
@@ -6044,7 +6046,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       rows: 2,
       padRight: 15,
       padBottom: 0,
-      stripBrackets: false,
+      stripBrackets: true,
       cells: [['', ''], ['', '']]
     };
 
@@ -6801,7 +6803,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       state.cells = [['', ''], ['', '']];
       padRightInput.value = '15';
       padBottomInput.value = '0';
-      setBracketMode(false);
+      setBracketMode(true);
       renderGrid();
       scheduleRender();
       setStatus('Cleared');
