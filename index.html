@@ -1185,6 +1185,172 @@
   #sel-toolbar button.wide { width: auto; padding: 0 10px; font-size: 13px; gap: 4px; }
   #sel-toolbar button.wide .icon { font-size: 14px; line-height: 1; }
 
+  /* ===== Vertical bar (callout block) ===== */
+  #input .bar-block {
+    /* Border, padding and margin are set inline from the block's own settings */
+    border-radius: 0;
+  }
+  #sel-toolbar .bar-split { display: inline-flex; gap: 0; }
+  #sel-toolbar button.btn-bar {
+    width: auto; padding: 0 8px 0 10px;
+    font-size: 13px; gap: 5px;
+    border-top-right-radius: 0; border-bottom-right-radius: 0;
+  }
+  #sel-toolbar button.btn-bar .bar-icon { font-size: 15px; line-height: 1; }
+  #sel-toolbar button.btn-bar-colour {
+    width: auto; padding: 0 7px;
+    gap: 4px;
+    border-top-left-radius: 0; border-bottom-left-radius: 0;
+  }
+  #sel-toolbar button.btn-bar-colour .chip {
+    width: 14px; height: 14px;
+    border-radius: 3px;
+    border: 1px solid rgba(255,255,255,0.6);
+    display: block;
+  }
+  #sel-toolbar button.btn-bar-colour .caret { font-size: 10px; line-height: 1; }
+
+  #bar-popover {
+    position: absolute;
+    display: none;
+    width: 330px;
+    background: #fff;
+    border: 1px solid #cdd3e0;
+    border-radius: 8px;
+    box-shadow: 0 8px 28px rgba(10, 31, 143, 0.22);
+    padding: 16px;
+    z-index: 1200;
+    font-family: 'DM Sans', Tahoma, sans-serif;
+  }
+  #bar-popover.show { display: block; }
+  #bar-popover .bar-label {
+    display: block;
+    font-weight: 700; font-size: 14px;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--idox-cobalt);
+    margin-bottom: 10px;
+  }
+  .bar-edge-row { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; }
+  .bar-edge-box { width: 82px; height: 82px; position: relative; flex: none; }
+  .bar-edge-box .bar-edge-fill {
+    position: absolute; inset: 11px;
+    background: var(--idox-panel-tint);
+    border-radius: 3px;
+  }
+  .bar-edge {
+    position: absolute;
+    background: #d5d9e4;
+    border: none;
+    border-radius: 3px;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .bar-edge[data-edge="top"] { top: 4px; left: 14px; right: 14px; height: 6px; }
+  .bar-edge[data-edge="bottom"] { bottom: 4px; left: 14px; right: 14px; height: 6px; }
+  .bar-edge[data-edge="left"] { left: 4px; top: 14px; bottom: 14px; width: 6px; }
+  .bar-edge[data-edge="right"] { right: 4px; top: 14px; bottom: 14px; width: 6px; }
+  .bar-edge-presets { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .bar-preset-btn {
+    border: 1px solid #cdd3e0;
+    background: #fff;
+    color: var(--idox-stone);
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+  }
+  .bar-preset-btn:hover {
+    background: var(--idox-cobalt);
+    border-color: var(--idox-cobalt);
+    color: #fff;
+  }
+  .bar-swatches {
+    display: grid; grid-template-columns: repeat(8, 1fr);
+    gap: 6px; margin-bottom: 10px;
+  }
+  .bar-swatch {
+    height: 24px;
+    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.12);
+    padding: 0;
+    cursor: pointer;
+  }
+  .bar-swatch.is-active {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--idox-cobalt);
+  }
+  .bar-colour-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .bar-colour-row input[type="color"] {
+    width: 44px; height: 36px;
+    padding: 2px;
+    border: 1px solid #cdd3e0;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    flex: none;
+  }
+  #bar-colour-text {
+    flex: 1;
+    border: 1px solid #cdd3e0;
+    border-radius: 6px;
+    padding: 0 12px;
+    height: 36px;
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 15px;
+    color: #222;
+    outline: none;
+  }
+  #bar-colour-text:focus {
+    border-color: var(--idox-cobalt);
+    box-shadow: 0 0 0 3px rgba(10, 31, 143, 0.08);
+  }
+  #bar-colour-text.is-bad { border-color: #C0392B; }
+  .bar-num-row { display: flex; gap: 12px; margin-bottom: 16px; }
+  .bar-num-col { flex: 1; }
+  .bar-num-col .bar-label { margin-bottom: 6px; }
+  .bar-num-col input {
+    width: 100%;
+    border: 1px solid #cdd3e0;
+    border-radius: 6px;
+    padding: 0 12px;
+    height: 36px;
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 15px;
+    color: #222;
+    outline: none;
+  }
+  .bar-num-col input:focus {
+    border-color: var(--idox-cobalt);
+    box-shadow: 0 0 0 3px rgba(10, 31, 143, 0.08);
+  }
+  .bar-preview-wrap {
+    border: 1px solid #e6e8ef;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 16px;
+  }
+  #bar-preview {
+    background: #fff;
+    font-size: 15px;
+    color: var(--idox-stone);
+  }
+  .bar-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .bar-actions button {
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 9px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  #bar-cancel { border: 1px solid #cdd3e0; background: #fff; color: var(--idox-stone); }
+  #bar-cancel:hover { background: var(--idox-panel-tint); }
+  #bar-apply { border: 1px solid var(--idox-cobalt); background: var(--idox-cobalt); color: #fff; }
+  #bar-apply:hover { background: var(--idox-cobalt-deep); border-color: var(--idox-cobalt-deep); }
+
   /* Lists inside the input box */
   #input ul, #input ol { margin: 0.5em 0; padding-left: 1.6em; }
   #input li { margin: 0.2em 0; }
@@ -2012,7 +2178,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">b22<br>May 2026</div>
+    <div class="version" id="app-version">b23<br>May 2026</div>
     </div>
   </aside>
 
@@ -2277,6 +2443,56 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     <button type="button" id="btn-ul" class="wide" title="Bullet list (toggle)" style=""><span class="icon">•</span><span>List</span></button>
     <button type="button" id="btn-ol" class="wide" title="Numbered list (toggle)" style=""><span class="icon">1,2</span><span>List</span></button>
     <button type="button" id="btn-link" title="Link (toggle)" class=""><span class="ph">🔗</span></button>
+    <span class="bar-split" id="bar-split">
+      <button type="button" id="btn-bar" class="wide btn-bar" title="Vertical bar (toggle)"><span class="bar-icon">▌</span><span>Bar</span></button>
+      <button type="button" id="btn-bar-colour" class="btn-bar-colour" title="Bar settings"><span class="chip" id="bar-chip"></span><span class="caret">▼</span></button>
+    </span>
+  </div>
+
+  <div id="bar-popover" role="dialog" aria-label="Bar settings">
+    <span class="bar-label">Which edges</span>
+    <div class="bar-edge-row">
+      <div class="bar-edge-box" id="bar-edge-box">
+        <div class="bar-edge-fill"></div>
+        <button type="button" class="bar-edge" data-edge="top" aria-label="Top edge"></button>
+        <button type="button" class="bar-edge" data-edge="right" aria-label="Right edge"></button>
+        <button type="button" class="bar-edge" data-edge="bottom" aria-label="Bottom edge"></button>
+        <button type="button" class="bar-edge" data-edge="left" aria-label="Left edge"></button>
+      </div>
+      <div class="bar-edge-presets">
+        <button type="button" class="bar-preset-btn" data-preset="all">All four</button>
+        <button type="button" class="bar-preset-btn" data-preset="left">Left only</button>
+        <button type="button" class="bar-preset-btn" data-preset="topbottom">Top and bottom</button>
+      </div>
+    </div>
+
+    <span class="bar-label">Colour</span>
+    <div class="bar-swatches" id="bar-swatches"></div>
+    <div class="bar-colour-row">
+      <input type="color" id="bar-colour-wheel" value="#006400" aria-label="Pick a colour">
+      <input type="text" id="bar-colour-text" value="#006400" spellcheck="false" aria-label="Colour as hex, rgb or name">
+    </div>
+
+    <div class="bar-num-row">
+      <div class="bar-num-col">
+        <span class="bar-label">Thickness (px)</span>
+        <input type="number" id="bar-thickness" min="1" max="40" value="4">
+      </div>
+      <div class="bar-num-col">
+        <span class="bar-label">Padding (px)</span>
+        <input type="number" id="bar-padding" min="0" max="100" value="15">
+      </div>
+    </div>
+
+    <span class="bar-label">Preview</span>
+    <div class="bar-preview-wrap">
+      <div id="bar-preview">Your text sits here</div>
+    </div>
+
+    <div class="bar-actions">
+      <button type="button" id="bar-cancel">Cancel</button>
+      <button type="button" id="bar-apply">Apply</button>
+    </div>
   </div>
   <div id="confirm-modal" class="modal-backdrop" style="display: none;">
     <div class="modal-card">
@@ -2435,7 +2651,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // ===== Build stamp =====
   // Single source of truth for the build string shown in the sidebar.
   // Bump this on every save.
-  var IDOX_BUILD = 'b22';
+  var IDOX_BUILD = 'b23';
   (function () {
     var v = document.getElementById('app-version');
     if (v) v.innerHTML = IDOX_BUILD + '<br>May 2026';
@@ -2636,6 +2852,13 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     var root = doc.body.firstChild;
     var text = '';
 
+    function ensureBlockBreak() {
+      if (text.length === 0) return;
+      if (text.endsWith('\n\n')) return;
+      if (text.endsWith('\n')) text += '\n';
+      else text += '\n\n';
+    }
+
     function walk(node) {
       if (node.nodeType === Node.TEXT_NODE) {
         text += node.nodeValue.replace(/\u00A0/g, ' ');
@@ -2644,6 +2867,22 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       if (node.nodeType !== Node.ELEMENT_NODE) return;
 
       var tag = node.tagName.toLowerCase();
+
+      // Vertical bar block — emits its own opening and closing <div> lines so
+      // the paragraphs inside stay as normal paragraphs within the bar.
+      if (tag === 'div' && node.classList && node.classList.contains('bar-block')) {
+        var barCfg = node.getAttribute('data-bar') || '';
+        if (barCfg) {
+          ensureBlockBreak();
+          text += '{{BARSTART|' + encodeURIComponent(barCfg) + '}}';
+          text += '\n\n';
+          for (var bi = 0; bi < node.childNodes.length; bi++) walk(node.childNodes[bi]);
+          ensureBlockBreak();
+          text += '{{BAREND}}';
+          text += '\n\n';
+        }
+        return;
+      }
 
       // Table pill — must emit as its own block (a <table> can't sit inside a
       // <p>). Always emit \n\n either side so the sentinel sits as its own
@@ -2762,6 +3001,17 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         return;
       }
 
+      // Bar block sentinels — emitted by walk() when it hit a .bar-block div.
+      var barStartMatch = b.match(/^\{\{BARSTART\|([^}]+)\}\}$/);
+      if (barStartMatch) {
+        pTags.push('{{BARSTART|' + barStartMatch[1] + '}}');
+        return;
+      }
+      if (b === '{{BAREND}}') {
+        pTags.push('{{BAREND}}');
+        return;
+      }
+
       // Detect list markers anywhere in the block — split into before / list / after
       var listAnywhere = /\{\{(UL|OL)START\}\}([\s\S]*?)\{\{(UL|OL)END\}\}/;
       var lm = b.match(listAnywhere);
@@ -2840,6 +3090,24 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         return;
       }
 
+      // Bar block — opening <div> with the chosen edges, colour, thickness
+      // and padding; and the matching closing </div>.
+      var barStartSentinel = tag.match(/^\{\{BARSTART\|([^}]+)\}\}$/);
+      if (barStartSentinel) {
+        try {
+          var barCfg = JSON.parse(decodeURIComponent(barStartSentinel[1]));
+          var barStyle = barStyleString(barCfg);
+          out += emitCSharpLine('<div style="' + barStyle + '">') +
+                 (isLast ? ';' : ' +') + '\n';
+        } catch (e) { /* malformed sentinel — skip */ }
+        return;
+      }
+      if (tag === '{{BAREND}}') {
+        out += emitCSharpLine('</div>') + (isLast ? ';' : ' +') + '\n';
+        if (!isLast) out += '\n';
+        return;
+      }
+
       // List block: emit each <li> on its own line with wrapping <ul>/<ol>
       var listOpen = tag.match(/^<(ul|ol)>/);
       if (listOpen) {
@@ -2879,6 +3147,26 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
 
   // Convert a single line of HTML into a C# concatenation, breaking out
   // any [placeholder] markers so they appear as " + [placeholder] + " in the C#.
+  // Builds the inline style string for a bar block from its settings.
+  // All four edges selected collapses to a single "border:" declaration.
+  function barStyleString(cfg) {
+    var sides = (cfg && cfg.sides) || ['left'];
+    var colour = (cfg && cfg.colour) || '#006400';
+    var thickness = (cfg && cfg.thickness != null) ? cfg.thickness : 4;
+    var padding = (cfg && cfg.padding != null) ? cfg.padding : 15;
+    var edge = thickness + 'px solid ' + colour;
+    var parts = ['padding: ' + padding + 'px'];
+    if (sides.length === 4) {
+      parts.push('border: ' + edge);
+    } else {
+      ['top', 'right', 'bottom', 'left'].forEach(function (s) {
+        if (sides.indexOf(s) > -1) parts.push('border-' + s + ': ' + edge);
+      });
+    }
+    parts.push('margin: 10px 0');
+    return parts.join('; ') + ';';
+  }
+
   function emitCSharpLine(line) {
     // Match [word] but not escaped or empty — allow letters, digits, spaces, hyphens, underscores inside.
     // Use a regex that's tolerant of inner content.
@@ -3225,6 +3513,14 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       // Bullet/ordered lists: only main view (don't make sense inside table cells or plain text)
       btnUl.style.display = (isPlain || isTables) ? 'none' : '';
       btnOl.style.display = (isPlain || isTables) ? 'none' : '';
+      // Vertical bar: main view only, same as the lists
+      barSplit.style.display = (isPlain || isTables) ? 'none' : '';
+      if (!isPlain && !isTables) {
+        var inBar = selectionBarBlock();
+        btnBar.classList.toggle('active', !!inBar);
+        var chipCfg = inBar ? readBarCfg(inBar) : null;
+        barChip.style.background = (chipCfg && chipCfg.colour) ? chipCfg.colour : barLast.colour;
+      }
       if (!isPlain) {
         btnPh.classList.toggle('active', !!selectionIsPlaceholder());
         btnLink.classList.toggle('active', !!selectionIsLink());
@@ -3264,7 +3560,424 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
 
     var btnLink = document.getElementById('btn-link');
 
-    [btnBold, btnItalic, btnPh, btnUl, btnOl, btnLink].forEach(function (b) {
+    // ===== Vertical bar (callout block) =====
+    var barSplit = document.getElementById('bar-split');
+    var btnBar = document.getElementById('btn-bar');
+    var btnBarColour = document.getElementById('btn-bar-colour');
+    var barChip = document.getElementById('bar-chip');
+    var barPop = document.getElementById('bar-popover');
+    var barEdgeBox = document.getElementById('bar-edge-box');
+    var barSwatchWrap = document.getElementById('bar-swatches');
+    var barWheel = document.getElementById('bar-colour-wheel');
+    var barText = document.getElementById('bar-colour-text');
+    var barThickness = document.getElementById('bar-thickness');
+    var barPadding = document.getElementById('bar-padding');
+    var barPreview = document.getElementById('bar-preview');
+    var barApply = document.getElementById('bar-apply');
+    var barCancel = document.getElementById('bar-cancel');
+
+    var BAR_SWATCHES = ['#0A1F8F', '#46AAE6', '#006400', '#2E8B57',
+                        '#B8860B', '#C0392B', '#6E6E6E', '#222222'];
+
+    // Last-used settings — the plain Bar button applies these without asking
+    var barLast = { sides: ['left'], colour: '#006400', thickness: 4, padding: 15 };
+    // Working copy while the pop-up is open, plus the bar being edited (if any)
+    var barDraft = null;
+    var barEditing = null;
+    var barRangeSaved = null;
+
+    BAR_SWATCHES.forEach(function (hex) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'bar-swatch';
+      b.style.background = hex;
+      b.setAttribute('data-hex', hex);
+      b.title = hex;
+      b.setAttribute('aria-label', 'Colour ' + hex);
+      barSwatchWrap.appendChild(b);
+    });
+
+    // Accepts #rgb, #rrggbb, rgb(r,g,b) or a plain colour name. Returns hex or null.
+    function normaliseColour(value) {
+      var v = (value || '').trim();
+      if (!v) return null;
+      var m3 = /^#([0-9a-f]{3})$/i.exec(v);
+      if (m3) {
+        var c = m3[1];
+        return ('#' + c[0] + c[0] + c[1] + c[1] + c[2] + c[2]).toLowerCase();
+      }
+      if (/^#[0-9a-f]{6}$/i.test(v)) return v.toLowerCase();
+      var mr = /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*[\d.]+\s*)?\)$/i.exec(v);
+      if (mr) {
+        var r = parseInt(mr[1], 10), g = parseInt(mr[2], 10), bl = parseInt(mr[3], 10);
+        if (r > 255 || g > 255 || bl > 255) return null;
+        return '#' + [r, g, bl].map(function (n) {
+          var h = n.toString(16);
+          return h.length === 1 ? '0' + h : h;
+        }).join('').toLowerCase();
+      }
+      // Colour name — let the browser resolve it
+      if (!/^[a-z]+$/i.test(v)) return null;
+      var probe = document.createElement('span');
+      probe.style.color = '';
+      probe.style.color = v;
+      if (!probe.style.color) return null;
+      document.body.appendChild(probe);
+      var resolved = window.getComputedStyle(probe).color;
+      document.body.removeChild(probe);
+      var mm = /^rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(resolved);
+      if (!mm) return null;
+      return '#' + [mm[1], mm[2], mm[3]].map(function (n) {
+        var h = parseInt(n, 10).toString(16);
+        return h.length === 1 ? '0' + h : h;
+      }).join('').toLowerCase();
+    }
+
+    function hexToRgba(hex, alpha) {
+      var h = (hex || '#006400').replace('#', '');
+      var r = parseInt(h.slice(0, 2), 16);
+      var g = parseInt(h.slice(2, 4), 16);
+      var b = parseInt(h.slice(4, 6), 16);
+      return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+    }
+
+    // Paint a bar-block element in the input so the user can see it
+    function styleBarBlock(el, cfg) {
+      var edge = cfg.thickness + 'px solid ' + cfg.colour;
+      el.style.border = '';
+      el.style.borderTop = ''; el.style.borderRight = '';
+      el.style.borderBottom = ''; el.style.borderLeft = '';
+      if (cfg.sides.length === 4) {
+        el.style.border = edge;
+      } else {
+        if (cfg.sides.indexOf('top') > -1) el.style.borderTop = edge;
+        if (cfg.sides.indexOf('right') > -1) el.style.borderRight = edge;
+        if (cfg.sides.indexOf('bottom') > -1) el.style.borderBottom = edge;
+        if (cfg.sides.indexOf('left') > -1) el.style.borderLeft = edge;
+      }
+      el.style.padding = cfg.padding + 'px';
+      el.style.margin = '10px 0';
+      // Display-only tint so the extent of the bar is obvious while editing.
+      // It is never part of the output.
+      el.style.background = hexToRgba(cfg.colour, 0.04);
+      el.setAttribute('data-bar', JSON.stringify(cfg));
+    }
+
+    function readBarCfg(el) {
+      try {
+        var cfg = JSON.parse(el.getAttribute('data-bar') || '');
+        if (!cfg || !Array.isArray(cfg.sides)) return null;
+        return cfg;
+      } catch (e) { return null; }
+    }
+
+    // The .bar-block containing the current selection, or null
+    function selectionBarBlock() {
+      var info = selectionInInput();
+      if (!info || info.container !== 'main') return null;
+      var node = info.range.commonAncestorContainer;
+      while (node && node !== inputEl) {
+        if (node.nodeType === Node.ELEMENT_NODE &&
+            node.classList && node.classList.contains('bar-block')) return node;
+        node = node.parentNode;
+      }
+      return null;
+    }
+
+    // The direct child of #input that contains the given node
+    function topLevelChildFor(node) {
+      while (node && node.parentNode !== inputEl) {
+        if (node === inputEl) return null;
+        node = node.parentNode;
+      }
+      return node;
+    }
+
+    function wrapSelectionInBar(cfg) {
+      var info = selectionInInput();
+      if (!info || info.container !== 'main') return null;
+      var startEl = topLevelChildFor(info.range.startContainer);
+      var endEl = topLevelChildFor(info.range.endContainer);
+      if (!startEl) return null;
+      if (!endEl) endEl = startEl;
+
+      // Never nest bars — if the selection already covers or sits inside one,
+      // leave it alone rather than wrapping a bar in a bar.
+      var scan = startEl;
+      while (scan) {
+        if (scan.nodeType === Node.ELEMENT_NODE && scan.classList &&
+            scan.classList.contains('bar-block')) {
+          setStatus('That selection already includes a bar', false);
+          return null;
+        }
+        if (scan === endEl) break;
+        scan = scan.nextSibling;
+      }
+
+      var block = document.createElement('div');
+      block.className = 'bar-block';
+      inputEl.insertBefore(block, startEl);
+
+      var node = startEl;
+      while (node) {
+        var next = node.nextSibling;
+        block.appendChild(node);
+        if (node === endEl) break;
+        node = next;
+      }
+      // A bare text node as the only content needs a div round it so Enter
+      // behaves normally inside the bar
+      if (block.childNodes.length === 1 && block.firstChild.nodeType === Node.TEXT_NODE) {
+        var wrap = document.createElement('div');
+        block.replaceChild(wrap, block.firstChild);
+        wrap.appendChild(document.createTextNode(wrap.textContent));
+      }
+      styleBarBlock(block, cfg);
+      return block;
+    }
+
+    function unwrapBar(block) {
+      var parent = block.parentNode;
+      if (!parent) return;
+      while (block.firstChild) parent.insertBefore(block.firstChild, block);
+      parent.removeChild(block);
+    }
+
+    function fireInputChanged() {
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    // ---- Pop-up ----
+    function paintEdgeBox() {
+      var edges = barEdgeBox.querySelectorAll('.bar-edge');
+      for (var i = 0; i < edges.length; i++) {
+        var side = edges[i].getAttribute('data-edge');
+        var on = barDraft.sides.indexOf(side) > -1;
+        edges[i].style.background = on ? barDraft.colour : '#d5d9e4';
+      }
+    }
+
+    function paintSwatches() {
+      var sw = barSwatchWrap.querySelectorAll('.bar-swatch');
+      for (var i = 0; i < sw.length; i++) {
+        sw[i].classList.toggle('is-active',
+          sw[i].getAttribute('data-hex').toLowerCase() === barDraft.colour.toLowerCase());
+      }
+    }
+
+    function paintPreview() {
+      var edge = barDraft.thickness + 'px solid ' + barDraft.colour;
+      barPreview.style.border = '';
+      barPreview.style.borderTop = ''; barPreview.style.borderRight = '';
+      barPreview.style.borderBottom = ''; barPreview.style.borderLeft = '';
+      if (barDraft.sides.length === 4) {
+        barPreview.style.border = edge;
+      } else {
+        if (barDraft.sides.indexOf('top') > -1) barPreview.style.borderTop = edge;
+        if (barDraft.sides.indexOf('right') > -1) barPreview.style.borderRight = edge;
+        if (barDraft.sides.indexOf('bottom') > -1) barPreview.style.borderBottom = edge;
+        if (barDraft.sides.indexOf('left') > -1) barPreview.style.borderLeft = edge;
+      }
+      barPreview.style.padding = barDraft.padding + 'px';
+    }
+
+    function paintPopover() {
+      paintEdgeBox();
+      paintSwatches();
+      paintPreview();
+      barWheel.value = barDraft.colour;
+      barThickness.value = barDraft.thickness;
+      barPadding.value = barDraft.padding;
+      barChip.style.background = barDraft.colour;
+    }
+
+    function positionBarPopover() {
+      barPop.classList.add('show');
+      var anchor = barSplit.getBoundingClientRect();
+      var popRect = barPop.getBoundingClientRect();
+      var top = anchor.bottom + window.scrollY + 8;
+      var left = anchor.right + window.scrollX - popRect.width;
+      var minLeft = window.scrollX + 8;
+      var maxLeft = window.scrollX + document.documentElement.clientWidth - popRect.width - 8;
+      if (left < minLeft) left = minLeft;
+      if (left > maxLeft) left = maxLeft;
+      var maxTop = window.scrollY + document.documentElement.clientHeight - popRect.height - 8;
+      if (top > maxTop) top = anchor.top + window.scrollY - popRect.height - 8;
+      if (top < window.scrollY + 8) top = window.scrollY + 8;
+      barPop.style.top = top + 'px';
+      barPop.style.left = left + 'px';
+    }
+
+    function openBarPopover() {
+      barEditing = selectionBarBlock();
+      var base = barEditing ? (readBarCfg(barEditing) || barLast) : barLast;
+      barDraft = {
+        sides: base.sides.slice(),
+        colour: base.colour,
+        thickness: base.thickness,
+        padding: base.padding
+      };
+      // Remember the selection so Apply can still wrap it after the pop-up
+      // has taken focus
+      var info = selectionInInput();
+      barRangeSaved = (info && info.container === 'main') ? info.range.cloneRange() : null;
+      barText.value = barDraft.colour;
+      barText.classList.remove('is-bad');
+      paintPopover();
+      positionBarPopover();
+    }
+
+    function closeBarPopover() {
+      barPop.classList.remove('show');
+      barDraft = null;
+      barEditing = null;
+      barRangeSaved = null;
+    }
+
+    function restoreSavedRange() {
+      if (!barRangeSaved) return false;
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(barRangeSaved);
+      return true;
+    }
+
+    barEdgeBox.addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('.bar-edge') : null;
+      if (!btn || !barDraft) return;
+      var side = btn.getAttribute('data-edge');
+      var idx = barDraft.sides.indexOf(side);
+      if (idx > -1) barDraft.sides.splice(idx, 1);
+      else barDraft.sides.push(side);
+      paintEdgeBox();
+      paintPreview();
+    });
+
+    barPop.addEventListener('click', function (e) {
+      var preset = e.target.closest ? e.target.closest('.bar-preset-btn') : null;
+      if (preset && barDraft) {
+        var which = preset.getAttribute('data-preset');
+        if (which === 'all') barDraft.sides = ['top', 'right', 'bottom', 'left'];
+        else if (which === 'left') barDraft.sides = ['left'];
+        else if (which === 'topbottom') barDraft.sides = ['top', 'bottom'];
+        paintEdgeBox();
+        paintPreview();
+        return;
+      }
+      var sw = e.target.closest ? e.target.closest('.bar-swatch') : null;
+      if (sw && barDraft) {
+        barDraft.colour = sw.getAttribute('data-hex').toLowerCase();
+        barText.value = barDraft.colour;
+        barText.classList.remove('is-bad');
+        paintPopover();
+      }
+    });
+
+    barWheel.addEventListener('input', function () {
+      if (!barDraft) return;
+      barDraft.colour = barWheel.value.toLowerCase();
+      barText.value = barDraft.colour;
+      barText.classList.remove('is-bad');
+      paintEdgeBox();
+      paintSwatches();
+      paintPreview();
+      barChip.style.background = barDraft.colour;
+    });
+
+    barText.addEventListener('input', function () {
+      if (!barDraft) return;
+      var hex = normaliseColour(barText.value);
+      if (!hex) { barText.classList.add('is-bad'); return; }
+      barText.classList.remove('is-bad');
+      barDraft.colour = hex;
+      barWheel.value = hex;
+      paintEdgeBox();
+      paintSwatches();
+      paintPreview();
+      barChip.style.background = hex;
+    });
+
+    function readNum(el, fallback, min, max) {
+      var v = parseInt(el.value, 10);
+      if (isNaN(v)) return fallback;
+      if (v < min) v = min;
+      if (v > max) v = max;
+      return v;
+    }
+
+    barThickness.addEventListener('input', function () {
+      if (!barDraft) return;
+      barDraft.thickness = readNum(barThickness, 4, 1, 40);
+      paintPreview();
+    });
+    barPadding.addEventListener('input', function () {
+      if (!barDraft) return;
+      barDraft.padding = readNum(barPadding, 15, 0, 100);
+      paintPreview();
+    });
+
+    barCancel.addEventListener('click', closeBarPopover);
+
+    barApply.addEventListener('click', function () {
+      if (!barDraft) return;
+      barDraft.thickness = readNum(barThickness, 4, 1, 40);
+      barDraft.padding = readNum(barPadding, 15, 0, 100);
+
+      if (barDraft.sides.length === 0) {
+        // No edges left — that means remove the bar
+        if (barEditing) { unwrapBar(barEditing); fireInputChanged(); }
+        closeBarPopover();
+        setTimeout(updateToolbar, 0);
+        return;
+      }
+
+      barLast = {
+        sides: barDraft.sides.slice(),
+        colour: barDraft.colour,
+        thickness: barDraft.thickness,
+        padding: barDraft.padding
+      };
+
+      if (barEditing) {
+        styleBarBlock(barEditing, barLast);
+      } else {
+        restoreSavedRange();
+        var made = wrapSelectionInBar(barLast);
+        if (!made) { closeBarPopover(); return; }
+      }
+      barChip.style.background = barLast.colour;
+      fireInputChanged();
+      closeBarPopover();
+      setTimeout(updateToolbar, 0);
+    });
+
+    // Plain Bar button — toggle using the last-used settings, no pop-up
+    btnBar.addEventListener('click', function () {
+      var existing = selectionBarBlock();
+      if (existing) {
+        unwrapBar(existing);
+      } else {
+        if (!wrapSelectionInBar(barLast)) return;
+      }
+      fireInputChanged();
+      setTimeout(updateToolbar, 0);
+    });
+
+    btnBarColour.addEventListener('click', function () {
+      if (barPop.classList.contains('show')) { closeBarPopover(); return; }
+      openBarPopover();
+    });
+
+    // Clicking away closes the pop-up
+    document.addEventListener('mousedown', function (e) {
+      if (!barPop.classList.contains('show')) return;
+      if (barPop.contains(e.target) || barSplit.contains(e.target)) return;
+      closeBarPopover();
+    });
+
+    barChip.style.background = barLast.colour;
+
+    [btnBold, btnItalic, btnPh, btnUl, btnOl, btnLink, btnBar, btnBarColour].forEach(function (b) {
       b.addEventListener('mousedown', function (e) { e.preventDefault(); });
     });
 
@@ -4829,7 +5542,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url;
-        a.download = 'Idox HTML Converter v1.10.0.html';
+        a.download = 'Idox HTML Converter.html';
         document.body.appendChild(a);
         a.click();
         a.remove();
