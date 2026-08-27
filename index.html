@@ -2390,7 +2390,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">Build 3.2</div>
+    <div class="version" id="app-version">Build 3.3</div>
     </div>
   </aside>
 
@@ -2919,7 +2919,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // Single source of truth for the build number shown in the sidebar.
   // Bump this on every save. The month underneath comes from the computer's
   // clock, so it always reads as the current month.
-  var IDOX_BUILD = '3.2';
+  var IDOX_BUILD = '3.3';
   (function () {
     var v = document.getElementById('app-version');
     if (!v) return;
@@ -4566,22 +4566,35 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       return { size: 'normal', align: 'left', colour: null };
     }
 
+    // Text typed straight into the box, with no Enter after it, sits as loose
+    // text rather than a block. Give it a block of its own so it can be styled.
+    function ensureLineElement(node) {
+      if (!node) return null;
+      if (node.nodeType === Node.ELEMENT_NODE) return node;
+      if (node.nodeType !== Node.TEXT_NODE) return null;
+      if (node.parentNode !== inputEl) return null;
+      var line = document.createElement('div');
+      inputEl.insertBefore(line, node);
+      line.appendChild(node);
+      return line;
+    }
+
     // Every top-level line the selection touches
     function selectedLineBlocks() {
       var info = selectionInInput();
       if (!info || info.container !== 'main') return [];
       var startNode = rangeEdgeNode(info.range.startContainer, info.range.startOffset, false);
       var endNode = rangeEdgeNode(info.range.endContainer, info.range.endOffset, true);
-      var startTop = topLevelChildFor(startNode);
-      var endTop = topLevelChildFor(endNode);
+      var startTop = ensureLineElement(topLevelChildFor(startNode));
+      var endTop = ensureLineElement(topLevelChildFor(endNode));
       if (!startTop) return [];
       if (!endTop) endTop = startTop;
 
       splitIntoLines(startTop);
       if (endTop !== startTop) splitIntoLines(endTop);
 
-      var startEl = topLevelChildFor(startNode);
-      var endEl = topLevelChildFor(endNode);
+      var startEl = ensureLineElement(topLevelChildFor(startNode));
+      var endEl = ensureLineElement(topLevelChildFor(endNode));
       if (!startEl) return [];
       if (!endEl) endEl = startEl;
 
@@ -4638,20 +4651,43 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       stylePop.style.left = left + 'px';
     }
 
+    // The colour already on the highlighted text, if any
+    function colourAtSelection(range) {
+      if (!range) return null;
+      var node = range.commonAncestorContainer;
+      while (node && node !== inputEl) {
+        if (node.nodeType === Node.ELEMENT_NODE && node.style && node.style.color &&
+            !(node.classList && node.classList.contains('ph-tag'))) {
+          return normaliseColour(node.style.color);
+        }
+        node = node.parentNode;
+      }
+      return null;
+    }
+
     function openStylePopover() {
       var info = selectionInInput();
       styleRangeSaved = (info && info.container === 'main') ? info.range.cloneRange() : null;
-      var lines = selectedLineBlocks();
+
+      // Read the current settings without touching the box — reorganising the
+      // lines here would invalidate the highlight before Apply could use it.
       var base = null;
-      for (var i = 0; i < lines.length; i++) {
-        var cfg = readLineStyle(lines[i]);
-        if (cfg) { base = cfg; break; }
+      if (styleRangeSaved) {
+        var top = topLevelChildFor(
+          rangeEdgeNode(styleRangeSaved.startContainer, styleRangeSaved.startOffset, false));
+        while (top && top.nodeType === Node.ELEMENT_NODE && !readLineStyle(top)) {
+          top = null;
+        }
+        if (top && top.nodeType === Node.ELEMENT_NODE) base = readLineStyle(top);
       }
+
       styleDraft = base ? {
         size: base.size || 'normal',
         align: base.align || 'left',
-        colour: base.colour || null
+        colour: null
       } : defaultLineStyle();
+      styleDraft.colour = colourAtSelection(styleRangeSaved);
+
       styleText.value = styleDraft.colour || 'Default';
       styleText.classList.remove('is-bad');
       paintStylePopover();
@@ -4711,58 +4747,80 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       paintStylePopover();
     });
 
-    // Colour applies to whatever was highlighted — a few words or a whole line
+    // Colour applies to whatever was highlighted — a few words or a whole line.
+    // This must run before anything reorganises the lines, because it works
+    // from the highlight the user actually made. Afterwards the same text is
+    // re-selected so the size and alignment step still knows where to look.
     function applyColourToSelection(colour) {
       if (!styleRangeSaved) return false;
       var sel = window.getSelection();
       sel.removeAllRanges();
       sel.addRange(styleRangeSaved);
       if (sel.isCollapsed) return false;
+
       var range = sel.getRangeAt(0);
       var contents = range.extractContents();
+
       // Drop any colour already inside the selection so the new one wins
-      var existing = contents.querySelectorAll ? contents.querySelectorAll('span[style]') : [];
+      var existing = contents.querySelectorAll ? contents.querySelectorAll('span') : [];
       for (var i = 0; i < existing.length; i++) {
         if (existing[i].style && existing[i].style.color &&
             !(existing[i].classList && existing[i].classList.contains('ph-tag'))) {
           existing[i].style.color = '';
+          if (!existing[i].getAttribute('style')) existing[i].removeAttribute('style');
         }
       }
+
+      var inserted;
       if (colour) {
         var span = document.createElement('span');
         span.style.color = colour;
         span.appendChild(contents);
         range.insertNode(span);
+        inserted = span;
       } else {
-        range.insertNode(contents);
+        var holder = document.createElement('span');
+        holder.appendChild(contents);
+        range.insertNode(holder);
+        inserted = holder;
       }
+
+      // Re-select the text that was just placed
+      var newRange = document.createRange();
+      newRange.selectNodeContents(inserted);
+      sel.removeAllRanges();
+      sel.addRange(newRange);
+
+      // An uncoloured run doesn't need a wrapper — unwrap it now the
+      // selection has been re-established
+      if (!colour) {
+        var parent = inserted.parentNode;
+        var first = inserted.firstChild;
+        var last = inserted.lastChild;
+        while (inserted.firstChild) parent.insertBefore(inserted.firstChild, inserted);
+        parent.removeChild(inserted);
+        if (first && last) {
+          var r2 = document.createRange();
+          r2.setStartBefore(first);
+          r2.setEndAfter(last);
+          sel.removeAllRanges();
+          sel.addRange(r2);
+        }
+      }
+
+      styleRangeSaved = sel.rangeCount ? sel.getRangeAt(0).cloneRange() : null;
       return true;
     }
 
     function applyStyle(cfg) {
+      // Colour first, on the highlight itself, before the lines are touched
+      applyColourToSelection(cfg.colour);
+      // Then size and alignment, which always apply to whole lines
       var lines = selectedLineBlocks();
-      // Colour first, while the saved selection still matches the DOM
-      var wholeLine = (lines.length > 1) || isWholeLineSelected(lines[0]);
-      if (!wholeLine) {
-        applyColourToSelection(cfg.colour);
-      }
       lines.forEach(function (line) {
-        var lineCfg = {
-          size: cfg.size,
-          align: cfg.align,
-          colour: wholeLine ? cfg.colour : (readLineStyle(line) || defaultLineStyle()).colour
-        };
-        paintStyledLine(line, lineCfg);
+        paintStyledLine(line, { size: cfg.size, align: cfg.align, colour: null });
       });
       fireInputChanged();
-    }
-
-    // True when the selection covers all the text in the line
-    function isWholeLineSelected(line) {
-      if (!line || !styleRangeSaved) return true;
-      var lineText = (line.textContent || '').trim();
-      var selText = (styleRangeSaved.toString() || '').trim();
-      return lineText !== '' && selText === lineText;
     }
 
     styleApply.addEventListener('click', function () {
