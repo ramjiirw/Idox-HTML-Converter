@@ -2390,7 +2390,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">Build 3.4</div>
+    <div class="version" id="app-version">Build 3.5</div>
     </div>
   </aside>
 
@@ -2919,7 +2919,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // Single source of truth for the build number shown in the sidebar.
   // Bump this on every save. The month underneath comes from the computer's
   // clock, so it always reads as the current month.
-  var IDOX_BUILD = '3.4';
+  var IDOX_BUILD = '3.5';
   (function () {
     var v = document.getElementById('app-version');
     if (!v) return;
@@ -4092,10 +4092,10 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     // a block boundary produce the same single newline in the output, so this
     // never changes the converted C#.
     function splitIntoLines(el) {
-      if (!el || el.nodeType !== Node.ELEMENT_NODE) return;
+      if (!el || el.nodeType !== Node.ELEMENT_NODE) return false;
       var tag = el.tagName ? el.tagName.toLowerCase() : '';
-      if (tag !== 'div') return;
-      if (el.classList && el.classList.contains('bar-block')) return;
+      if (tag !== 'div') return false;
+      if (el.classList && el.classList.contains('bar-block')) return false;
 
       var hasBr = false;
       for (var i = 0; i < el.childNodes.length; i++) {
@@ -4105,7 +4105,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
           break;
         }
       }
-      if (!hasBr) return;
+      if (!hasBr) return false;
 
       var groups = [[]];
       while (el.firstChild) {
@@ -4119,7 +4119,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       }
 
       var parent = el.parentNode;
-      if (!parent) return;
+      if (!parent) return false;
       var frag = document.createDocumentFragment();
       groups.forEach(function (group) {
         var line = document.createElement('div');
@@ -4131,6 +4131,80 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         frag.appendChild(line);
       });
       parent.replaceChild(frag, el);
+      return true;
+    }
+
+    // Which top-level lines a highlight actually covers, answered by the
+    // browser rather than by walking siblings and guessing.
+    function linesTouchedByRange(range) {
+      var out = [];
+      if (!range) return out;
+      var kids = inputEl.childNodes;
+      for (var i = 0; i < kids.length; i++) {
+        var node = kids[i];
+        if (node.nodeType !== Node.ELEMENT_NODE) continue;
+        var lineRange = document.createRange();
+        lineRange.selectNode(node);
+        // Overlap when the line starts before the highlight ends, and ends
+        // after the highlight starts
+        var startsBeforeEnd = range.compareBoundaryPoints(Range.END_TO_START, lineRange) <= 0;
+        var endsAfterStart = range.compareBoundaryPoints(Range.START_TO_END, lineRange) >= 0;
+        if (startsBeforeEnd && endsAfterStart) out.push(node);
+      }
+      return out;
+    }
+
+    // Straighten the whole box into one block per visual line. Typing after a
+    // table pill, or pasting, can leave lines bundled inside wrappers where
+    // they can't be picked out individually. Line breaks and block boundaries
+    // both produce a single newline in the output, so this never changes the
+    // converted C#.
+    function flattenInputLines() {
+      var guard = 0;
+      var changed = true;
+      while (changed && guard++ < 50) {
+        changed = false;
+        var kids = Array.prototype.slice.call(inputEl.childNodes);
+        for (var i = 0; i < kids.length; i++) {
+          var node = kids[i];
+
+          // Loose text becomes a line of its own
+          if (node.nodeType === Node.TEXT_NODE) {
+            if ((node.nodeValue || '').trim() === '') continue;
+            var wrap = document.createElement('div');
+            inputEl.insertBefore(wrap, node);
+            wrap.appendChild(node);
+            changed = true;
+            continue;
+          }
+          if (node.nodeType !== Node.ELEMENT_NODE) continue;
+
+          var tag = node.tagName.toLowerCase();
+          // Leave these alone — they are single things, not stacks of lines
+          if (tag === 'ul' || tag === 'ol') continue;
+          if (node.classList && node.classList.contains('bar-block')) continue;
+
+          // A wrapper holding block children isn't a line — lift them out
+          if (tag === 'div' && hasBlockChild(node) && !node.getAttribute('data-pstyle')) {
+            while (node.firstChild) inputEl.insertBefore(node.firstChild, node);
+            inputEl.removeChild(node);
+            changed = true;
+            continue;
+          }
+
+          if (tag === 'div' && splitIntoLines(node)) changed = true;
+        }
+      }
+    }
+
+    function hasBlockChild(el) {
+      for (var i = 0; i < el.childNodes.length; i++) {
+        var c = el.childNodes[i];
+        if (c.nodeType !== Node.ELEMENT_NODE) continue;
+        var t = c.tagName.toLowerCase();
+        if (t === 'div' || t === 'p' || t === 'ul' || t === 'ol') return true;
+      }
+      return false;
     }
 
     // The node at one edge of a range, drilled down out of any element wrapper
@@ -4149,47 +4223,32 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       var info = selectionInInput();
       if (!info || info.container !== 'main') return null;
 
-      var startNode = rangeEdgeNode(info.range.startContainer, info.range.startOffset, false);
-      var endNode = rangeEdgeNode(info.range.endContainer, info.range.endOffset, true);
-
-      var startTop = topLevelChildFor(startNode);
-      var endTop = topLevelChildFor(endNode);
-      if (!startTop) return null;
-      if (!endTop) endTop = startTop;
-
-      // Never nest bars — if the selection already covers or sits inside one,
-      // leave it alone rather than wrapping a bar in a bar.
-      var scan = startTop;
-      var safety = 0;
-      while (scan && safety++ < 5000) {
-        if (scan.nodeType === Node.ELEMENT_NODE && scan.classList &&
-            scan.classList.contains('bar-block')) {
+      // Never nest bars — if the highlight is already inside one, leave it alone
+      var inside = info.range.commonAncestorContainer;
+      while (inside && inside !== inputEl) {
+        if (inside.nodeType === Node.ELEMENT_NODE && inside.classList &&
+            inside.classList.contains('bar-block')) {
           setStatus('That selection already includes a bar', false);
           return null;
         }
-        if (scan === endTop) break;
-        scan = scan.nextSibling;
+        inside = inside.parentNode;
       }
 
-      // Break the touched blocks into one block per line, then work out again
-      // which blocks the highlighted text actually sits in.
-      splitIntoLines(startTop);
-      if (endTop !== startTop) splitIntoLines(endTop);
+      // Straighten the whole box, then ask the browser which lines the
+      // highlight actually touches rather than working it out by hand.
+      var liveRange = info.range.cloneRange();
+      flattenInputLines();
 
-      var startEl = topLevelChildFor(startNode);
-      var endEl = topLevelChildFor(endNode);
-      if (!startEl) return null;
-      if (!endEl) endEl = startEl;
-
-      // Make sure the end really does follow the start; if not, wrap the one line
-      var follows = false;
-      var probe = startEl;
-      var guard = 0;
-      while (probe && guard++ < 5000) {
-        if (probe === endEl) { follows = true; break; }
-        probe = probe.nextSibling;
+      var touched = linesTouchedByRange(liveRange);
+      if (touched.length === 0) return null;
+      for (var t = 0; t < touched.length; t++) {
+        if (touched[t].classList && touched[t].classList.contains('bar-block')) {
+          setStatus('That selection already includes a bar', false);
+          return null;
+        }
       }
-      if (!follows) endEl = startEl;
+      var startEl = touched[0];
+      var endEl = touched[touched.length - 1];
 
       var block = document.createElement('div');
       block.className = 'bar-block';
@@ -4583,32 +4642,9 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     function selectedLineBlocks() {
       var info = selectionInInput();
       if (!info || info.container !== 'main') return [];
-      var startNode = rangeEdgeNode(info.range.startContainer, info.range.startOffset, false);
-      var endNode = rangeEdgeNode(info.range.endContainer, info.range.endOffset, true);
-      var startTop = ensureLineElement(topLevelChildFor(startNode));
-      var endTop = ensureLineElement(topLevelChildFor(endNode));
-      if (!startTop) return [];
-      if (!endTop) endTop = startTop;
-
-      splitIntoLines(startTop);
-      if (endTop !== startTop) splitIntoLines(endTop);
-
-      var startEl = ensureLineElement(topLevelChildFor(startNode));
-      var endEl = ensureLineElement(topLevelChildFor(endNode));
-      if (!startEl) return [];
-      if (!endEl) endEl = startEl;
-
-      var list = [];
-      var node = startEl;
-      var guard = 0;
-      var found = false;
-      while (node && guard++ < 5000) {
-        if (node.nodeType === Node.ELEMENT_NODE) list.push(node);
-        if (node === endEl) { found = true; break; }
-        node = node.nextSibling;
-      }
-      if (!found) list = (startEl.nodeType === Node.ELEMENT_NODE) ? [startEl] : [];
-      return list;
+      var liveRange = info.range.cloneRange();
+      flattenInputLines();
+      return linesTouchedByRange(liveRange);
     }
 
     function paintStylePopover() {
