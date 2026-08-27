@@ -2390,7 +2390,7 @@
       <button class="btn-nav" id="btn-nav-help">Help</button>
     </div>
 
-    <div class="version" id="app-version">Build 3.5</div>
+    <div class="version" id="app-version">Build 3.6</div>
     </div>
   </aside>
 
@@ -2919,7 +2919,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // Single source of truth for the build number shown in the sidebar.
   // Bump this on every save. The month underneath comes from the computer's
   // clock, so it always reads as the current month.
-  var IDOX_BUILD = '3.5';
+  var IDOX_BUILD = '3.6';
   (function () {
     var v = document.getElementById('app-version');
     if (!v) return;
@@ -4097,15 +4097,23 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       if (tag !== 'div') return false;
       if (el.classList && el.classList.contains('bar-block')) return false;
 
-      var hasBr = false;
+      // Count the line breaks and whether there is anything else in here.
+      // A block that is nothing but a single line break IS an empty line —
+      // splitting it would produce two empty lines, then four, and so on.
+      var brCount = 0;
+      var hasOther = false;
       for (var i = 0; i < el.childNodes.length; i++) {
         var c = el.childNodes[i];
         if (c.nodeType === Node.ELEMENT_NODE && c.tagName.toLowerCase() === 'br') {
-          hasBr = true;
-          break;
+          brCount++;
+        } else if (c.nodeType === Node.TEXT_NODE) {
+          if ((c.nodeValue || '').trim() !== '') hasOther = true;
+        } else if (c.nodeType === Node.ELEMENT_NODE) {
+          hasOther = true;
         }
       }
-      if (!hasBr) return false;
+      if (brCount === 0) return false;
+      if (brCount === 1 && !hasOther) return false;
 
       var groups = [[]];
       while (el.firstChild) {
@@ -4116,6 +4124,18 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         } else {
           groups[groups.length - 1].push(node);
         }
+      }
+
+      // Browsers park a line break at the end of a block to hold it open.
+      // That isn't a real empty line, so drop the trailing empty group.
+      if (groups.length > 1 && groups[groups.length - 1].length === 0) groups.pop();
+      if (groups.length < 2) {
+        // Nothing to split after all — put the content back as it was
+        groups.forEach(function (group) {
+          group.forEach(function (n) { el.appendChild(n); });
+        });
+        if (el.childNodes.length === 0) el.appendChild(document.createElement('br'));
+        return false;
       }
 
       var parent = el.parentNode;
