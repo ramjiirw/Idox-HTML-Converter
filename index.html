@@ -8979,6 +8979,90 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   })();
 
 
+  // ===== Click the blank space below the content to carry on typing =====
+  // The table pill is a non-editable block (contenteditable="false"). When a
+  // pill is the last thing in the Input there is nothing after it for the
+  // caret to land in, so clicking the empty area underneath did nothing and
+  // the user was stuck. This places the caret on a fresh empty line at the
+  // end of the Input when the click lands below all existing content.
+  //
+  // Deliberately limited: clicks on content, on a pill, to the side of a
+  // pill, or above the content are left exactly as they were. No input event
+  // is dispatched, so the converted output is not cleared and nothing is
+  // auto-saved until the user actually types.
+  (function () {
+    var inputBox = document.getElementById('input');
+    if (!inputBox) return;
+
+    // Bottom edge (in viewport coordinates) of the last rendered content.
+    function contentBottom() {
+      var box = inputBox.getBoundingClientRect();
+      var bottom = box.top;
+      try {
+        var r = document.createRange();
+        r.selectNodeContents(inputBox);
+        var rects = r.getClientRects();
+        for (var i = 0; i < rects.length; i++) {
+          if (rects[i].bottom > bottom) bottom = rects[i].bottom;
+        }
+      } catch (e) { /* fall back to the top edge — treat as empty */ }
+      // Element children (a pill is a flex box; its rect may not appear above)
+      var kids = inputBox.children;
+      for (var j = 0; j < kids.length; j++) {
+        var kr = kids[j].getBoundingClientRect();
+        if (kr.bottom > bottom) bottom = kr.bottom;
+      }
+      return bottom;
+    }
+
+    // True when the node is a block that is already empty (just a <br>),
+    // so the caret can be parked in it instead of adding another line.
+    function isEmptyBlock(node) {
+      if (!node || node.nodeType !== 1) return false;
+      if (node.classList && node.classList.contains('tbl-pill')) return false;
+      var t = (node.textContent || '').replace(/[\s\u00A0]/g, '');
+      if (t !== '') return false;
+      return !node.querySelector('img, table, .tbl-pill, .bar-block');
+    }
+
+    // Last child that actually renders (ignore trailing whitespace text nodes).
+    function lastMeaningfulChild() {
+      var n = inputBox.lastChild;
+      while (n && n.nodeType === 3 && !(n.nodeValue || '').replace(/[\s\u00A0]/g, '')) {
+        n = n.previousSibling;
+      }
+      return n;
+    }
+
+    inputBox.addEventListener('mousedown', function (e) {
+      if (e.button !== 0) return;
+      // Only act on clicks that landed on the box itself, i.e. in its padding
+      // or the empty space below the content — never on text or on a pill.
+      if (e.target !== inputBox) return;
+      if (e.clientY <= contentBottom()) return;
+
+      e.preventDefault();
+
+      var target = lastMeaningfulChild();
+      if (!isEmptyBlock(target)) {
+        target = document.createElement('div');
+        target.appendChild(document.createElement('br'));
+        inputBox.appendChild(target);
+      }
+
+      inputBox.focus();
+      try {
+        var range = document.createRange();
+        range.setStart(target, 0);
+        range.collapse(true);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      } catch (err) { /* nothing sensible to do — leave focus where it is */ }
+    });
+  })();
+
+
   // ===== Sidebar collapse =====
   (function () {
     var toggle = document.getElementById('sidebar-toggle');
