@@ -1550,6 +1550,77 @@
     line-height: 1;
   }
 
+  /* Import C# button — same size and shape as Insert table, lighter fill so
+     the two read as separate actions rather than one pair. */
+  .main-import-cs-btn {
+    background: #fff;
+    color: var(--idox-cobalt);
+    border-color: var(--idox-cobalt);
+  }
+  .main-import-cs-btn:hover {
+    background: var(--idox-panel-tint);
+    border-color: var(--idox-cobalt-deep);
+    color: var(--idox-cobalt-deep);
+  }
+
+  /* ===== Import C# modal ===== */
+  .modal-card.modal-card-import {
+    max-width: 760px;
+  }
+  #import-cs-paste {
+    width: 100%;
+    min-height: 260px;
+    padding: 14px 16px;
+    font-family: ui-monospace, Consolas, 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    border: 1px solid #cdd3e0;
+    border-radius: 8px;
+    background: var(--idox-panel-tint);
+    resize: vertical;
+    box-sizing: border-box;
+  }
+  #import-cs-paste:focus {
+    outline: none;
+    border-color: var(--idox-cobalt);
+    box-shadow: 0 0 0 3px rgba(10, 31, 143, 0.08);
+    background: #fff;
+  }
+  .import-cs-note {
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 14px;
+    color: var(--idox-stone);
+    margin: 0 0 12px;
+    line-height: 1.5;
+  }
+  .import-cs-warn {
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 14px;
+    color: #8a4b00;
+    background: #fff6e8;
+    border: 1px solid #f0d2a4;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin: 0 0 14px;
+    line-height: 1.5;
+  }
+  .import-cs-report {
+    font-family: 'DM Sans', Tahoma, sans-serif;
+    font-size: 14px;
+    color: #8c2b2b;
+    background: #fdeeee;
+    border: 1px solid #f0bdbd;
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin: 14px 0 0;
+    line-height: 1.5;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .import-cs-report strong { display: block; margin-bottom: 6px; }
+  .import-cs-report ul { margin: 0; padding-left: 20px; }
+  .import-cs-report li { margin: 3px 0; }
+
   /* The pill inside the Input */
   .tbl-pill {
     display: inline-flex;
@@ -2404,6 +2475,7 @@
           <span class="panel-label">Input — paste email text here</span>
           <div class="main-input-actions">
             <button type="button" id="insert-table-btn" class="main-insert-table-btn"><span class="tbl-pill-icon">▦</span> Insert table</button>
+            <button type="button" id="import-cs-btn" class="main-insert-table-btn main-import-cs-btn"><span class="tbl-pill-icon">⟨⟩</span> Import C#</button>
           </div>
         </div>
         <div id="input" contenteditable="true"></div>
@@ -2901,6 +2973,20 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     </div>
   </div>
 
+  <div id="import-cs-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card modal-card-import">
+      <h2 class="modal-title">Import C#</h2>
+      <p class="import-cs-note">Paste an existing C# email body below. Tables come back as table pills, bar blocks as bars, and variables as [placeholders], all editable as normal.</p>
+      <div id="import-cs-warn" class="import-cs-warn" style="display: none;">The Input box already has content. Importing will replace it.</div>
+      <textarea id="import-cs-paste" spellcheck="false" autocomplete="off" placeholder="&quot;&lt;p&gt;Dear &quot; + ToName + &quot;,&lt;/p&gt;&quot; +"></textarea>
+      <div id="import-cs-report" class="import-cs-report" style="display: none;"></div>
+      <div class="modal-actions" style="margin-top: 18px;">
+        <button type="button" id="import-cs-cancel" class="modal-btn modal-btn-cancel">Cancel</button>
+        <button type="button" id="import-cs-ok" class="modal-btn modal-btn-confirm">Import</button>
+      </div>
+    </div>
+  </div>
+
   <aside id="find-tray" class="find-tray" aria-hidden="true" aria-label="Find snippet">
     <div class="find-tray-head">
       <span class="find-tray-title">Find snippet</span>
@@ -2919,7 +3005,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // Single source of truth for the build number shown in the sidebar.
   // Bump this on every save. The month underneath comes from the computer's
   // clock, so it always reads as the current month.
-  var IDOX_BUILD = '3.6';
+  var IDOX_BUILD = '3.7';
   (function () {
     var v = document.getElementById('app-version');
     if (!v) return;
@@ -9059,6 +9145,555 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         sel.removeAllRanges();
         sel.addRange(range);
       } catch (err) { /* nothing sensible to do — leave focus where it is */ }
+    });
+  })();
+
+
+  // ===== Import C# (Text-to-HTML view) =====
+  // The reverse of Convert. Takes a pasted C# email body, unpicks the string
+  // concatenation, and renders the result back into the Input as editable
+  // content — tables as pills, bar blocks as bars, variables as [placeholders].
+  //
+  // Deliberately strict: if it meets markup it cannot map onto one of the
+  // tool's own features it imports nothing at all and reports what it found,
+  // so content is never silently dropped or half-imported.
+  //
+  // Self-contained: it reads no existing function and changes no existing
+  // behaviour. If the button is never pressed, Text to HTML behaves as before.
+  (function () {
+    var openBtn = document.getElementById('import-cs-btn');
+    var modal = document.getElementById('import-cs-modal');
+    var pasteBox = document.getElementById('import-cs-paste');
+    var warnBox = document.getElementById('import-cs-warn');
+    var reportBox = document.getElementById('import-cs-report');
+    var cancelBtn = document.getElementById('import-cs-cancel');
+    var okBtn = document.getElementById('import-cs-ok');
+    var box = document.getElementById('input');
+    if (!openBtn || !modal || !pasteBox || !box) return;
+
+    // Sentinels for a C# variable while the HTML is being parsed. Kept out of
+    // band so a literal "[" typed by the author is never mistaken for one.
+    var VAR_OPEN = '\u0001';
+    var VAR_CLOSE = '\u0002';
+
+    var problems = [];
+    function fail(msg) {
+      if (problems.indexOf(msg) === -1) problems.push(msg);
+    }
+
+    // ---------- Stage 1: C# source -> a single HTML string ----------
+
+    function identifierToMarker(token, errors) {
+      var t = token.trim();
+      if (!t) return '';
+      // Assignment lead-in, e.g. 'string emailbody =' or 'emailbody +='
+      if (/=$/.test(t)) return '';
+      if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(t)) return VAR_OPEN + t + VAR_CLOSE;
+      errors.push('Unsupported C# expression: ' + (t.length > 60 ? t.slice(0, 60) + '…' : t));
+      return '';
+    }
+
+    function codeSegmentToMarkers(code, errors) {
+      var cleaned = code.replace(/;/g, ' ');
+      if (/\/\/|\/\*/.test(cleaned)) {
+        errors.push('Comments inside the string are not supported — remove them and try again.');
+        return '';
+      }
+      var out = '';
+      var tokens = cleaned.split('+');
+      for (var i = 0; i < tokens.length; i++) {
+        out += identifierToMarker(tokens[i], errors);
+      }
+      return out;
+    }
+
+    function csharpToHtml(src, errors) {
+      var out = '';
+      var i = 0;
+      var n = src.length;
+      while (i < n) {
+        var ch = src.charAt(i);
+        if (ch === '@' && src.charAt(i + 1) === '"') {
+          errors.push('Verbatim strings (@"…") are not supported.');
+          return '';
+        }
+        if (ch === '"') {
+          i++;
+          var buf = '';
+          var closed = false;
+          while (i < n) {
+            var c = src.charAt(i);
+            if (c === '\\') {
+              var nx = src.charAt(i + 1);
+              if (nx === '"') { buf += '"'; i += 2; continue; }
+              if (nx === '\\') { buf += '\\'; i += 2; continue; }
+              if (nx === 'n') { buf += '\n'; i += 2; continue; }
+              if (nx === 't') { buf += '\t'; i += 2; continue; }
+              buf += c; i++; continue;
+            }
+            if (c === '"') { i++; closed = true; break; }
+            buf += c; i++;
+          }
+          if (!closed) {
+            errors.push('A quoted string is not closed — check the pasted C# is complete.');
+            return '';
+          }
+          out += buf;
+        } else {
+          var j = i;
+          var code = '';
+          while (j < n && src.charAt(j) !== '"') { code += src.charAt(j); j++; }
+          out += codeSegmentToMarkers(code, errors);
+          i = j;
+        }
+      }
+      return out;
+    }
+
+    // ---------- Shared helpers ----------
+
+    function styleMap(el) {
+      var map = {};
+      var raw = el.getAttribute('style') || '';
+      raw.split(';').forEach(function (part) {
+        var idx = part.indexOf(':');
+        if (idx === -1) return;
+        var prop = part.slice(0, idx).trim().toLowerCase();
+        var val = part.slice(idx + 1).trim();
+        if (prop) map[prop] = val;
+      });
+      return map;
+    }
+
+    function escAttr(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+    function escText(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+    function hexToRgba(hex, alpha) {
+      var h = String(hex).replace('#', '');
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      if (!/^[0-9a-fA-F]{6}$/.test(h)) return '';
+      var r = parseInt(h.slice(0, 2), 16);
+      var g = parseInt(h.slice(2, 4), 16);
+      var b = parseInt(h.slice(4, 6), 16);
+      return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+    }
+    function isBlankText(s) {
+      return !String(s).replace(/[\s\u00A0]/g, '');
+    }
+
+    // ---------- Stage 2: inline content ----------
+    // Produces the same inline markup the Input already uses: <b>, <i>,
+    // <a href>, coloured spans, <br>, and .ph-tag spans for placeholders.
+
+    function inlineToInputHtml(node, where) {
+      var out = '';
+      for (var i = 0; i < node.childNodes.length; i++) {
+        var c = node.childNodes[i];
+
+        if (c.nodeType === 3) {
+          var txt = c.nodeValue || '';
+          // Turn variable sentinels into placeholder chips
+          var parts = txt.split(VAR_OPEN);
+          out += escText(parts[0].replace(/\u00A0/g, '\u00A0'));
+          for (var p = 1; p < parts.length; p++) {
+            var close = parts[p].indexOf(VAR_CLOSE);
+            if (close === -1) { out += escText(parts[p]); continue; }
+            var name = parts[p].slice(0, close);
+            out += '<span class="ph-tag">[' + escText(name) + ']</span>';
+            out += escText(parts[p].slice(close + 1));
+          }
+          continue;
+        }
+
+        if (c.nodeType !== 1) continue;
+        var tag = c.tagName.toLowerCase();
+
+        if (tag === 'strong' || tag === 'b') {
+          out += '<b>' + inlineToInputHtml(c, where) + '</b>';
+        } else if (tag === 'em' || tag === 'i') {
+          out += '<i>' + inlineToInputHtml(c, where) + '</i>';
+        } else if (tag === 'br') {
+          out += '<br>';
+        } else if (tag === 'a') {
+          var href = c.getAttribute('href') || '';
+          if (href.indexOf(VAR_OPEN) > -1) {
+            fail('A variable inside a link address is not supported (' + where + ').');
+            return '';
+          }
+          out += '<a href="' + escAttr(href) + '">' + inlineToInputHtml(c, where) + '</a>';
+        } else if (tag === 'span') {
+          var sm = styleMap(c);
+          var keys = Object.keys(sm);
+          if (keys.length === 0) {
+            out += inlineToInputHtml(c, where);
+          } else if (keys.length === 1 && keys[0] === 'color') {
+            out += '<span style="color: ' + escAttr(sm.color) + ';">' +
+                   inlineToInputHtml(c, where) + '</span>';
+          } else {
+            fail('Unsupported span style "' + (c.getAttribute('style') || '') + '" (' + where + ').');
+            return '';
+          }
+        } else {
+          fail('Unsupported tag <' + tag + '> inside ' + where + '.');
+          return '';
+        }
+      }
+      return out;
+    }
+
+    // ---------- Stage 2: block content ----------
+
+    function paragraphStyleCfg(el, where) {
+      var sm = styleMap(el);
+      var keys = Object.keys(sm);
+      if (keys.length === 0) return null;
+      var cfg = { size: 'normal', align: 'left', colour: null };
+      for (var k = 0; k < keys.length; k++) {
+        var prop = keys[k];
+        var val = (sm[prop] || '').toLowerCase();
+        if (prop === 'font-size') {
+          if (val === '16pt') cfg.size = 'heading';
+          else if (val === '13pt') cfg.size = 'sub';
+          else { fail('Unsupported font size "' + sm[prop] + '" (' + where + ').'); return null; }
+        } else if (prop === 'font-weight') {
+          if (val !== 'bold' && val !== '700') {
+            fail('Unsupported font weight "' + sm[prop] + '" (' + where + ').');
+            return null;
+          }
+        } else if (prop === 'text-align') {
+          if (val === 'center') cfg.align = 'center';
+          else if (val === 'right') cfg.align = 'right';
+          else if (val !== 'left') { fail('Unsupported alignment "' + sm[prop] + '" (' + where + ').'); return null; }
+        } else if (prop === 'color') {
+          cfg.colour = sm[prop];
+        } else {
+          fail('Unsupported paragraph style "' + prop + '" (' + where + ').');
+          return null;
+        }
+      }
+      return cfg;
+    }
+
+    function styledLineAttrs(cfg) {
+      if (!cfg) return '';
+      var css = '';
+      if (cfg.size === 'heading') css += 'font-size: 23px; font-weight: 700;';
+      else if (cfg.size === 'sub') css += 'font-size: 19px; font-weight: 700;';
+      if (cfg.align === 'center') css += ' text-align: center;';
+      else if (cfg.align === 'right') css += ' text-align: right;';
+      if (cfg.colour) css += ' color: ' + cfg.colour + ';';
+      if (cfg.size === 'normal' && cfg.align === 'left' && !cfg.colour) return '';
+      return ' data-pstyle="' + escAttr(JSON.stringify(cfg)) + '" style="' + escAttr(css.trim()) + '"';
+    }
+
+    function barCfgFromStyle(el, where) {
+      var sm = styleMap(el);
+      var cfg = { colour: '#006400', thickness: 4, sides: [], padding: 15 };
+      var keys = Object.keys(sm);
+      var sawBorder = false;
+      for (var k = 0; k < keys.length; k++) {
+        var prop = keys[k];
+        var val = sm[prop];
+        if (prop === 'padding') {
+          var pm = /^(\d+)px$/.exec(val.trim());
+          if (!pm) { fail('Unsupported bar padding "' + val + '" (' + where + ').'); return null; }
+          cfg.padding = parseInt(pm[1], 10);
+        } else if (prop === 'margin') {
+          // The tool always writes "10px 0"; anything else is a difference we
+          // cannot represent, so treat it as unmapped.
+          if (val.replace(/\s+/g, ' ').trim() !== '10px 0') {
+            fail('Unsupported bar margin "' + val + '" (' + where + ').');
+            return null;
+          }
+        } else if (prop === 'border' || prop === 'border-top' || prop === 'border-right' ||
+                   prop === 'border-bottom' || prop === 'border-left') {
+          var bm = /^(\d+)px\s+solid\s+(.+)$/i.exec(val.trim());
+          if (!bm) { fail('Unsupported border "' + val + '" (' + where + ').'); return null; }
+          cfg.thickness = parseInt(bm[1], 10);
+          cfg.colour = bm[2].trim();
+          sawBorder = true;
+          if (prop === 'border') cfg.sides = ['top', 'right', 'bottom', 'left'];
+          else cfg.sides.push(prop.replace('border-', ''));
+        } else {
+          fail('Unsupported style "' + prop + '" on a bar block (' + where + ').');
+          return null;
+        }
+      }
+      if (!sawBorder) return null;
+      return cfg;
+    }
+
+    function barInlineStyle(cfg) {
+      var edge = cfg.thickness + 'px solid ' + cfg.colour;
+      var css = '';
+      if (cfg.sides.length === 4) css += 'border: ' + edge + ';';
+      else {
+        ['top', 'right', 'bottom', 'left'].forEach(function (s) {
+          if (cfg.sides.indexOf(s) > -1) css += 'border-' + s + ': ' + edge + ';';
+        });
+      }
+      css += ' padding: ' + cfg.padding + 'px; margin: 10px 0;';
+      var tint = hexToRgba(cfg.colour, 0.04);
+      if (tint) css += ' background: ' + tint + ';';
+      return css;
+    }
+
+    // A <table> becomes a pill carrying the same state object the Insert
+    // Table pop-up produces, so it can be opened and edited as normal.
+    function tableToPillHtml(table, where) {
+      var rowsOut = [];
+      var padRight = 0, padBottom = 0;
+      var trs = table.querySelectorAll('tr');
+      if (!trs.length) { fail('A table with no rows was found (' + where + ').'); return ''; }
+
+      var widths = [];
+      for (var r = 0; r < trs.length; r++) {
+        var tds = trs[r].children;
+        var cells = [];
+        for (var c = 0; c < tds.length; c++) {
+          var td = tds[c];
+          if (td.tagName.toLowerCase() !== 'td' && td.tagName.toLowerCase() !== 'th') {
+            fail('Unsupported tag <' + td.tagName.toLowerCase() + '> inside a table (' + where + ').');
+            return '';
+          }
+          if (td.getAttribute('colspan') || td.getAttribute('rowspan')) {
+            fail('Merged table cells (colspan/rowspan) are not supported (' + where + ').');
+            return '';
+          }
+          var sm = styleMap(td);
+          var props = Object.keys(sm);
+          for (var pi = 0; pi < props.length; pi++) {
+            var pr = props[pi];
+            var pv = (sm[pr] || '').trim();
+            var num = /^(\d+)px$/.exec(pv);
+            if (pr === 'padding-right' && num) padRight = parseInt(num[1], 10);
+            else if (pr === 'padding-bottom' && num) padBottom = parseInt(num[1], 10);
+            else {
+              fail('Unsupported table cell style "' + pr + '" (' + where + ').');
+              return '';
+            }
+          }
+          var inner = inlineToInputHtml(td, 'a table cell');
+          if (problems.length) return '';
+          cells.push(inner);
+        }
+        widths.push(cells.length);
+        rowsOut.push(cells);
+      }
+
+      var maxCols = Math.max.apply(null, widths);
+      for (var w = 0; w < widths.length; w++) {
+        if (widths[w] !== maxCols) {
+          fail('This table has rows with different numbers of cells, so the columns cannot be lined up reliably (' + where + ').');
+          return '';
+        }
+      }
+
+      var state = {
+        cols: maxCols,
+        rows: rowsOut.length,
+        padRight: padRight,
+        padBottom: padBottom,
+        cells: rowsOut
+      };
+      return '<div><span class="tbl-pill" contenteditable="false" data-table="' +
+             escAttr(JSON.stringify(state)) + '">' +
+             '<span class="tbl-pill-icon">\u25A6</span> Table ' + state.cols + '\u00D7' + state.rows +
+             '</span></div>';
+    }
+
+    // Convert one top-level block into the markup the Input holds.
+    // Returns { kind, html } where kind is:
+    //   'para'   — a normal or styled line
+    //   'spacer' — a <p>&nbsp;</p> blank paragraph
+    //   'self'   — a table pill, bar block or list, which the Convert walker
+    //              already surrounds with its own paragraph breaks
+    function blockToInputHtml(node, where, insideBar) {
+      if (node.nodeType === 3) {
+        if (isBlankText(node.nodeValue)) return null;
+        return { kind: 'para', html: '<div>' + escText(node.nodeValue.trim()) + '</div>' };
+      }
+      if (node.nodeType !== 1) return null;
+
+      var tag = node.tagName.toLowerCase();
+
+      if (tag === 'p') {
+        var cfg = paragraphStyleCfg(node, where);
+        if (problems.length) return null;
+        var inner = inlineToInputHtml(node, where);
+        if (problems.length) return null;
+        if (isBlankText(node.textContent) && inner.indexOf('<') === -1) {
+          return { kind: 'spacer', html: '<div><br></div>' };
+        }
+        return { kind: 'para', html: '<div' + styledLineAttrs(cfg) + '>' + (inner || '<br>') + '</div>' };
+      }
+
+      if (tag === 'table') {
+        var pillHtml = tableToPillHtml(node, where);
+        if (problems.length) return null;
+        return { kind: 'self', html: pillHtml };
+      }
+
+      if (tag === 'ul' || tag === 'ol') {
+        var items = '';
+        for (var i = 0; i < node.children.length; i++) {
+          var li = node.children[i];
+          if (li.tagName.toLowerCase() !== 'li') {
+            fail('Unsupported tag <' + li.tagName.toLowerCase() + '> inside a list (' + where + ').');
+            return null;
+          }
+          items += '<li>' + inlineToInputHtml(li, 'a list item') + '</li>';
+          if (problems.length) return null;
+        }
+        return { kind: 'self', html: '<' + tag + '>' + items + '</' + tag + '>' };
+      }
+
+      if (tag === 'div') {
+        var barCfg = barCfgFromStyle(node, where);
+        if (problems.length) return null;
+        if (!barCfg) {
+          fail('A <div> was found that is not a bar block (' + where + ').');
+          return null;
+        }
+        if (insideBar) {
+          fail('A bar block inside another bar block is not supported (' + where + ').');
+          return null;
+        }
+        var body = assembleBlocks(node.childNodes, 'inside a bar block', true);
+        if (problems.length) return null;
+        return {
+          kind: 'self',
+          html: '<div class="bar-block" style="' + escAttr(barInlineStyle(barCfg)) +
+                '" data-bar="' + escAttr(JSON.stringify(barCfg)) + '">' + body + '</div>'
+        };
+      }
+
+      fail('Unsupported tag <' + tag + '> (' + where + ').');
+      return null;
+    }
+
+    // Join blocks together with the blank lines the Convert walker expects.
+    // In this tool one blank line ends a paragraph and each further blank line
+    // becomes a <p>&nbsp;</p> spacer, so the separators have to be counted
+    // rather than simply placed between every pair.
+    function assembleBlocks(nodeList, whereBase, insideBar) {
+      var out = '';
+      var prevKind = null;
+      var blockNo = 0;
+      for (var i = 0; i < nodeList.length; i++) {
+        var kid = nodeList[i];
+        if (kid.nodeType === 3 && isBlankText(kid.nodeValue)) continue;
+        blockNo++;
+        var where = insideBar ? whereBase : (whereBase + ' ' + blockNo);
+        var block = blockToInputHtml(kid, where, insideBar);
+        if (problems.length) return '';
+        if (!block) continue;
+
+        if (prevKind !== null) {
+          if (block.kind === 'para' && prevKind === 'para') {
+            out += '<div><br></div>';
+          } else if (block.kind === 'spacer') {
+            out += (prevKind === 'para') ? '<div><br></div>' : '';
+          }
+        }
+        out += block.html;
+        prevKind = block.kind;
+      }
+      return out;
+    }
+
+    // ---------- Driver ----------
+
+    function buildInputHtml(src) {
+      problems = [];
+      var errors = [];
+      var html = csharpToHtml(src, errors);
+      errors.forEach(fail);
+      if (problems.length) return null;
+      if (!html.replace(/\s/g, '')) {
+        fail('Nothing was found to import — check the pasted C# contains an email body.');
+        return null;
+      }
+
+      var doc;
+      try {
+        doc = new DOMParser().parseFromString('<body><div id="idox-import-root">' + html + '</div></body>', 'text/html');
+      } catch (e) {
+        fail('The pasted C# could not be read as HTML.');
+        return null;
+      }
+      var root = doc.getElementById('idox-import-root');
+      if (!root) { fail('The pasted C# could not be read as HTML.'); return null; }
+
+      var out = assembleBlocks(root.childNodes, 'block', false);
+      if (problems.length) return null;
+      if (!out) {
+        fail('Nothing was found to import — check the pasted C# contains an email body.');
+        return null;
+      }
+      return out;
+    }
+
+    function showReport(list) {
+      var html = '<strong>Nothing was imported. The Input box has been left as it was.</strong><ul>';
+      list.forEach(function (p) { html += '<li>' + escText(p) + '</li>'; });
+      html += '</ul>';
+      reportBox.innerHTML = html;
+      reportBox.style.display = '';
+    }
+
+    function openModal() {
+      reportBox.style.display = 'none';
+      reportBox.innerHTML = '';
+      pasteBox.value = '';
+      var hasContent = !isBlankText(box.textContent) || !!box.querySelector('.tbl-pill, .bar-block, img');
+      warnBox.style.display = hasContent ? '' : 'none';
+      okBtn.textContent = hasContent ? 'Replace and import' : 'Import';
+      modal.style.display = '';
+      requestAnimationFrame(function () { modal.classList.add('show'); });
+      setTimeout(function () { pasteBox.focus(); }, 60);
+    }
+
+    function closeModal() {
+      modal.classList.remove('show');
+      setTimeout(function () { modal.style.display = 'none'; }, 200);
+    }
+
+    openBtn.addEventListener('click', openModal);
+    cancelBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.style.display !== 'none') closeModal();
+    });
+
+    okBtn.addEventListener('click', function () {
+      var src = pasteBox.value || '';
+      if (!src.trim()) {
+        showReport(['Nothing was pasted.']);
+        return;
+      }
+      var built = buildInputHtml(src);
+      if (!built) {
+        showReport(problems.slice(0, 12));
+        return;
+      }
+      box.innerHTML = built;
+      // Let the rest of the tool catch up: auto-save, pill handlers, reminder.
+      box.dispatchEvent(new Event('input', { bubbles: true }));
+      closeModal();
+      box.focus();
     });
   })();
 
