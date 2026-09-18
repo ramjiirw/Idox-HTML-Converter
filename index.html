@@ -1620,6 +1620,13 @@
   .import-cs-report strong { display: block; margin-bottom: 6px; }
   .import-cs-report ul { margin: 0; padding-left: 20px; }
   .import-cs-report li { margin: 3px 0; }
+  /* Partial import — the content did come in, so this reads as a notice
+     rather than a failure. */
+  .import-cs-report.is-partial {
+    color: #7a4a00;
+    background: #fff8ec;
+    border-color: #f0d2a4;
+  }
 
   /* The pill inside the Input */
   .tbl-pill {
@@ -3005,7 +3012,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // Single source of truth for the build number shown in the sidebar.
   // Bump this on every save. The month underneath comes from the computer's
   // clock, so it always reads as the current month.
-  var IDOX_BUILD = '3.7';
+  var IDOX_BUILD = '3.8';
   (function () {
     var v = document.getElementById('app-version');
     if (!v) return;
@@ -9177,8 +9184,28 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     var VAR_CLOSE = '\u0002';
 
     var problems = [];
+    var drops = [];
+    var importDone = false;
     function fail(msg) {
       if (problems.indexOf(msg) === -1) problems.push(msg);
+    }
+    // A drop is something the tool cannot represent but can safely leave out:
+    // the import still goes ahead and the item is listed afterwards so nothing
+    // disappears without being reported.
+    function drop(msg) {
+      if (drops.indexOf(msg) === -1) drops.push(msg);
+    }
+    // True when an element holds no words — safe to leave out entirely.
+    function hasWords(el) {
+      return !isBlankText(el.textContent || '');
+    }
+    var BLOCKISH = ['p', 'div', 'table', 'ul', 'ol', 'li', 'blockquote',
+                    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'section', 'article'];
+    function holdsBlocks(el) {
+      for (var i = 0; i < el.children.length; i++) {
+        if (BLOCKISH.indexOf(el.children[i].tagName.toLowerCase()) > -1) return true;
+      }
+      return false;
     }
 
     // ---------- Stage 1: C# source -> a single HTML string ----------
@@ -9327,8 +9354,9 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         } else if (tag === 'a') {
           var href = c.getAttribute('href') || '';
           if (href.indexOf(VAR_OPEN) > -1) {
-            fail('A variable inside a link address is not supported (' + where + ').');
-            return '';
+            drop('A link address built from a variable cannot be kept — the wording stays, the link is removed (' + where + ').');
+            out += inlineToInputHtml(c, where);
+            continue;
           }
           out += '<a href="' + escAttr(href) + '">' + inlineToInputHtml(c, where) + '</a>';
         } else if (tag === 'span') {
@@ -9340,12 +9368,19 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
             out += '<span style="color: ' + escAttr(sm.color) + ';">' +
                    inlineToInputHtml(c, where) + '</span>';
           } else {
-            fail('Unsupported span style "' + (c.getAttribute('style') || '') + '" (' + where + ').');
-            return '';
+            drop('Unsupported span style "' + (c.getAttribute('style') || '') + '" — the wording stays, the styling is removed (' + where + ').');
+            out += inlineToInputHtml(c, where);
           }
-        } else {
-          fail('Unsupported tag <' + tag + '> inside ' + where + '.');
+        } else if (tag === 'img') {
+          // Images are never dropped quietly — losing a logo unnoticed is
+          // worse than being told to deal with it by hand.
+          fail('Images are not supported (' + where + ').');
           return '';
+        } else if (hasWords(c)) {
+          drop('Unsupported tag <' + tag + '> — the wording stays, the formatting is removed (' + where + ').');
+          out += inlineToInputHtml(c, where);
+        } else {
+          drop('Unsupported tag <' + tag + '> left out (' + where + ').');
         }
       }
       return out;
@@ -9364,21 +9399,19 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         if (prop === 'font-size') {
           if (val === '16pt') cfg.size = 'heading';
           else if (val === '13pt') cfg.size = 'sub';
-          else { fail('Unsupported font size "' + sm[prop] + '" (' + where + ').'); return null; }
+          else { drop('Unsupported font size "' + sm[prop] + '" — the wording stays, the size is removed (' + where + ').'); }
         } else if (prop === 'font-weight') {
           if (val !== 'bold' && val !== '700') {
-            fail('Unsupported font weight "' + sm[prop] + '" (' + where + ').');
-            return null;
+            drop('Unsupported font weight "' + sm[prop] + '" — the wording stays, the weight is removed (' + where + ').');
           }
         } else if (prop === 'text-align') {
           if (val === 'center') cfg.align = 'center';
           else if (val === 'right') cfg.align = 'right';
-          else if (val !== 'left') { fail('Unsupported alignment "' + sm[prop] + '" (' + where + ').'); return null; }
+          else if (val !== 'left') { drop('Unsupported alignment "' + sm[prop] + '" — the wording stays, the alignment is removed (' + where + ').'); }
         } else if (prop === 'color') {
           cfg.colour = sm[prop];
         } else {
-          fail('Unsupported paragraph style "' + prop + '" (' + where + ').');
-          return null;
+          drop('Unsupported paragraph style "' + prop + '" — the wording stays, that styling is removed (' + where + ').');
         }
       }
       return cfg;
@@ -9406,26 +9439,22 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         var val = sm[prop];
         if (prop === 'padding') {
           var pm = /^(\d+)px$/.exec(val.trim());
-          if (!pm) { fail('Unsupported bar padding "' + val + '" (' + where + ').'); return null; }
+          if (!pm) return null;
           cfg.padding = parseInt(pm[1], 10);
         } else if (prop === 'margin') {
           // The tool always writes "10px 0"; anything else is a difference we
-          // cannot represent, so treat it as unmapped.
-          if (val.replace(/\s+/g, ' ').trim() !== '10px 0') {
-            fail('Unsupported bar margin "' + val + '" (' + where + ').');
-            return null;
-          }
+          // cannot represent, so this is not a bar block we can keep.
+          if (val.replace(/\s+/g, ' ').trim() !== '10px 0') return null;
         } else if (prop === 'border' || prop === 'border-top' || prop === 'border-right' ||
                    prop === 'border-bottom' || prop === 'border-left') {
           var bm = /^(\d+)px\s+solid\s+(.+)$/i.exec(val.trim());
-          if (!bm) { fail('Unsupported border "' + val + '" (' + where + ').'); return null; }
+          if (!bm) return null;
           cfg.thickness = parseInt(bm[1], 10);
           cfg.colour = bm[2].trim();
           sawBorder = true;
           if (prop === 'border') cfg.sides = ['top', 'right', 'bottom', 'left'];
           else cfg.sides.push(prop.replace('border-', ''));
         } else {
-          fail('Unsupported style "' + prop + '" on a bar block (' + where + ').');
           return null;
         }
       }
@@ -9479,8 +9508,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
             if (pr === 'padding-right' && num) padRight = parseInt(num[1], 10);
             else if (pr === 'padding-bottom' && num) padBottom = parseInt(num[1], 10);
             else {
-              fail('Unsupported table cell style "' + pr + '" (' + where + ').');
-              return '';
+              drop('Unsupported table cell style "' + pr + '" — the cell contents stay, that styling is removed (' + where + ').');
             }
           }
           var inner = inlineToInputHtml(td, 'a table cell');
@@ -9549,8 +9577,14 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         for (var i = 0; i < node.children.length; i++) {
           var li = node.children[i];
           if (li.tagName.toLowerCase() !== 'li') {
-            fail('Unsupported tag <' + li.tagName.toLowerCase() + '> inside a list (' + where + ').');
-            return null;
+            if (hasWords(li)) {
+              drop('Unsupported tag <' + li.tagName.toLowerCase() + '> inside a list — the wording stays as a list item (' + where + ').');
+              items += '<li>' + inlineToInputHtml(li, 'a list item') + '</li>';
+            } else {
+              drop('Unsupported tag <' + li.tagName.toLowerCase() + '> inside a list was left out (' + where + ').');
+            }
+            if (problems.length) return null;
+            continue;
           }
           items += '<li>' + inlineToInputHtml(li, 'a list item') + '</li>';
           if (problems.length) return null;
@@ -9561,13 +9595,19 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       if (tag === 'div') {
         var barCfg = barCfgFromStyle(node, where);
         if (problems.length) return null;
-        if (!barCfg) {
-          fail('A <div> was found that is not a bar block (' + where + ').');
-          return null;
+        if (barCfg && insideBar) {
+          drop('A bar block inside another bar block is not supported — the contents stay, the inner bar is removed (' + where + ').');
+          barCfg = null;
         }
-        if (insideBar) {
-          fail('A bar block inside another bar block is not supported (' + where + ').');
-          return null;
+        if (!barCfg) {
+          // Not a bar block (or one we cannot keep): keep what is inside it
+          // and leave the wrapper out.
+          if (!hasWords(node) && !node.querySelector('table, ul, ol')) {
+            drop('An empty <div> was left out (' + where + ').');
+            return null;
+          }
+          drop('A <div> that is not a bar block was left out — its contents stay (' + where + ').');
+          return { kind: 'self', html: assembleBlocks(node.childNodes, where, insideBar) };
         }
         var body = assembleBlocks(node.childNodes, 'inside a bar block', true);
         if (problems.length) return null;
@@ -9578,8 +9618,24 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
         };
       }
 
-      fail('Unsupported tag <' + tag + '> (' + where + ').');
-      return null;
+      if (tag === 'img') {
+        fail('Images are not supported (' + where + ').');
+        return null;
+      }
+
+      // Any other block-level tag: keep the words, leave the tag out.
+      if (!hasWords(node)) {
+        drop('Unsupported tag <' + tag + '> left out (' + where + ').');
+        return null;
+      }
+      if (holdsBlocks(node)) {
+        drop('Unsupported tag <' + tag + '> — its contents stay, the tag is removed (' + where + ').');
+        return { kind: 'self', html: assembleBlocks(node.childNodes, where, insideBar) };
+      }
+      var kept = inlineToInputHtml(node, where);
+      if (problems.length) return null;
+      drop('Unsupported tag <' + tag + '> — the wording stays, the formatting is removed (' + where + ').');
+      return { kind: 'para', html: '<div>' + kept + '</div>' };
     }
 
     // Join blocks together with the blank lines the Convert walker expects.
@@ -9616,6 +9672,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
 
     function buildInputHtml(src) {
       problems = [];
+      drops = [];
       var errors = [];
       var html = csharpToHtml(src, errors);
       errors.forEach(fail);
@@ -9648,14 +9705,31 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       var html = '<strong>Nothing was imported. The Input box has been left as it was.</strong><ul>';
       list.forEach(function (p) { html += '<li>' + escText(p) + '</li>'; });
       html += '</ul>';
+      reportBox.className = 'import-cs-report';
+      reportBox.innerHTML = html;
+      reportBox.style.display = '';
+    }
+
+    // Shown when the import went ahead but something could not be represented.
+    function showDropReport(list) {
+      var count = list.length;
+      var html = '<strong>Imported — ' + count + ' item' + (count === 1 ? '' : 's') +
+                 ' left out. Everything else is now in the Input box.</strong><ul>';
+      list.forEach(function (p) { html += '<li>' + escText(p) + '</li>'; });
+      html += '</ul>';
+      reportBox.className = 'import-cs-report is-partial';
       reportBox.innerHTML = html;
       reportBox.style.display = '';
     }
 
     function openModal() {
+      importDone = false;
       reportBox.style.display = 'none';
       reportBox.innerHTML = '';
+      reportBox.className = 'import-cs-report';
       pasteBox.value = '';
+      pasteBox.disabled = false;
+      cancelBtn.style.display = '';
       var hasContent = !isBlankText(box.textContent) || !!box.querySelector('.tbl-pill, .bar-block, img');
       warnBox.style.display = hasContent ? '' : 'none';
       okBtn.textContent = hasContent ? 'Replace and import' : 'Import';
@@ -9679,6 +9753,9 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     });
 
     okBtn.addEventListener('click', function () {
+      // After a partial import the button becomes a plain Close.
+      if (importDone) { closeModal(); return; }
+
       var src = pasteBox.value || '';
       if (!src.trim()) {
         showReport(['Nothing was pasted.']);
@@ -9692,6 +9769,17 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       box.innerHTML = built;
       // Let the rest of the tool catch up: auto-save, pill handlers, reminder.
       box.dispatchEvent(new Event('input', { bubbles: true }));
+
+      if (drops.length) {
+        // Keep the modal open so the list of left-out items cannot be missed.
+        importDone = true;
+        pasteBox.disabled = true;
+        cancelBtn.style.display = 'none';
+        okBtn.textContent = 'Close';
+        showDropReport(drops.slice(0, 20));
+        return;
+      }
+
       closeModal();
       box.focus();
     });
