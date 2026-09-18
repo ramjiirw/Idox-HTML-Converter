@@ -3012,7 +3012,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // Single source of truth for the build number shown in the sidebar.
   // Bump this on every save. The month underneath comes from the computer's
   // clock, so it always reads as the current month.
-  var IDOX_BUILD = '3.8';
+  var IDOX_BUILD = '3.9';
   (function () {
     var v = document.getElementById('app-version');
     if (!v) return;
@@ -3204,6 +3204,18 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     return false;
   }
 
+  // Italic detection, mirroring isBoldNode above. Without this the main
+  // Text to HTML converter walked straight past italic text, so the Italic
+  // button styled the Input but the italics never reached the C# output.
+  function isItalicNode(node) {
+    if (node.nodeType !== Node.ELEMENT_NODE) return false;
+    var tag = node.tagName.toLowerCase();
+    if (tag === 'i' || tag === 'em') return true;
+    var fs = node.style && node.style.fontStyle;
+    if (fs === 'italic' || fs === 'oblique') return true;
+    return false;
+  }
+
   function escapeHtml(s) {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
@@ -3291,6 +3303,9 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       var bold = isBoldNode(node);
       if (bold) text += '{{B}}';
 
+      var italic = isItalicNode(node);
+      if (italic) text += '{{I}}';
+
       // Link handling
       var isLink = (tag === 'a' && node.getAttribute && node.getAttribute('href'));
       if (isLink) {
@@ -3345,6 +3360,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
       }
 
       if (isLink) text += '{{/A}}';
+      if (italic) text += '{{/I}}';
       if (bold) text += '{{/B}}';
     }
 
@@ -3363,6 +3379,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
     function inlineMarkers(line) {
       var esc = escapeHtml(line);
       esc = esc.replace(/\{\{B\}\}/g, '<strong>').replace(/\{\{\/B\}\}/g, '</strong>');
+      esc = esc.replace(/\{\{I\}\}/g, '<em>').replace(/\{\{\/I\}\}/g, '</em>');
       // Link markers: {{A|href}}...{{/A}} → <a href="href">...</a>
       esc = esc.replace(/\{\{A\|([^}]+)\}\}/g, function (_, href) {
         return '<a href="' + href.replace(/"/g, '&quot;') + '">';
