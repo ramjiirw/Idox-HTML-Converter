@@ -985,6 +985,8 @@
     transition: opacity 0.2s ease;
   }
   .modal-backdrop.show { opacity: 1; }
+  /* Build 3.10: the confirm box sits above every other pop-up (e.g. Edit table), so it is never hidden behind the box that opened it */
+  #confirm-modal { z-index: 1300; }
   .modal-card {
     background: #fff;
     border-radius: 10px;
@@ -3012,7 +3014,7 @@ Site Address:      <strong><span class="ph">[SiteAddress]</span></strong></p>
   // Single source of truth for the build number shown in the sidebar.
   // Bump this on every save. The month underneath comes from the computer's
   // clock, so it always reads as the current month.
-  var IDOX_BUILD = '3.9';
+  var IDOX_BUILD = '3.10';
   (function () {
     var v = document.getElementById('app-version');
     if (!v) return;
